@@ -1,4 +1,7 @@
 <?php
+
+namespace App\Domain\Entities;
+
 class User 
 {
     public function __construct(
@@ -10,11 +13,11 @@ class User
         public bool $isAdmin = false,
         public bool $isProfessor = false,
         public bool $isMentor = false,
-        public ?DateTime $ultimoAccesso = null
-) {}
+        public ?string $ultimoAccesso = null
+    ) {}
 
-public function isStaff(): bool {
-    return $this->isAdmin || $this->isProfessor || $this->isMentor;
-}
+    public function isStaff(): bool {
+        return $this->isAdmin || $this->isProfessor || $this->isMentor;
+    }
 }
 ?>

@@ -1,4 +1,12 @@
 <?php
+
+namespace App\Infrastructure\Persistence;
+
+use App\Domain\Repositories\UserRepositoryInterface;
+use App\Domain\Entities\User;
+use App\Infrastructure\Database\DatabaseConnection;
+use mysqli;
+
 class MySQLUserRepository implements UserRepositoryInterface 
 {
     private mysqli $conn;
@@ -26,7 +34,6 @@ class MySQLUserRepository implements UserRepositoryInterface
 
         return $data ? $this->mapToUser($data) : null;
     }
-
 
     public function save(User $user): void {
         $stmt = $this->conn->prepare(

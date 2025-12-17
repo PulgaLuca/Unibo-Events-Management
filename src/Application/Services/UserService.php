@@ -1,7 +1,10 @@
 <?php
 
-require_once __DIR__ . '/../../Domain/Entities/User.php';
-require_once __DIR__ . '/../../Domain/Repositories/UserRepositoryInterface.php';
+namespace App\Application\Services;
+
+use App\Domain\Repositories\UserRepositoryInterface;
+use App\Domain\Entities\User;
+use Exception;
 
 class UserService
 {

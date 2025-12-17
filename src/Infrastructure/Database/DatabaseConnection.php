@@ -1,4 +1,10 @@
 <?php
+
+namespace App\Infrastructure\Database;
+
+use mysqli;
+use Exception;
+
 class DatabaseConnection {
 
     public static function getConnection(): mysqli {

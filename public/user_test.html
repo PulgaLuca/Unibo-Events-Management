@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <title>UserService Test</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+
+<div class="container mt-5">
+  <h2 class="mb-4">Test UserService</h2>
+
+  <div class="card mb-4">
+    <div class="card-body">
+      <h5>Registrazione</h5>
+      <input id="r_nome" class="form-control mb-2" placeholder="Nome">
+      <input id="r_cognome" class="form-control mb-2" placeholder="Cognome">
+      <input id="r_email" class="form-control mb-2" placeholder="Email">
+      <input id="r_password" type="password" class="form-control mb-2" placeholder="Password">
+      <button class="btn btn-success w-100" onclick="register()">Registra</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-body">
+      <h5>Login</h5>
+      <input id="l_email" class="form-control mb-2" placeholder="Email">
+      <input id="l_password" type="password" class="form-control mb-2" placeholder="Password">
+      <button class="btn btn-primary w-100" onclick="login()">Login</button>
+    </div>
+  </div>
+
+  <div id="output" class="alert alert-info mt-4 d-none"></div>
+</div>
+
+<script src="assets/js/user-test.js"></script>
+</body>
+</html>

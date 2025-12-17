@@ -1,0 +1,11 @@
+{
+  "name": "unibo-events-management/app",
+  "description": "Unibo Official Challenges & Events",
+  "type": "project",
+  "autoload": {
+    "psr-4": {
+      "App\\": "src/"
+    }
+  },
+  "require": {}
+}

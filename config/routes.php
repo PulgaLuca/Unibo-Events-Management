@@ -7,8 +7,8 @@ use App\Presentation\Controllers\HomeController;
 
 return [
     ['GET', '/', [HomeController::class, 'index']],
-    ['POST', '/register', [AuthController::class, 'register']],
-    ['POST', '/login', [AuthController::class, 'login']],
-    ['POST', '/logout', [AuthController::class, 'logout']],
+    // ['POST', '/register', [AuthController::class, 'register']],
+    // ['POST', '/login', [AuthController::class, 'login']],
+    // ['POST', '/logout', [AuthController::class, 'logout']],
     // Add other routes as needed
 ];

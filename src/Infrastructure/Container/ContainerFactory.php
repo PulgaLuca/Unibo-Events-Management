@@ -12,7 +12,7 @@ class ContainerFactory
     public static function build(): ContainerInterface
     {
         $builder = new ContainerBuilder();
-        $definitions = require __DIR__ . '/../../config/container.php';
+        $definitions = require __DIR__ . '/../../../config/container.php';
         $builder->addDefinitions($definitions);
 
         return $builder->build();

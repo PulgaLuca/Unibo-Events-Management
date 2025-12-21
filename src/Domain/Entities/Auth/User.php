@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Domain\Entities;
+namespace App\Domain\Entities\Auth;
 
 use App\Domain\Traits\HasAttributes;
 

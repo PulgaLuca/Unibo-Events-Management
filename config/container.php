@@ -4,7 +4,11 @@ declare(strict_types=1);
 
 use App\Infrastructure\Database\PdoConnection;
 use App\Infrastructure\Http\Router;
-use Delight\Auth\Auth;
+use App\Infrastructure\Persistence\Mysql\Auth\UserRepository;
+use App\Infrastructure\Persistence\Mysql\Auth\SessionRepository;
+use App\Domain\Repositories\Auth\IUserRepository;
+use App\Domain\Repositories\Auth\ISessionRepository;
+use App\Application\Services\Auth\AuthService;
 use Psr\Container\ContainerInterface;
 use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
@@ -12,9 +16,6 @@ use Twig\Loader\FilesystemLoader;
 return [
     \PDO::class => static function (): \PDO {
         return (new PdoConnection())->getPdo();
-    },
-    Auth::class => static function (ContainerInterface $container): Auth {
-        return new Auth($container->get(\PDO::class));
     },
     Router::class => static function (ContainerInterface $container): Router {
         $routes = require __DIR__ . '/routes.php';
@@ -28,5 +29,17 @@ return [
             'debug' => getenv('APP_ENV') !== 'production',
         ]);
         return $twig;
+    },
+    IUserRepository::class => static function (ContainerInterface $container): IUserRepository {
+        return new UserRepository($container->get(\PDO::class));
+    },
+    ISessionRepository::class => static function (ContainerInterface $container): ISessionRepository {
+        return new SessionRepository($container->get(\PDO::class));
+    },
+    AuthService::class => static function (ContainerInterface $container): AuthService {
+        return new AuthService(
+            $container->get(IUserRepository::class),
+            $container->get(ISessionRepository::class)
+        );
     },
 ];

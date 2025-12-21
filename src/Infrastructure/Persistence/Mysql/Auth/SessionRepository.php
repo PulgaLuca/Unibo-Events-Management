@@ -23,14 +23,14 @@ class SessionRepository implements ISessionRepository
         $query = "SELECT * FROM {$this->table} WHERE token_hash = ? AND expires_at > NOW()";
         $stmt = $this->pdo->prepare($query);
         $stmt->execute([$tokenHash]);
-        $stmt->setFetchMode(PDO::FETCH_CLASS, 'Session');
+        $stmt->setFetchMode(PDO::FETCH_CLASS, Session::class);
         return $stmt->fetch();
     }
 
     public function create(Session $session): Session
     {
         $query = "INSERT INTO {$this->table} (user_id, token_hash, user_agent, expires_at, created_at, updated_at) 
-                  VALUES (?, ?, ?, ?, ?, NOW(), NOW())";
+                  VALUES (?, ?, ?, ?, NOW(), NOW())";
         
         $stmt = $this->pdo->prepare($query);
         $stmt->execute([

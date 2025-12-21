@@ -38,19 +38,26 @@ class UserController
         $data = $request->getParsedBody();
         $email = trim($data['email'] ?? '');
         $password = $data['password'] ?? '';
-        $first_name = trim($data['first_name']) ?? null;
-        $last_name = trim($data['last_name']) ?? null;
-        $role = trim($data['role']) ?? null;
+        $first_name = trim($data['first_name'] ?? '');
+        $last_name = trim($data['last_name'] ?? '');
+        $role = trim($data['role'] ?? '');
 
         try {
-            $user = $this->authService->register($email, $password, 
-                                    $first_name, $last_name, $role);
-            return Response::json([
-                'message' => 'User registered successfully',
-                'user_id' => $user->id,
-            ], 201);
+            $user = $this->authService->register($email, $password, $first_name, $last_name, $role);
+            
+            // Redirect to login page with success message
+            $html = $this->twig->render('register.twig', [
+                'success' => 'Registration successful! Please login.',
+                'email' => $email,
+            ]);
+            return Response::html($html);
         } catch (Exception $e) {
-            return Response::json(['error' => $e->getMessage()], 400);
+            // Re-render form with error
+            $html = $this->twig->render('register.twig', [
+                'error' => $e->getMessage(),
+                'email' => $email,
+            ]);
+            return Response::html($html, 400);
         }
     }
 
@@ -74,12 +81,17 @@ class UserController
 
         try {
             $token = $this->authService->login($email, $password);
-            return Response::json([
-                'message' => 'Login successful',
-                'token' => $token,
-            ]);
+            
+            // Redirect to home page after successful login
+            header('Location: /');
+            exit;
         } catch (Exception $e) {
-            return Response::json(['error' => $e->getMessage()], 401);
+            // Re-render form with error
+            $html = $this->twig->render('login.twig', [
+                'error' => $e->getMessage(),
+                'email' => $email
+            ]);
+            return Response::html($html, 401);
         }
     }
 

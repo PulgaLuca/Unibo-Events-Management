@@ -23,7 +23,7 @@ class UserRepository implements IUserRepository
         $query = "SELECT * FROM {$this->table} WHERE id = ?";
         $stmt = $this->pdo->prepare($query);
         $stmt->execute([$userId]);
-        $stmt->setFetchMode(PDO::FETCH_CLASS, 'User');
+        $stmt->setFetchMode(PDO::FETCH_CLASS, User::class);
         return $stmt->fetch();
     }
 
@@ -32,20 +32,19 @@ class UserRepository implements IUserRepository
         $query = "SELECT * FROM {$this->table} WHERE email = ?";
         $stmt = $this->pdo->prepare($query);
         $stmt->execute([$email]);
-        $stmt->setFetchMode(PDO::FETCH_CLASS, 'User');
+        $stmt->setFetchMode(PDO::FETCH_CLASS, User::class);
         return $stmt->fetch();
     }
 
     public function create(User $user): User
     {
-        $query = "INSERT INTO {$this->table} (email, password, username, first_name, last_name, role, created_at, updated_at) 
-                  VALUES (?, ?, ?, ?, ?, ?, NOW(), NOW())";
+        $query = "INSERT INTO {$this->table} (email, password, first_name, last_name, role, created_at, updated_at) 
+                  VALUES (?, ?, ?, ?, ?, NOW(), NOW())";
         
         $stmt = $this->pdo->prepare($query);
         $stmt->execute([
             $user->email,
             password_hash($user->password, PASSWORD_BCRYPT),
-            $user->username,
             $user->first_name,
             $user->last_name,
             $user->role,
@@ -58,14 +57,13 @@ class UserRepository implements IUserRepository
 
     public function update(User $user): bool
     {
-        $query = "UPDATE {$this->table} SET email = ?, password = ?, username = ?, first_name = ?, last_name = ?, role = ?, updated_at = NOW() 
+        $query = "UPDATE {$this->table} SET email = ?, password = ?, first_name = ?, last_name = ?, role = ?, updated_at = NOW() 
                   WHERE id = ?";
         
         $stmt = $this->pdo->prepare($query);
         return $stmt->execute([
             $user->email,
             password_hash($user->password, PASSWORD_BCRYPT),
-            $user->username,
             $user->first_name,
             $user->last_name,
             $user->role,

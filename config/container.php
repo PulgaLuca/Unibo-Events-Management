@@ -26,7 +26,7 @@ return [
         $twig = new Environment($loader, [
             'cache' => __DIR__ . '/../storage/cache/views',
             'auto_reload' => true,
-            'debug' => getenv('APP_ENV') !== 'production',
+            'debug' => ($_ENV['APP_ENV'] ?? 'development') !== 'production',
         ]);
         return $twig;
     },

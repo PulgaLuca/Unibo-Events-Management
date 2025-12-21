@@ -12,12 +12,12 @@ class PdoConnection
 {
     public function getPdo(): PDO
     {
-        $host = getenv('DB_HOST') ?: 'localhost';
-        $port = getenv('DB_PORT') ?: '3306';
-        $database = getenv('DB_NAME') ?: 'unibo_matchskills_db';
-        $charset = getenv('DB_CHARSET') ?: 'utf8mb4';
-        $username = getenv('DB_USER') ?: getenv('DB_USERNAME') ?: 'root';
-        $password = getenv('DB_PASSWORD') ?: '';
+        $host = $_ENV['DB_HOST'] ?? 'localhost';
+        $port = $_ENV['DB_PORT'] ?? '3306';
+        $database = $_ENV['DB_NAME'] ?? 'unibo_matchskills_db';
+        $charset = $_ENV['DB_CHARSET'] ?? 'utf8mb4';
+        $username = $_ENV['DB_USER'] ?? $_ENV['DB_USERNAME'] ?? 'root';
+        $password = $_ENV['DB_PASSWORD'] ?? '';
 
         $dsn = "mysql:host={$host};port={$port};dbname={$database};charset={$charset}";
 

@@ -44,7 +44,7 @@ class UserRepository implements IUserRepository
         $stmt = $this->pdo->prepare($query);
         $stmt->execute([
             $user->email,
-            password_hash($user->password, PASSWORD_BCRYPT),
+            $user->password,
             $user->first_name,
             $user->last_name,
             $user->role,
@@ -63,7 +63,7 @@ class UserRepository implements IUserRepository
         $stmt = $this->pdo->prepare($query);
         return $stmt->execute([
             $user->email,
-            password_hash($user->password, PASSWORD_BCRYPT),
+            $user->password,
             $user->first_name,
             $user->last_name,
             $user->role,

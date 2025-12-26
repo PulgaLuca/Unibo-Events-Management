@@ -81,10 +81,7 @@ class UserController
 
         try {
             $token = $this->authService->login($email, $password);
-            
-            // Redirect to home page after successful login
-            header('Location: /');
-            exit;
+            return Response::redirect($_ENV['APP_URL']);
         } catch (Exception $e) {
             // Re-render form with error
             $html = $this->twig->render('login.twig', [
@@ -101,6 +98,6 @@ class UserController
     public function logout(): Response
     {
         $this->authService->logout();
-        return Response::json(['message' => 'Logged out successfully']);
+        return Response::redirect($_ENV['APP_URL'] . '/login');
     }
 }

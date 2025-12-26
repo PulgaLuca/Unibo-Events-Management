@@ -21,15 +21,6 @@ return [
         $routes = require __DIR__ . '/routes.php';
         return new Router($container, $routes);
     },
-    Environment::class => static function (): Environment {
-        $loader = new FilesystemLoader(__DIR__ . '/../resources/views');
-        $twig = new Environment($loader, [
-            'cache' => __DIR__ . '/../storage/cache/views',
-            'auto_reload' => true,
-            'debug' => ($_ENV['APP_ENV'] ?? 'development') !== 'production',
-        ]);
-        return $twig;
-    },
     IUserRepository::class => static function (ContainerInterface $container): IUserRepository {
         return new UserRepository($container->get(\PDO::class));
     },
@@ -41,5 +32,17 @@ return [
             $container->get(IUserRepository::class),
             $container->get(ISessionRepository::class)
         );
+    },
+    Environment::class => static function (ContainerInterface $container): Environment {
+        $loader = new FilesystemLoader(__DIR__ . '/../resources/views');
+        $twig = new Environment($loader, [
+            'cache' => __DIR__ . '/../storage/cache/views',
+            'auto_reload' => true,
+            'debug' => ($_ENV['APP_ENV'] ?? 'development') !== 'production',
+        ]);  
+        // Add global twig variables
+        $authService = $container->get(AuthService::class);
+        $twig->addGlobal('user', $authService->getCurrentUser());
+        return $twig;
     },
 ];

@@ -11,5 +11,5 @@ return [
     ['POST', '/register', [UserController::class, 'submitRegister']],
     ['GET', '/login', [UserController::class, 'showLogin']],
     ['POST', '/login', [UserController::class, 'submitLogin']],
-    ['POST', '/logout', [UserController::class, 'logout']],
+    [['GET','POST'], '/logout', [UserController::class, 'logout']],
 ];

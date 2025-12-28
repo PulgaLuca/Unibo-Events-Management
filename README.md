@@ -37,7 +37,20 @@ php vendor/bin/phinx status -c config/phinx.php
 php vendor/bin/phinx migrate -c config/phinx.php
 ```
 
-## 5) Start the development server
+## 5) Run seeders (Phinx)
+Phinx is configured via `config/phinx.php` and stores seed files under `database/seeds`.
+
+- Windows (Composer vendor binaries):
+```bash
+php vendor\bin\phinx seed:run -c config\phinx.php
+```
+
+- Cross-platform alternative:
+```bash
+php vendor/bin/phinx seed:run -c config/phinx.php
+```
+
+## 6) Start the development server
 Serve the app from the `public` directory:
 ```bash
 php -S localhost:8000 -t public

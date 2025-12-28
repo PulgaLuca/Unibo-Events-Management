@@ -12,4 +12,10 @@ trait HasAttributes
     public function __set($name, $value): void {
         $this->attributes[$name] = $value;
     }
+    public function __isset($name): bool {
+        return isset($this->attributes[$name]);
+    }
+    public function toArray(): array {
+        return $this->attributes;
+    }
 }

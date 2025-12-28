@@ -6,8 +6,10 @@ use App\Infrastructure\Database\PdoConnection;
 use App\Infrastructure\Http\Router;
 use App\Infrastructure\Persistence\Mysql\Auth\UserRepository;
 use App\Infrastructure\Persistence\Mysql\Auth\SessionRepository;
+use App\Infrastructure\Persistence\Mysql\Skill\SkillRepository;
 use App\Domain\Repositories\Auth\IUserRepository;
 use App\Domain\Repositories\Auth\ISessionRepository;
+use App\Domain\Repositories\Skill\ISkillRepository;
 use App\Application\Services\Auth\AuthService;
 use Psr\Container\ContainerInterface;
 use Twig\Environment;
@@ -26,6 +28,9 @@ return [
     },
     ISessionRepository::class => static function (ContainerInterface $container): ISessionRepository {
         return new SessionRepository($container->get(\PDO::class));
+    },
+    ISkillRepository::class => static function (ContainerInterface $container): ISkillRepository {
+        return new SkillRepository($container->get(\PDO::class));
     },
     AuthService::class => static function (ContainerInterface $container): AuthService {
         return new AuthService(

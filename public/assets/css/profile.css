@@ -1,0 +1,38 @@
+.skill-card {
+  transition: all 0.2s;
+  border: 1px solid #dee2e6;
+  cursor: pointer;
+}
+
+.skill-card:hover {
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+  transform: translateY(-1px);
+}
+
+.skill-card.selected {
+  border-color: var(--color-primary);
+  background-color: #f8f9fa;
+}
+
+.skill-level-selector {
+  display: none;
+}
+
+.skill-card.selected .skill-level-selector {
+  display: block;
+}
+
+.level-badge {
+  font-size: 0.75rem;
+  padding: 0.25rem 0.5rem;
+}
+
+.category-section {
+  margin-bottom: 2rem;
+}
+
+.skill-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+}

@@ -58,3 +58,21 @@ a:hover { color: var(--color-primary-light); text-decoration: underline; }
 .btn-primary:hover, .btn-primary:focus { background-color: var(--color-primary-light); border-color: var(--color-primary-light); }
 
 .card { background: #ffffff; border: 1px solid rgba(0,0,0,.06); border-radius: .75rem; box-shadow: 0 4px 10px rgba(0,0,0,.04); }
+
+.navbar-logo {
+    height: 50px; 
+    width: auto;
+    margin-right: 12px;
+    transition: transform 0.2s ease-in-out;
+}
+
+.navbar-logo:hover {
+    transform: scale(1.05);
+}
+
+.navbar-brand {
+    display: flex;
+    align-items: center;
+    padding-top: 5px;
+    padding-bottom: 5px;
+}

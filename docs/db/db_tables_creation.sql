@@ -46,13 +46,6 @@ CREATE TABLE PARTICIPATION_TYPE (
     PRIMARY KEY (type_id)
 ) ENGINE=InnoDB;
 
--- Table: TAG (for events)
-CREATE TABLE TAG (
-    tag_id CHAR(36) NOT NULL,
-    name VARCHAR(100) NOT NULL UNIQUE,
-    PRIMARY KEY (tag_id)
-) ENGINE=InnoDB;
-
 -- *******************************************
 -- II. Profiling Entities
 -- *******************************************
@@ -134,15 +127,6 @@ CREATE TABLE EVENT (
 
 CREATE INDEX idx_event_type ON EVENT (type_id);
 CREATE INDEX idx_event_start_date ON EVENT (start_date);
-
--- Table: EVENT_TAG (Many-to-Many)
-CREATE TABLE EVENT_TAG (
-    event_id CHAR(36) NOT NULL,
-    tag_id CHAR(36) NOT NULL,
-    PRIMARY KEY (event_id, tag_id),
-    FOREIGN KEY (event_id) REFERENCES EVENT (event_id) ON DELETE CASCADE,
-    FOREIGN KEY (tag_id) REFERENCES TAG (tag_id) ON DELETE RESTRICT
-) ENGINE=InnoDB;
 
 -- Table: EVENT_REQUIRED_SKILL (Many-to-Many)
 CREATE TABLE EVENT_REQUIRED_SKILL (

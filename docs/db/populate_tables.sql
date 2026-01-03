@@ -21,12 +21,6 @@ INSERT INTO PARTICIPATION_TYPE (type_id, name) VALUES
 ('PT01', 'On-site'),
 ('PT02', 'Remote');
 
-INSERT INTO TAG (tag_id, name) VALUES
-('TAG01', 'AI'),
-('TAG02', 'Coding'),
-('TAG03', 'Cybersecurity'),
-('TAG04', 'Networking');
-
 -- *******************************************
 -- II. User Population
 -- *******************************************
@@ -103,9 +97,8 @@ INSERT INTO EVENT (event_id, title, description, start_date, end_date, location,
 INSERT INTO EVENT (event_id, title, description, start_date, end_date, location, url, registration_deadline, min_participants, max_participants, status, type_id, participation_type_id, creator_user_id) VALUES
 ('E003', 'National Cybersecurity Contest', 'National CTF (Capture The Flag) competition.', '2026-04-01 10:00:00', NULL, 'Rome Fiere', 'http://www.national-ctf.it', '2026-03-15 23:59:59', 3, 5, 'Active', 'ET03', 'PT01', 'U001');
 
--- Event Skills and Tags
+-- Event Skills
 INSERT INTO EVENT_REQUIRED_SKILL (event_id, skill_id) VALUES ('E001', 'S001'), ('E001', 'S002'), ('E002', 'S004');
-INSERT INTO EVENT_TAG (event_id, tag_id) VALUES ('E001', 'TAG01'), ('E001', 'TAG02'), ('E002', 'TAG04'), ('E003', 'TAG03');
 
 -- Participation records
 INSERT INTO EVENT_PARTICIPATION (participation_id, event_id, team_id, role) VALUES ('P001', 'E001', 'T002', 'Participant');

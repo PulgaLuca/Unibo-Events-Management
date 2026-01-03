@@ -1,0 +1,23 @@
+{% extends 'layouts/base.twig' %}
+
+{% block title %}Event Details{% endblock %}
+
+{% block content %}
+<h1>{{ event.title }}</h1>
+
+<p><strong>Description:</strong> {{ event.description }}</p>
+<p><strong>Start:</strong> {{ event.startDate|date('Y-m-d H:i') }}</p>
+<p><strong>End:</strong>
+    {{ event.endDate ? event.endDate|date('Y-m-d H:i') : '—' }}
+</p>
+<p><strong>Status:</strong> {{ event.status.value }}</p>
+<p><strong>Location:</strong> {{ event.location }}</p>
+<p><strong>URL:</strong>
+    {% if event.url %}
+        <a href="{{ event.url }}">{{ event.url }}</a>
+    {% endif %}
+</p>
+
+<a href="/events/{{ event.eventId }}/edit">Edit</a> |
+<a href="/events">Back to list</a>
+{% endblock %}

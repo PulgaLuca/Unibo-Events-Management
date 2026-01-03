@@ -1,0 +1,42 @@
+{% extends 'layouts/base.twig' %}
+
+{% block title %}Events{% endblock %}
+
+{% block content %}
+<h1>Events</h1>
+
+<a href="/events/create">Create new event</a>
+
+<table border="1" cellpadding="8" cellspacing="0">
+    <thead>
+        <tr>
+            <th>Title</th>
+            <th>Start</th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for event in events %}
+        <tr>
+            <td>{{ event.title }}</td>
+            <td>{{ event.startDate|date('Y-m-d H:i') }}</td>
+            <td>{{ event.status.value }}</td>
+            <td>
+                <a href="/events/{{ event.eventId }}">View</a> |
+                <a href="/events/{{ event.eventId }}/edit">Edit</a> |
+                <form action="/events/{{ event.eventId }}/delete" method="post" style="display:inline;">
+                    <button type="submit" onclick="return confirm('Delete this event?')">
+                        Delete
+                    </button>
+                </form>
+            </td>
+        </tr>
+    {% else %}
+        <tr>
+            <td colspan="4">No events found.</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

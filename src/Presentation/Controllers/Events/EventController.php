@@ -24,7 +24,7 @@ class EventController
     /**
      * List all events
      */
-    public function index(Request $request): Response
+    public function index(): Response
     {
         $events = $this->eventService->findAll();
 
@@ -38,7 +38,7 @@ class EventController
     /**
      * Show create event form
      */
-    public function createEvent(Request $request): Response
+    public function createEvent(): Response
     {
         $html = $this->twig->render('events/create.twig');
         return Response::html($html);
@@ -68,7 +68,7 @@ class EventController
     /**
      * Show single event
      */
-    public function showEvent(Request $request, string $id): Response
+    public function showEvent(string $id): Response
     {
         try {
             $event = $this->eventService->findById($id);
@@ -86,7 +86,7 @@ class EventController
     /**
      * Show edit event form
      */
-    public function editEvent(Request $request, string $id): Response
+    public function editEvent(string $id): Response
     {
         try {
             $event = $this->eventService->findById($id);
@@ -125,7 +125,7 @@ class EventController
     /**
      * Delete event
      */
-    public function deleteEvent(Request $request, string $id): Response
+    public function deleteEvent(string $id): Response
     {
         try {
             $this->eventService->delete($id);

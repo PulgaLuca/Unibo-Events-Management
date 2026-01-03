@@ -26,6 +26,14 @@
 </div>
 
 <div>
+    <label>Registration deadline</label><br>
+    <input type="datetime-local" name="registration_deadline"
+           value="{{ data.registrationDeadline is defined and data.registrationDeadline
+                ? data.registrationDeadline|date('Y-m-d\\TH:i')
+                : data.registration_deadline|default('') }}">
+</div>
+
+<div>
     <label>Status</label><br>
     <select name="status" required>
         {% for s in ['Draft','Active','Completed','Cancelled'] %}
@@ -60,3 +68,29 @@
     <input type="url" name="url"
            value="{{ data.url|default('') }}">
 </div>
+
+<div>
+    <label>Event type</label><br>
+    <select name="type_id" required>
+        {% for type in types %}
+            <option value="{{ type.id }}"
+                {% if data.typeId is defined and data.typeId == type.id %}selected{% endif %}>
+                {{ type.name }}
+            </option>
+        {% endfor %}
+    </select>
+</div>
+
+<div>
+    <label>Participation type</label><br>
+    <select name="participation_type_id" required>
+        {% for p in participationTypes %}
+            <option value="{{ p.id }}"
+                {% if data.participationTypeId is defined and data.participationTypeId == p.id %}selected{% endif %}>
+                {{ p.name }}
+            </option>
+        {% endfor %}
+    </select>
+</div>
+
+<input type="hidden" name="creator_user_id" value="{{ user.id }}">

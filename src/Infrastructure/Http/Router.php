@@ -35,9 +35,34 @@ class Router
                 return Response::json(['error' => 'Method not allowed'], 405);
             case Dispatcher::FOUND:
                 $handler = $routeInfo[1];
-                $vars = $routeInfo[2];
+                $vars    = $routeInfo[2];
+
                 $callable = $this->resolveHandler($handler);
-                $result = $callable($request, $vars);
+
+                // Utilizzo delle Reflections per iniettare i parametri giusti in quanto avendo definito Request come 1° parametro formale,
+                // in alcuni casi, ad esempio quando ho differenziazione tra GET e POST (showEvent, updateEvent), posso averne la necessità o meno 
+                // di passare come 1° argomento un oggetto di tipo Request o un oggetto di tipo String.
+                $reflection = new \ReflectionFunction(\Closure::fromCallable($callable));
+                $arguments = [];
+
+                foreach ($reflection->getParameters() as $parameter) {
+                    $type = $parameter->getType();
+                    if ($type && $type instanceof \ReflectionNamedType) {
+                        if ($type->getName() === Request::class) {
+                            $arguments[] = $request;
+                            continue;
+                        }
+                    }
+                    $name = $parameter->getName();
+                    if (array_key_exists($name, $vars)) {
+                        $arguments[] = $vars[$name];
+                        continue;
+                    }
+                    throw new \RuntimeException(
+                        "Cannot resolve parameter '{$name}' for route handler"
+                    );
+                }
+                $result = $callable(...$arguments);
 
                 if ($result instanceof Response) {
                     return $result;
@@ -48,6 +73,7 @@ class Router
                 }
 
                 return Response::text((string) $result);
+
             default:
                 return Response::json(['error' => 'Unexpected routing state'], 500);
         }

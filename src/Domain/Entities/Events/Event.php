@@ -1,108 +1,199 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Domain\Entities\Events;
 
-class Event {
-    private $eventId;
-    private $title;
-    private $description;
-    private $startDate;
-    private $endDate;
-    private $location;
-    private $url;
-    private $registrationDeadline;
-    private $minParticipants;
-    private $maxParticipants;
-    private $status;
-    private $typeId;
-    private $participationTypeId;
-    private $creatorUserId;
-    private $creatorTeamId;
-    
-    private $eventType;
-    private $participationType;
-    private $tags = [];
-    private $requiredSkills = [];
-    private $participations = [];
-    
-    public function __construct($data = []) {
-        if (!empty($data)) {
-            $this->hydrate($data);
+use DateTime;
+use InvalidArgumentException;
+
+class Event
+{
+    private string $eventId;
+    private string $title;
+    private ?string $description;
+    private DateTime $startDate;
+    private ?DateTime $endDate;
+    private ?string $location;
+    private ?string $url;
+    private ?DateTime $registrationDeadline;
+    private int $minParticipants;
+    private ?int $maxParticipants;
+    private EventStatus $status;
+    private string $typeId;
+    private string $participationTypeId;
+    private ?string $creatorUserId;
+    private ?string $creatorTeamId;
+
+    public function __construct(
+        string $eventId,
+        string $title,
+        ?string $description,
+        DateTime $startDate,
+        ?DateTime $endDate,
+        ?string $location,
+        ?string $url,
+        ?DateTime $registrationDeadline,
+        int $minParticipants,
+        ?int $maxParticipants,
+        EventStatus $status,
+        string $typeId,
+        string $participationTypeId,
+        ?string $creatorUserId,
+        ?string $creatorTeamId
+    ) {
+        $this->assertValidDates($startDate, $endDate, $registrationDeadline);
+        $this->assertValidParticipants($minParticipants, $maxParticipants);
+
+        $this->eventId = $eventId;
+        $this->title = $title;
+        $this->description = $description;
+        $this->startDate = $startDate;
+        $this->endDate = $endDate;
+        $this->location = $location;
+        $this->url = $url;
+        $this->registrationDeadline = $registrationDeadline;
+        $this->minParticipants = $minParticipants;
+        $this->maxParticipants = $maxParticipants;
+        $this->status = $status;
+        $this->typeId = $typeId;
+        $this->participationTypeId = $participationTypeId;
+        $this->creatorUserId = $creatorUserId;
+        $this->creatorTeamId = $creatorTeamId;
+    }
+
+    /**
+     * Update mutable fields
+     */
+    public function update(
+        string $title,
+        ?string $description,
+        DateTime $startDate,
+        ?DateTime $endDate,
+        ?string $location,
+        ?string $url,
+        ?DateTime $registrationDeadline,
+        int $minParticipants,
+        ?int $maxParticipants,
+        EventStatus $status
+    ): void {
+        $this->assertValidDates($startDate, $endDate, $registrationDeadline);
+        $this->assertValidParticipants($minParticipants, $maxParticipants);
+
+        $this->title = $title;
+        $this->description = $description;
+        $this->startDate = $startDate;
+        $this->endDate = $endDate;
+        $this->location = $location;
+        $this->url = $url;
+        $this->registrationDeadline = $registrationDeadline;
+        $this->minParticipants = $minParticipants;
+        $this->maxParticipants = $maxParticipants;
+        $this->status = $status;
+    }
+
+    /**
+     * Domain invariants
+     */
+    private function assertValidDates(DateTime $startDate, ?DateTime $endDate, ?DateTime $registrationDeadline): void 
+    {
+        if ($endDate !== null && $endDate < $startDate) {
+            throw new InvalidArgumentException('End date cannot be before start date');
+        }
+
+        if ($registrationDeadline !== null && $registrationDeadline > $startDate) {
+            throw new InvalidArgumentException(
+                'Registration deadline cannot be after event start date'
+            );
         }
     }
-    
-    private function hydrate($data) {
-        foreach ($data as $key => $value) {
-            $method = 'set' . str_replace('_', '', ucwords($key, '_'));
-            if (method_exists($this, $method)) {
-                $this->$method($value);
-            }
+
+    private function assertValidParticipants(int $minParticipants, ?int $maxParticipants): void 
+    {
+        if ($minParticipants < 0) {
+            throw new InvalidArgumentException('Min participants cannot be negative');
+        }
+
+        if ($maxParticipants !== null && $minParticipants > $maxParticipants) {
+            throw new InvalidArgumentException(
+                'Min participants cannot exceed max participants'
+            );
         }
     }
-    
-    // Getters
-    public function getEventId() { return $this->eventId; }
-    public function getTitle() { return $this->title; }
-    public function getDescription() { return $this->description; }
-    public function getStartDate() { return $this->startDate; }
-    public function getEndDate() { return $this->endDate; }
-    public function getLocation() { return $this->location; }
-    public function getUrl() { return $this->url; }
-    public function getRegistrationDeadline() { return $this->registrationDeadline; }
-    public function getMinParticipants() { return $this->minParticipants; }
-    public function getMaxParticipants() { return $this->maxParticipants; }
-    public function getStatus() { return $this->status; }
-    public function getTypeId() { return $this->typeId; }
-    public function getParticipationTypeId() { return $this->participationTypeId; }
-    public function getCreatorUserId() { return $this->creatorUserId; }
-    public function getCreatorTeamId() { return $this->creatorTeamId; }
-    public function getEventType() { return $this->eventType; }
-    public function getParticipationType() { return $this->participationType; }
-    public function getTags() { return $this->tags; }
-    public function getRequiredSkills() { return $this->requiredSkills; }
-    public function getParticipations() { return $this->participations; }
-    
-    // Setters
-    public function setEventId($eventId) { $this->eventId = $eventId; }
-    public function setTitle($title) { $this->title = $title; }
-    public function setDescription($description) { $this->description = $description; }
-    public function setStartDate($startDate) { $this->startDate = $startDate; }
-    public function setEndDate($endDate) { $this->endDate = $endDate; }
-    public function setLocation($location) { $this->location = $location; }
-    public function setUrl($url) { $this->url = $url; }
-    public function setRegistrationDeadline($deadline) { $this->registrationDeadline = $deadline; }
-    public function setMinParticipants($min) { $this->minParticipants = $min; }
-    public function setMaxParticipants($max) { $this->maxParticipants = $max; }
-    public function setStatus($status) { $this->status = $status; }
-    public function setTypeId($typeId) { $this->typeId = $typeId; }
-    public function setParticipationTypeId($id) { $this->participationTypeId = $id; }
-    public function setCreatorUserId($id) { $this->creatorUserId = $id; }
-    public function setCreatorTeamId($id) { $this->creatorTeamId = $id; }
-    public function setEventType($type) { $this->eventType = $type; }
-    public function setParticipationType($type) { $this->participationType = $type; }
-    public function setTags($tags) { $this->tags = $tags; }
-    public function setRequiredSkills($skills) { $this->requiredSkills = $skills; }
-    public function setParticipations($participations) { $this->participations = $participations; }
-    
-    public function toArray() {
-        return [
-            'event_id' => $this->eventId,
-            'title' => $this->title,
-            'description' => $this->description,
-            'start_date' => $this->startDate,
-            'end_date' => $this->endDate,
-            'location' => $this->location,
-            'url' => $this->url,
-            'registration_deadline' => $this->registrationDeadline,
-            'min_participants' => $this->minParticipants,
-            'max_participants' => $this->maxParticipants,
-            'status' => $this->status,
-            'type_id' => $this->typeId,
-            'participation_type_id' => $this->participationTypeId,
-            'creator_user_id' => $this->creatorUserId,
-            'creator_team_id' => $this->creatorTeamId
-        ];
+
+    // ----------------------------  Getters ---------------------------- 
+    public function getEventId(): string
+    {
+        return $this->eventId;
+    }
+
+    public function getTitle(): string
+    {
+        return $this->title;
+    }
+
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+
+    public function getStartDate(): DateTime
+    {
+        return $this->startDate;
+    }
+
+    public function getEndDate(): ?DateTime
+    {
+        return $this->endDate;
+    }
+
+    public function getLocation(): ?string
+    {
+        return $this->location;
+    }
+
+    public function getUrl(): ?string
+    {
+        return $this->url;
+    }
+
+    public function getRegistrationDeadline(): ?DateTime
+    {
+        return $this->registrationDeadline;
+    }
+
+    public function getMinParticipants(): int
+    {
+        return $this->minParticipants;
+    }
+
+    public function getMaxParticipants(): ?int
+    {
+        return $this->maxParticipants;
+    }
+
+    public function getStatus(): EventStatus
+    {
+        return $this->status;
+    }
+
+    public function getTypeId(): string
+    {
+        return $this->typeId;
+    }
+
+    public function getParticipationTypeId(): string
+    {
+        return $this->participationTypeId;
+    }
+
+    public function getCreatorUserId(): ?string
+    {
+        return $this->creatorUserId;
+    }
+
+    public function getCreatorTeamId(): ?string
+    {
+        return $this->creatorTeamId;
     }
 }
-
-?>

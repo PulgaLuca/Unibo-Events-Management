@@ -1,0 +1,18 @@
+{% extends "layouts/base.twig" %}
+
+{% block title %}Edit Event{% endblock %}
+
+{% block content %}
+<h1>Edit Event</h1>
+
+{% if error %}
+    <p style="color:red;">{{ error }}</p>
+{% endif %}
+
+<form method="post" action="/events/{{ event.eventId }}">
+    {% include "events/_form.twig" with { data: event } %}
+    <button type="submit">Update</button>
+</form>
+
+<a href="/events">Back</a>
+{% endblock %}

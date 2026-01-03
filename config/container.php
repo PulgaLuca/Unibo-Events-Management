@@ -4,6 +4,10 @@ declare(strict_types=1);
 
 use App\Infrastructure\Database\PdoConnection;
 use App\Infrastructure\Http\Router;
+use Psr\Container\ContainerInterface;
+use Twig\Environment;
+use Twig\Loader\FilesystemLoader;
+
 use App\Infrastructure\Persistence\Mysql\Auth\UserRepository;
 use App\Infrastructure\Persistence\Mysql\Auth\SessionRepository;
 use App\Infrastructure\Persistence\Mysql\Skill\SkillRepository;
@@ -11,9 +15,10 @@ use App\Domain\Repositories\Auth\IUserRepository;
 use App\Domain\Repositories\Auth\ISessionRepository;
 use App\Domain\Repositories\Skill\ISkillRepository;
 use App\Application\Services\Auth\AuthService;
-use Psr\Container\ContainerInterface;
-use Twig\Environment;
-use Twig\Loader\FilesystemLoader;
+
+use App\Domain\Repositories\Events\IEventRepository;
+use App\Infrastructure\Persistence\Mysql\Events\EventRepository;
+
 
 return [
     \PDO::class => static function (): \PDO {
@@ -31,6 +36,9 @@ return [
     },
     ISkillRepository::class => static function (ContainerInterface $container): ISkillRepository {
         return new SkillRepository($container->get(\PDO::class));
+    },
+    IEventRepository::class => static function (ContainerInterface $container): IEventRepository {
+        return new EventRepository($container->get(\PDO::class));
     },
     AuthService::class => static function (ContainerInterface $container): AuthService {
         return new AuthService(

@@ -1,0 +1,62 @@
+<div>
+    <label>Title</label><br>
+    <input type="text" name="title" required
+           value="{{ data.title|default('') }}">
+</div>
+
+<div>
+    <label>Description</label><br>
+    <textarea name="description">{{ data.description|default('') }}</textarea>
+</div>
+
+<div>
+    <label>Start date</label><br>
+    <input type="datetime-local" name="start_date" required
+           value="{{ data.startDate is defined
+                ? data.startDate|date('Y-m-d\\TH:i')
+                : data.start_date|default('') }}">
+</div>
+
+<div>
+    <label>End date</label><br>
+    <input type="datetime-local" name="end_date"
+           value="{{ data.endDate is defined and data.endDate
+                ? data.endDate|date('Y-m-d\\TH:i')
+                : data.end_date|default('') }}">
+</div>
+
+<div>
+    <label>Status</label><br>
+    <select name="status" required>
+        {% for s in ['Draft','Active','Completed','Cancelled'] %}
+            <option value="{{ s }}"
+                {% if data.status is defined and data.status.value == s %}selected{% endif %}>
+                {{ s }}
+            </option>
+        {% endfor %}
+    </select>
+</div>
+
+<div>
+    <label>Min participants</label><br>
+    <input type="number" name="min_participants" min="0"
+           value="{{ data.minParticipants|default(0) }}">
+</div>
+
+<div>
+    <label>Max participants</label><br>
+    <input type="number" name="max_participants"
+           value="{{ data.maxParticipants|default('') }}">
+</div>
+
+<div>
+    <label>Location</label><br>
+    <input type="text" name="location"
+           value="{{ data.location|default('') }}">
+</div>
+
+<div>
+    <label>URL</label><br>
+    <input type="url" name="url"
+           value="{{ data.url|default('') }}">
+</div>

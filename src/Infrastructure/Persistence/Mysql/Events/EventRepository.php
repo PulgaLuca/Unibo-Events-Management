@@ -147,10 +147,6 @@ class EventRepository implements IEventRepository
             'min_participants' => $event->getMinParticipants(),
             'max_participants' => $event->getMaxParticipants(),
             'status' => $event->getStatus()->value,
-            'type_id' => $event->getTypeId(),
-            'participation_type_id' => $event->getParticipationTypeId(),
-            'creator_user_id' => $event->getCreatorUserId(),
-            'creator_team_id' => $event->getCreatorTeamId(),
         ];
     }
 }

@@ -53,8 +53,8 @@
 
 <div>
     <label>Max participants</label><br>
-    <input type="number" name="max_participants"
-           value="{{ data.maxParticipants|default('') }}">
+    <input type="number" name="max_participants" min="0"
+           value="{{ data.maxParticipants|default(0) }}">
 </div>
 
 <div>
@@ -72,7 +72,7 @@
 <div>
     <label>Event type</label><br>
     <select name="type_id" required>
-        {% for type in types %}
+        {% for type in eventTypes %}
             <option value="{{ type.id }}"
                 {% if data.typeId is defined and data.typeId == type.id %}selected{% endif %}>
                 {{ type.name }}
@@ -93,4 +93,11 @@
     </select>
 </div>
 
-<input type="hidden" name="creator_user_id" value="{{ user.id }}">
+{% if currentUser %}
+    <div>
+        <label>Creator</label><br>
+        <strong>
+            {{ currentUser.name }}
+        </strong>
+    </div>
+{% endif %}

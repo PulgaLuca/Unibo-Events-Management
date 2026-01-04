@@ -17,7 +17,12 @@ use App\Domain\Repositories\Skill\ISkillRepository;
 use App\Application\Services\Auth\AuthService;
 
 use App\Domain\Repositories\Events\IEventRepository;
+use App\Domain\Repositories\Events\IParticipationTypeRepository;
+use App\Domain\Repositories\Events\IEventTypeRepository;
 use App\Infrastructure\Persistence\Mysql\Events\EventRepository;
+use App\Infrastructure\Persistence\Mysql\Events\ParticipationTypeRepository;
+use App\Infrastructure\Persistence\Mysql\Events\EventTypeRepository;
+
 
 
 return [
@@ -39,6 +44,12 @@ return [
     },
     IEventRepository::class => static function (ContainerInterface $container): IEventRepository {
         return new EventRepository($container->get(\PDO::class));
+    },
+    IEventTypeRepository::class => static function (ContainerInterface $container): IEventTypeRepository {
+        return new EventTypeRepository($container->get(\PDO::class));
+    },
+    IParticipationTypeRepository::class => static function (ContainerInterface $container): IParticipationTypeRepository {
+        return new ParticipationTypeRepository($container->get(\PDO::class));
     },
     AuthService::class => static function (ContainerInterface $container): AuthService {
         return new AuthService(

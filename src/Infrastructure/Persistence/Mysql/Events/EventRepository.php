@@ -43,6 +43,7 @@ class EventRepository implements IEventRepository
 
     public function update(Event $event): void
     {
+        // La query SQL di aggiornamento
         $sql = <<<SQL
             UPDATE EVENT SET
                 title = :title,
@@ -58,9 +59,19 @@ class EventRepository implements IEventRepository
             WHERE event_id = :event_id
         SQL;
 
+        // Prepara la query
         $stmt = $this->connection->prepare($sql);
-        $stmt->execute($this->mapToDatabase($event));
+        
+        // Mappa i dati dell'evento nell'array
+        $params = $this->mapToDatabase($event);
+        
+        // Verifica l'array dei parametri
+        var_dump($params);
+        
+        // Esegui la query con i parametri mappati
+        $stmt->execute($params);
     }
+
 
     public function delete(string $eventId): void
     {

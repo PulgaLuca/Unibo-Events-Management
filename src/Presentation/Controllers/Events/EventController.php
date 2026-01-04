@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Presentation\Controllers\Events;
 
+use App\Application\Services\Auth\AuthService;
 use App\Application\Services\Events\EventService;
 use App\Infrastructure\Http\Request;
 use App\Infrastructure\Http\Response;
@@ -13,11 +14,13 @@ use Twig\Environment;
 class EventController
 {
     private EventService $eventService;
+    private AuthService $authService;
     private Environment $twig;
 
-    public function __construct(EventService $eventService, Environment $twig)
+    public function __construct(EventService $eventService, AuthService $authService, Environment $twig)
     {
         $this->eventService = $eventService;
+        $this->authService = $authService;
         $this->twig = $twig;
     }
 
@@ -27,7 +30,7 @@ class EventController
     public function index(): Response
     {
         $events = $this->eventService->findAll();
-
+        
         $html = $this->twig->render('events/index.twig', [
             'events' => $events
         ]);
@@ -40,9 +43,17 @@ class EventController
      */
     public function createEvent(): Response
     {
-        $html = $this->twig->render('events/create.twig');
+        $currentUser = $this->authService->getCurrentUser();
+
+        $html = $this->twig->render('events/create.twig', [
+            'eventTypes' => $this->eventService->getEventTypes(),
+            'participationTypes' => $this->eventService->getParticipationTypes(),
+            'currentUser' => $currentUser
+        ]);
+
         return Response::html($html);
     }
+
 
     /**
      * Handle create event submission
@@ -54,7 +65,7 @@ class EventController
         try {
             $this->eventService->create($data);
 
-            return Response::redirect($_ENV['APP_URL'] . '/events');
+            return Response::redirect($_ENV['APP_URL'] . '/events/create');
         } catch (Exception $e) {
             $html = $this->twig->render('events/create.twig', [
                 'error' => $e->getMessage(),
@@ -72,9 +83,13 @@ class EventController
     {
         try {
             $event = $this->eventService->findById($id);
+            $currentUser = $this->authService->getCurrentUser();
 
             $html = $this->twig->render('events/show.twig', [
-                'event' => $event
+                'event' => $event,
+                'eventTypes' => $this->eventService->getEventTypes(),
+                'participationTypes' => $this->eventService->getParticipationTypes(),
+                'currentUser' => $currentUser
             ]);
 
             return Response::html($html);
@@ -88,17 +103,17 @@ class EventController
      */
     public function editEvent(string $id): Response
     {
-        try {
-            $event = $this->eventService->findById($id);
+        $event = $this->eventService->findById($id);
+        $currentUser = $this->authService->getCurrentUser();
 
-            $html = $this->twig->render('events/edit.twig', [
-                'event' => $event
-            ]);
+        $html = $this->twig->render('events/edit.twig', [
+            'event' => $event,
+            'eventTypes' => $this->eventService->getEventTypes(),
+            'participationTypes' => $this->eventService->getParticipationTypes(),
+            'currentUser' => $currentUser
+        ]);
 
-            return Response::html($html);
-        } catch (Exception $e) {
-            return Response::html('Event not found', 404);
-        }
+        return Response::html($html);
     }
 
     /**

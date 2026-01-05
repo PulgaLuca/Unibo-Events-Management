@@ -144,7 +144,7 @@
                 <div class="mb-3">
                     <label for="status" class="form-label fw-bold text-primary">Status</label>
                     <select class="form-select" id="status" name="status" required>
-                        {% for s in ['Draft','Active','Completed','Cancelled'] %}
+                        {% for s in eventTypes %}
                             <option value="{{ s }}"
                                     {% if data.status is defined and (data.status.value is defined ? data.status.value : data.status) == s %}selected{% endif %}>
                                 {{ s }}

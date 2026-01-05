@@ -19,7 +19,7 @@
                 <button class="btn btn-primary" type="button" onclick="document.getElementById('event_image').click();">
                     Load image event
                 </button>
-                <input type="file" name="image" id="event_image" class="d-none" accept="image/*" onchange="previewImage(event)">
+                <input type="file" name="image" id="event_image" class="d-none" accept="image/*">
             </div>
         </div>
     </div>
@@ -56,8 +56,4 @@
             </div>
         </form>
     </main>
-{% endblock %}
-
-{% block scripts %}
-    <script src="/assets/js/event-upload.js"></script>
 {% endblock %}

@@ -39,11 +39,11 @@ class EventController
         
         $html = $this->twig->render('events/index.twig', [
             'events' => $events,
-            'success' => $_SESSION['success'] ?? null,
+            'success' => $_SESSION['success'] ?? null, // Utile come workaround in quanto delete esegue una POST ma poi il deleteEvent deve fare un redirect su /events
             'currentUser' => $currentUser
         ]);
 
-        // Rimuovi il messaggio di successo dalla sessione dopo averlo passato alla vista
+        // Rimozione del messaggio di successo dalla sessione dopo averlo passato alla view.
         $_SESSION['success'] = null;
 
         return Response::html($html);
@@ -148,11 +148,15 @@ class EventController
         $currentUser = $this->authService->getCurrentUser();
 
         $html = $this->twig->render('events/edit.twig', [
+           'success' => $_SESSION['success'] ?? null,
             'event' => $event,
             'eventTypes' => $this->eventService->getEventTypes(),
             'participationTypes' => $this->eventService->getParticipationTypes(),
             'currentUser' => $currentUser
         ]);
+
+        // Rimozione del messaggio di successo dalla sessione dopo averlo passato alla view.
+        $_SESSION['success'] = null;
 
         return Response::html($html);
     }
@@ -168,22 +172,21 @@ class EventController
         // }
 
         $currentUser = $this->authService->getCurrentUser();
-        $data = $request->getParsedBody();
+        $event = $request->getParsedBody();
 
         try {
-            $this->eventService->update($id, $data);
+            $this->eventService->update($id, $event);
 
-            $html = $this->twig->render('events/edit.twig', [
-                'success' => 'Event updated successfully!',
-                'data'  => $data,
-                'currentUser' => $currentUser
-            ]);
-            return Response::html($html);
+            // Aggiungi un messaggio di successo nella sessione
+            $_SESSION['success'] = 'Event updated successfully!';
+
+            // Redirigi alla pagina degli eventi
+            return Response::redirect('/events'); 
 
         } catch (Exception $e) {
             $html = $this->twig->render('events/edit.twig', [
                 'error' => $e->getMessage(),
-                'event' => $data,
+                'event' => $event,
                 'currentUser' => $currentUser
             ]);
 

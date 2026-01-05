@@ -6,7 +6,11 @@
 <h1>Edit Event</h1>
 
 {% if error %}
-    <p style="color:red;">{{ error }}</p>
+    <div class="alert alert-error">{{ error }}</div>
+{% endif %}
+
+{% if success %}
+    <div class="alert alert-success">{{ success }}</div>
 {% endif %}
 
 <form method="post" action="/events/{{ event.eventId }}">

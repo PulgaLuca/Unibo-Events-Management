@@ -43,7 +43,6 @@ class EventRepository implements IEventRepository
 
     public function update(Event $event): void
     {
-        // La query SQL di aggiornamento
         $sql = <<<SQL
             UPDATE EVENT SET
                 title = :title,
@@ -59,17 +58,8 @@ class EventRepository implements IEventRepository
             WHERE event_id = :event_id
         SQL;
 
-        // Prepara la query
         $stmt = $this->connection->prepare($sql);
-        
-        // Mappa i dati dell'evento nell'array
-        $params = $this->mapToDatabase($event);
-        
-        // Verifica l'array dei parametri
-        var_dump($params);
-        
-        // Esegui la query con i parametri mappati
-        $stmt->execute($params);
+        $stmt->execute($$this->mapToDatabase($event));
     }
 
 
@@ -147,6 +137,11 @@ class EventRepository implements IEventRepository
             'min_participants' => $event->getMinParticipants(),
             'max_participants' => $event->getMaxParticipants(),
             'status' => $event->getStatus()->value,
+            'type_id' => $event->getTypeId(),  // Aggiungi questo parametro
+            'participation_type_id' => $event->getParticipationTypeId(),  // Aggiungi questo parametro
+            'creator_user_id' => $event->getCreatorUserId(),  // Aggiungi questo parametro
+            'creator_team_id' => $event->getCreatorTeamId(),  // Aggiungi questo parametro
         ];
     }
+
 }

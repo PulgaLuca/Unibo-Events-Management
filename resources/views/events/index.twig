@@ -5,6 +5,14 @@
 {% block content %}
 <h1>Events</h1>
 
+{% if error %}
+    <div class="alert alert-error">{{ error }}</div>
+{% endif %}
+
+{% if success %}
+    <div class="alert alert-success">{{ success }}</div>
+{% endif %}
+
 <a href="/events/create">Create new event</a>
 
 <table border="1" cellpadding="8" cellspacing="0">
@@ -25,7 +33,7 @@
             <td>
                 <a href="/events/{{ event.eventId }}">View</a> |
                 <a href="/events/{{ event.eventId }}/edit">Edit</a> |
-                <form action="/events/{{ event.eventId }}/delete" method="post" style="display:inline;">
+                <form action="/events/{{ event.eventId }}/delete" method="POST" style="display:inline;">
                     <button type="submit" onclick="return confirm('Delete this event?')">
                         Delete
                     </button>

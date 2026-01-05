@@ -39,8 +39,12 @@ class EventController
         
         $html = $this->twig->render('events/index.twig', [
             'events' => $events,
+            'success' => $_SESSION['success'] ?? null,
             'currentUser' => $currentUser
         ]);
+
+        // Rimuovi il messaggio di successo dalla sessione dopo averlo passato alla vista
+        $_SESSION['success'] = null;
 
         return Response::html($html);
     }
@@ -84,11 +88,18 @@ class EventController
         try {
             $this->eventService->create($data);
 
-            return Response::redirect($_ENV['APP_URL'] . '/events/create');
+            $html = $this->twig->render('events/create.twig', [
+                'success' => 'Event created successfully!',
+                'data'  => $data,
+                'currentUser' => $currentUser
+            ]);
+            return Response::html($html);
+
         } catch (Exception $e) {
             $html = $this->twig->render('events/create.twig', [
                 'error' => $e->getMessage(),
-                'data'  => $data
+                'data'  => $data,
+                'currentUser' => $currentUser
             ]);
 
             return Response::html($html, 400);
@@ -162,11 +173,18 @@ class EventController
         try {
             $this->eventService->update($id, $data);
 
-            return Response::redirect($_ENV['APP_URL'] . '/events');
+            $html = $this->twig->render('events/edit.twig', [
+                'success' => 'Event updated successfully!',
+                'data'  => $data,
+                'currentUser' => $currentUser
+            ]);
+            return Response::html($html);
+
         } catch (Exception $e) {
             $html = $this->twig->render('events/edit.twig', [
                 'error' => $e->getMessage(),
-                'event' => $data
+                'event' => $data,
+                'currentUser' => $currentUser
             ]);
 
             return Response::html($html, 400);
@@ -186,8 +204,13 @@ class EventController
         $currentUser = $this->authService->getCurrentUser();
         try {
             $this->eventService->delete($id);
+        
+            // Aggiungi un messaggio di successo nella sessione
+            $_SESSION['success'] = 'Event deleted successfully!';
 
-            return Response::redirect($_ENV['APP_URL'] . '/events');
+            // Redirigi alla pagina degli eventi
+            return Response::redirect('/events'); 
+            
         } catch (Exception $e) {
             return Response::html($e->getMessage(), 400);
         }

@@ -155,6 +155,7 @@ class EventRepository implements IEventRepository
             'description' => $event->getDescription(),
             'start_date' => $event->getStartDate()->format('Y-m-d H:i:s'),
             'end_date' => $event->getEndDate()?->format('Y-m-d H:i:s'),
+            'image_url' => $event->getImageUrl(),
             'location' => $event->getLocation(),
             'url' => $event->getUrl(),
             'registration_deadline' => $event->getRegistrationDeadline()?->format('Y-m-d H:i:s'),

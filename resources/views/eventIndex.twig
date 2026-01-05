@@ -176,8 +176,8 @@
                             
                             <div class="col-md-5 d-none d-md-block">
                                 <div class="card-img-wrapper">
-                                    {% if event.image %}
-                                        <img src="{{ event.image }}" class="card-event-img" alt="Immagine di {{ event.title }}">
+                                    {% if event.imageUrl %}
+                                        <img src="{{ event.imageUrl }}" class="card-event-img" alt="Image of event {{ event.title }}">
                                     {% else %}
                                         <div class="text-center text-muted p-3">
                                             <i class="bi bi-image display-4 mb-2"></i>

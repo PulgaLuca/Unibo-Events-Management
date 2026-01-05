@@ -161,14 +161,14 @@ class EventController
         //     return Response::redirect($_ENV['APP_URL'] . '/login');
         // }
 
-        $event = $this->eventService->findById($id);
+        $data = $this->eventService->findById($id);
         $currentUser = $this->authService->getCurrentUser();
         $eventTypes = $this->eventService->getEventTypes();
         $participationTypes = $this->eventService->getParticipationTypes();
 
         $html = $this->twig->render('eventEdit.twig', [
            'success' => $_SESSION['success'] ?? null,
-            'event' => $event,
+            'data' => $data,
             'eventTypes' => $eventTypes,
             'participationTypes' => $participationTypes,
             'currentUser' => $currentUser
@@ -192,11 +192,11 @@ class EventController
         // }
 
         $currentUser = $this->authService->getCurrentUser();
-        $event = $request->getParsedBody();
+        $data = $request->getParsedBody();
 
         try 
         {
-            $this->eventService->update($id, $event);
+            $this->eventService->update($id, $data);
             $_SESSION['success'] = 'Event updated successfully!';
             
             return Response::redirect('/events');
@@ -208,7 +208,7 @@ class EventController
             
             $html = $this->twig->render('eventEdit.twig', [
                 'error' => $_SESSION['error'],
-                'event' => $event,
+                'event' => $data,
                 'currentUser' => $currentUser
             ]);
 

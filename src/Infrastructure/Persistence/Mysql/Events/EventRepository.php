@@ -59,8 +59,9 @@ class EventRepository implements IEventRepository
         SQL;
 
         $stmt = $this->connection->prepare($sql);
-        $stmt->execute($this->mapToDatabase($event));
+        $stmt->execute($this->mapToDatabaseUpdate($event));
     }
+
 
     public function delete(string $eventId): void
     {
@@ -136,10 +137,30 @@ class EventRepository implements IEventRepository
             'min_participants' => $event->getMinParticipants(),
             'max_participants' => $event->getMaxParticipants(),
             'status' => $event->getStatus()->value,
-            'type_id' => $event->getTypeId(),
-            'participation_type_id' => $event->getParticipationTypeId(),
-            'creator_user_id' => $event->getCreatorUserId(),
-            'creator_team_id' => $event->getCreatorTeamId(),
+            'type_id' => $event->getTypeId(),  // Aggiungi questo parametro
+            'participation_type_id' => $event->getParticipationTypeId(),  // Aggiungi questo parametro
+            'creator_user_id' => $event->getCreatorUserId(),  // Aggiungi questo parametro
+            'creator_team_id' => $event->getCreatorTeamId(),  // Aggiungi questo parametro
         ];
     }
+
+    private function mapToDatabaseUpdate(Event $event): array
+    {
+        return [
+            'event_id' => $event->getEventId(),
+            'title' => $event->getTitle(),
+            'description' => $event->getDescription(),
+            'start_date' => $event->getStartDate()->format('Y-m-d H:i:s'),
+            'end_date' => $event->getEndDate()?->format('Y-m-d H:i:s'),
+            'location' => $event->getLocation(),
+            'url' => $event->getUrl(),
+            'registration_deadline' => $event->getRegistrationDeadline()?->format('Y-m-d H:i:s'),
+            'min_participants' => $event->getMinParticipants(),
+            'max_participants' => $event->getMaxParticipants(),
+            'status' => $event->getStatus()->value,
+            'event_id' => $event->getEventId() // Aggiungi il parametro `event_id` per la clausola WHERE
+        ];
+    }
+
+
 }

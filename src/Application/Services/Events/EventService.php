@@ -7,16 +7,26 @@ namespace App\Application\Services\Events;
 use App\Domain\Entities\Events\Event;
 use App\Domain\Entities\Events\EventStatus;
 use App\Domain\Repositories\Events\IEventRepository;
+use App\Domain\Repositories\Events\IEventTypeRepository;
+use App\Domain\Repositories\Events\IParticipationTypeRepository;
+
 use Exception;
 use Ramsey\Uuid\Uuid;
 
 class EventService
 {
     private IEventRepository $eventRepository;
+    private IEventTypeRepository $eventTypeRepository;
+    private IParticipationTypeRepository $participationTypeRepository;
 
-    public function __construct(IEventRepository $eventRepository)
-    {
+    public function __construct(
+        IEventRepository $eventRepository,
+        IEventTypeRepository $eventTypeRepository,
+        IParticipationTypeRepository $participationTypeRepository
+    ) {
         $this->eventRepository = $eventRepository;
+        $this->eventTypeRepository = $eventTypeRepository;
+        $this->participationTypeRepository = $participationTypeRepository;
     }
 
     /**
@@ -68,8 +78,8 @@ class EventService
             $data['location'] ?? $event->getLocation(),
             $data['url'] ?? $event->getUrl(),
             isset($data['registration_deadline']) ? new \DateTime($data['registration_deadline']) : $event->getRegistrationDeadline(),
-            $data['min_participants'] ?? $event->getMinParticipants(),
-            array_key_exists('max_participants', $data) ? $data['max_participants'] : $event->getMaxParticipants(),
+            (int)($data['min_participants'] ?? $event->getMinParticipants()),
+            array_key_exists('max_participants', $data) ? (int)$data['max_participants'] : (int)$event->getMaxParticipants(),
             isset($data['status']) ? EventStatus::fromString($data['status']) : $event->getStatus()
         );
 
@@ -112,6 +122,16 @@ class EventService
     public function findAll(): array
     {
         return $this->eventRepository->findAll();
+    }
+
+    public function getEventTypes(): array
+    {
+        return $this->eventTypeRepository->findAll();
+    }
+
+    public function getParticipationTypes(): array
+    {
+        return $this->participationTypeRepository->findAll();
     }
 
     /**

@@ -40,7 +40,7 @@
             </div>
         {% endif %}
 
-        <form method="post" action="/events" enctype="multipart/form-data" id="event-form">
+        <form method="post" action="/events/create" enctype="multipart/form-data" id="event-form">
             <input type="file" name="image" id="event_image" class="d-none" accept="image/jpeg, image/png, image/webp">            
             
             {% include "eventForm.twig" with {

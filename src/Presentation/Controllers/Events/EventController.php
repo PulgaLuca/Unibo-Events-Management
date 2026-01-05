@@ -78,7 +78,6 @@ class EventController
         return Response::html($html);
     }
 
-
     /**
      * Handle create event submission
      */
@@ -94,7 +93,7 @@ class EventController
         $eventTypes = $this->eventService->getEventTypes();
         $participationTypes = $this->eventService->getParticipationTypes();
 
-        try 
+        try
         {
             $this->eventService->create($data);
             $_SESSION['success'] = 'Event created successfully!';
@@ -107,8 +106,7 @@ class EventController
                 'participationTypes' => $participationTypes
             ]);
             return Response::html($html);
-
-        } 
+        }
         catch (Exception $e) 
         {
             $html = $this->twig->render('eventCreate.twig', [
@@ -144,7 +142,7 @@ class EventController
             ]);
 
             return Response::html($html);
-        } 
+        }
         catch (Exception $e) 
         {
             $_SESSION['error'] = 'Something went wrong while searching this event: ' . $e->getMessage();
@@ -234,7 +232,6 @@ class EventController
             $_SESSION['success'] = 'Event deleted successfully!';
             
             return Response::redirect('/events');
-
         } 
         catch (Exception $e) 
         {

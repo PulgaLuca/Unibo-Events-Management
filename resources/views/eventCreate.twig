@@ -4,9 +4,10 @@
 
 {% block content %}
     <div class="position-relative text-white overflow-hidden rounded-3 mb-4" style="background-color: #000;">
-        <img src="/assets/images/events/image_recognition/image_recognition.png" 
-             alt="Volto di una persona con una rete di punti che rappresenta il riconoscimento facciale per indicare una hackathon per riconoscimento di immagini" 
-             longdesc="/assets/images/events/image_recognition/image_recognition.txt"
+        <img src="/assets/images/events/event-main.jpg"
+             id="main-event-image"
+             alt="Immagine di presentazione dell'evento." 
+             longdesc="/assets/images/events/event-main.txt"
              class="w-100 object-fit-cover opacity-50" 
              style="height: 400px; filter: brightness(0.6);">
         
@@ -18,6 +19,7 @@
                 <button class="btn btn-primary" type="button" onclick="document.getElementById('event_image').click();">
                     Load image event
                 </button>
+                <input type="file" name="image" id="event_image" class="d-none" accept="image/*" onchange="previewImage(event)">
             </div>
         </div>
     </div>
@@ -25,7 +27,7 @@
     <main class="container mb-5">
         
         {% if error %}
-            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <div class="alert alert-danger alert-dismissible fade show" role="alert" id="js-error-container">
                 <strong>Error:</strong> {{ error }}
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
@@ -38,10 +40,10 @@
             </div>
         {% endif %}
 
-        <form method="post" action="/events" enctype="multipart/form-data">
-            <input type="file" name="image" id="event_image" class="d-none">
+        <form method="post" action="/events" enctype="multipart/form-data" id="event-form">
+            <input type="file" name="image" id="event_image" class="d-none" accept="image/jpeg, image/png, image/webp">            
             
-            {% include "events/_form.twig" with {
+            {% include "eventForm.twig" with {
                 data: data|default({}),
                 eventTypes: eventTypes,
                 participationTypes: participationTypes,
@@ -54,4 +56,8 @@
             </div>
         </form>
     </main>
+{% endblock %}
+
+{% block scripts %}
+    <script src="/assets/js/event-upload.js"></script>
 {% endblock %}

@@ -108,6 +108,7 @@ CREATE TABLE EVENT (
     description TEXT,
     start_date DATETIME NOT NULL,
     end_date DATETIME NULL,
+    image_url TEXT,
     location VARCHAR(255),
     url VARCHAR(512),
     registration_deadline DATETIME,

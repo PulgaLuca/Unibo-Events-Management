@@ -1,0 +1,206 @@
+{% extends 'layouts/base.twig' %}
+
+{% block title %}Esplora Eventi{% endblock %}
+
+{% block content %}
+<style>
+    /* --- Stili Custom per il layout a Card --- */
+    .hero-section {
+        position: relative;
+        border-radius: 8px;
+        overflow: hidden;
+        background-color: #000;
+        margin-bottom: 3rem;
+    }
+    .hero-img {
+        width: 100%;
+        height: 350px;
+        object-fit: cover;
+        opacity: 0.6; /* WCAG: Contrasto testo su immagine */
+    }
+    .hero-overlay {
+        position: absolute;
+        top: 0; left: 0; width: 100%; height: 100%;
+        padding: 2rem;
+        display: flex; flex-direction: column; justify-content: center;
+    }
+
+    /* Card Evento */
+    .event-card {
+        border: 1px solid #dee2e6;
+        border-radius: 12px;
+        transition: transform 0.2s, box-shadow 0.2s;
+        overflow: hidden;
+        background: white;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+    .event-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+    }
+    .card-img-wrapper {
+        height: 100%;
+        min-height: 200px;
+        background-color: #f8f9fa;
+        display: flex; align-items: center; justify-content: center;
+    }
+    .card-event-img {
+        width: 100%; height: 100%; object-fit: cover;
+    }
+    
+    .event-detail-row {
+        display: flex; align-items: flex-start; gap: 10px;
+        margin-bottom: 0.5rem; color: #555; font-size: 0.9rem;
+    }
+    .event-detail-row i { margin-top: 3px; }
+    
+    /* Badge stato */
+    .badge-status {
+        font-size: 0.75rem;
+        padding: 0.35em 0.65em;
+        border-radius: 0.25rem;
+        text-transform: uppercase;
+        font-weight: 700;
+    }
+    .status-draft { background-color: #ffc107; color: #000; }
+    .status-active { background-color: #198754; color: #fff; }
+    .status-completed { background-color: #0d6efd; color: #fff; }
+    .status-cancelled { background-color: #dc3545; color: #fff; }
+</style>
+
+<header class="hero-section">
+    <img src="https://images.unsplash.com/photo-1540575467063-178a50c2df87?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" 
+         alt="Folla che applaude ad un evento tech." 
+         class="hero-img">
+    
+    <div class="hero-overlay text-white">
+        <h1 class="display-4 fw-bold">Gestisci i tuoi eventi</h1>
+        <p class="lead mt-3 fw-normal">Organizza, monitora e fai crescere la tua community.</p>
+        <div class="mt-4">
+            <a href="/events/create" class="btn btn-primary btn-lg fw-bold">
+                <i class="bi bi-plus-lg me-2" aria-hidden="true"></i>Crea nuovo evento
+            </a>
+        </div>
+    </div>
+</header>
+
+<main class="container mb-5">
+    
+    {% if error %}
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i> {{ error }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    {% endif %}
+
+    {% if success %}
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle-fill me-2"></i> {{ success }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    {% endif %}
+
+    <section aria-labelledby="search-heading" class="mb-5 p-4 bg-white rounded shadow-sm border">
+        <h2 id="search-heading" class="h5 text-primary fw-bold mb-3">Filtra eventi</h2>
+        <form action="/events" method="GET" class="row g-3">
+            <div class="col-md-4">
+                <label for="search" class="visually-hidden">Cerca</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+                    <input type="search" name="q" class="form-control" id="search" placeholder="Cerca per titolo...">
+                </div>
+            </div>
+            <div class="col-md-3">
+                <select name="status" class="form-select" aria-label="Filtra per stato">
+                    <option value="" selected>Tutti gli stati</option>
+                    <option value="Active">Attivi</option>
+                    <option value="Draft">Bozze</option>
+                    <option value="Completed">Completati</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-outline-primary w-100">Filtra</button>
+            </div>
+        </form>
+    </section>
+
+    <section aria-label="Elenco eventi">
+        <div class="row g-4">
+            {% for event in events %}
+                <div class="col-lg-6">
+                    <article class="card event-card h-100">
+                        <div class="row g-0 h-100">
+                            <div class="col-md-7 p-3 d-flex flex-column">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <h3 class="h5 fw-bold mb-0 text-truncate" title="{{ event.title }}">
+                                        {{ event.title }}
+                                    </h3>
+                                    <span class="badge badge-status status-{{ event.status.value|lower }}">
+                                        {{ event.status.value }}
+                                    </span>
+                                </div>
+                                
+                                <div class="event-detail-row mt-3">
+                                    <i class="bi bi-calendar-event text-primary" aria-hidden="true"></i>
+                                    <span>
+                                        {{ event.startDate|date('d/m/Y') }}<br>
+                                        <small class="text-muted">{{ event.startDate|date('H:i') }}</small>
+                                    </span>
+                                </div>
+                                
+                                {% if event.location %}
+                                <div class="event-detail-row">
+                                    <i class="bi bi-geo-alt text-primary" aria-hidden="true"></i>
+                                    <span class="text-truncate">{{ event.location }}</span>
+                                </div>
+                                {% endif %}
+
+                                <div class="mt-auto pt-3 d-flex flex-wrap gap-2 align-items-center">
+                                    <a href="/events/{{ event.eventId }}" class="btn btn-primary btn-sm rounded-pill px-3">
+                                        Vedi
+                                    </a>
+                                    
+                                    <a href="/events/{{ event.eventId }}/edit" class="btn btn-outline-secondary btn-sm rounded-pill px-3" aria-label="Modifica evento {{ event.title }}">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+
+                                    <form action="/events/{{ event.eventId }}/delete" method="POST" class="d-inline">
+                                        <button type="submit" class="btn btn-outline-danger btn-sm rounded-pill px-3" 
+                                                onclick="return confirm('Sei sicuro di voler eliminare l\'evento &quot;{{ event.title }}&quot;?')"
+                                                aria-label="Elimina evento {{ event.title }}">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-5 d-none d-md-block">
+                                <div class="card-img-wrapper">
+                                    {% if event.image %}
+                                        <img src="{{ event.image }}" class="card-event-img" alt="Immagine di {{ event.title }}">
+                                    {% else %}
+                                        <div class="text-center text-muted p-3">
+                                            <i class="bi bi-image display-4 mb-2"></i>
+                                            <p class="small m-0">Nessuna immagine</p>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </article>
+                </div>
+            {% else %}
+                <div class="col-12">
+                    <div class="text-center py-5 border rounded bg-white">
+                        <i class="bi bi-calendar-x display-1 text-muted mb-3"></i>
+                        <h3 class="h4">Nessun evento trovato</h3>
+                        <p class="text-muted">Inizia creando il tuo primo evento per vederlo qui.</p>
+                        <a href="/events/create" class="btn btn-primary mt-2">Crea Evento</a>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </section>
+
+</main>
+{% endblock %}

@@ -23,13 +23,13 @@ class EventRepository implements IEventRepository
     {
         $sql = <<<SQL
             INSERT INTO EVENT (
-                event_id, title, description, start_date, end_date,
+                event_id, title, description, start_date, end_date, image_url,
                 location, url, registration_deadline,
                 min_participants, max_participants,
                 status, type_id, participation_type_id,
                 creator_user_id, creator_team_id
             ) VALUES (
-                :event_id, :title, :description, :start_date, :end_date,
+                :event_id, :title, :description, :start_date, :end_date, :image_url,
                 :location, :url, :registration_deadline,
                 :min_participants, :max_participants,
                 :status, :type_id, :participation_type_id,
@@ -49,6 +49,7 @@ class EventRepository implements IEventRepository
                 description = :description,
                 start_date = :start_date,
                 end_date = :end_date,
+                image_url = :image_url,
                 location = :location,
                 url = :url,
                 registration_deadline = :registration_deadline,
@@ -107,6 +108,7 @@ class EventRepository implements IEventRepository
             $row['description'],
             new DateTime($row['start_date']),
             $row['end_date'] ? new DateTime($row['end_date']) : null,
+            $row['image_url'],
             $row['location'],
             $row['url'],
             $row['registration_deadline'] ? new DateTime($row['registration_deadline']) : null,
@@ -131,16 +133,17 @@ class EventRepository implements IEventRepository
             'description' => $event->getDescription(),
             'start_date' => $event->getStartDate()->format('Y-m-d H:i:s'),
             'end_date' => $event->getEndDate()?->format('Y-m-d H:i:s'),
+            'image_url' => $event->getImageUrl(),
             'location' => $event->getLocation(),
             'url' => $event->getUrl(),
             'registration_deadline' => $event->getRegistrationDeadline()?->format('Y-m-d H:i:s'),
             'min_participants' => $event->getMinParticipants(),
             'max_participants' => $event->getMaxParticipants(),
             'status' => $event->getStatus()->value,
-            'type_id' => $event->getTypeId(),  // Aggiungi questo parametro
-            'participation_type_id' => $event->getParticipationTypeId(),  // Aggiungi questo parametro
-            'creator_user_id' => $event->getCreatorUserId(),  // Aggiungi questo parametro
-            'creator_team_id' => $event->getCreatorTeamId(),  // Aggiungi questo parametro
+            'type_id' => $event->getTypeId(),
+            'participation_type_id' => $event->getParticipationTypeId(),
+            'creator_user_id' => $event->getCreatorUserId(),
+            'creator_team_id' => $event->getCreatorTeamId(),
         ];
     }
 
@@ -158,7 +161,7 @@ class EventRepository implements IEventRepository
             'min_participants' => $event->getMinParticipants(),
             'max_participants' => $event->getMaxParticipants(),
             'status' => $event->getStatus()->value,
-            'event_id' => $event->getEventId() // Aggiungi il parametro `event_id` per la clausola WHERE
+            'event_id' => $event->getEventId()
         ];
     }
 

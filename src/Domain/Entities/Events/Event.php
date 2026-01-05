@@ -14,6 +14,7 @@ class Event
     private ?string $description;
     private DateTime $startDate;
     private ?DateTime $endDate;
+    private ?string $imageUrl;
     private ?string $location;
     private ?string $url;
     private ?DateTime $registrationDeadline;
@@ -31,6 +32,7 @@ class Event
         ?string $description,
         DateTime $startDate,
         ?DateTime $endDate,
+        ?string $imageUrl,
         ?string $location,
         ?string $url,
         ?DateTime $registrationDeadline,
@@ -50,6 +52,7 @@ class Event
         $this->description = $description;
         $this->startDate = $startDate;
         $this->endDate = $endDate;
+        $this->imageUrl = $imageUrl;
         $this->location = $location;
         $this->url = $url;
         $this->registrationDeadline = $registrationDeadline;
@@ -70,6 +73,7 @@ class Event
         ?string $description,
         DateTime $startDate,
         ?DateTime $endDate,
+        ?string $imageUrl,
         ?string $location,
         ?string $url,
         ?DateTime $registrationDeadline,
@@ -84,6 +88,7 @@ class Event
         $this->description = $description;
         $this->startDate = $startDate;
         $this->endDate = $endDate;
+        $this->imageUrl = $imageUrl;
         $this->location = $location;
         $this->url = $url;
         $this->registrationDeadline = $registrationDeadline;
@@ -145,6 +150,11 @@ class Event
     public function getEndDate(): ?DateTime
     {
         return $this->endDate;
+    }
+
+    public function getImageUrl(): ?string
+    {
+        return $this->imageUrl;
     }
 
     public function getLocation(): ?string

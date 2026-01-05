@@ -14,7 +14,7 @@
 {% endif %}
 
 <form method="post" action="/events/{{ event.eventId }}">
-    {% include "events/_form.twig" with { data: event } %}
+    {% include "eventForm.twig" with { data: event } %}
     <button type="submit">Update</button>
 </form>
 

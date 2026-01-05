@@ -1,22 +1,57 @@
 {% extends 'layouts/base.twig' %}
 
-{% block title %}Create Event{% endblock %}
+{% block title %}Create a new event{% endblock %}
 
 {% block content %}
-<h1>Create Event</h1>
+    <div class="position-relative text-white overflow-hidden rounded-3 mb-4" style="background-color: #000;">
+        <img src="/assets/images/events/image_recognition/image_recognition.png" 
+             alt="Volto di una persona con una rete di punti che rappresenta il riconoscimento facciale per indicare una hackathon per riconoscimento di immagini" 
+             longdesc="/assets/images/events/image_recognition/image_recognition.txt"
+             class="w-100 object-fit-cover opacity-50" 
+             style="height: 400px; filter: brightness(0.6);">
+        
+        <div class="position-absolute top-0 start-0 w-100 h-100 p-4 d-flex flex-column justify-content-center">
+            <h1 class="display-5 fw-bold">Create a new event</h1>
+            <p class="lead">Challenge yourself to the test with your community <br>and bring your talent to the world.</p>
+            <p class="mb-4 d-none d-md-block">Search for internal events, workshops or external competitions <br>and find the right participants.</p>
+            <div>
+                <button class="btn btn-primary" type="button" onclick="document.getElementById('event_image').click();">
+                    Load image event
+                </button>
+            </div>
+        </div>
+    </div>
 
-{% if error %}
-    <div class="alert alert-error">{{ error }}</div>
-{% endif %}
+    <main class="container mb-5">
+        
+        {% if error %}
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <strong>Error:</strong> {{ error }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endif %}
 
-{% if success %}
-    <div class="alert alert-success">{{ success }}</div>
-{% endif %}
+        {% if success %}
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                {{ success }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endif %}
 
-<form method="post" action="/events">
-    {% include "events/_form.twig" with { data: data|default({}) } %}
-    <button type="submit">Create</button>
-</form>
-
-<a href="/events">Back</a>
+        <form method="post" action="/events" enctype="multipart/form-data">
+            <input type="file" name="image" id="event_image" class="d-none">
+            
+            {% include "events/_form.twig" with {
+                data: data|default({}),
+                eventTypes: eventTypes,
+                participationTypes: participationTypes,
+                currentUser: currentUser
+            } %}
+            
+            <div class="d-flex justify-content-end gap-2 mt-4 pb-5">
+                <a href="/events" class="btn btn-danger px-4">Cancel</a>
+                <button type="submit" class="btn btn-primary px-4">Save</button>
+            </div>
+        </form>
+    </main>
 {% endblock %}

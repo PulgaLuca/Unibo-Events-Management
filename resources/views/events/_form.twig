@@ -1,103 +1,182 @@
-<div>
-    <label>Title</label><br>
-    <input type="text" name="title" required
-           value="{{ data.title|default('') }}">
-</div>
+<style>
+    /* Stili locali per fieldset accessibili */
+    fieldset.card-fieldset {
+        border: 1px solid #dee2e6;
+        border-radius: 0.375rem;
+        background-color: #fff;
+        padding: 0;
+        margin-bottom: 1.5rem;
+        box-shadow: -6px -6px 14px rgba(0, 0, 0, 0.1);
+    }
+    legend.card-legend {
+        width: 100%;
+        padding: 1rem;
+        margin-bottom: 0;
+        font-size: 1.25rem;
+        font-weight: bold;
+        color: #0d6efd;
+        border-bottom: 1px solid #dee2e6;
+        background-color: transparent;
+    }
+    .fieldset-body {
+        padding: 1rem;
+    }
+</style>
 
-<div>
-    <label>Description</label><br>
-    <textarea name="description">{{ data.description|default('') }}</textarea>
-</div>
-
-<div>
-    <label>Start date</label><br>
-    <input type="datetime-local" name="start_date" required
-           value="{{ data.startDate is defined
-                ? data.startDate|date('Y-m-d\\TH:i')
-                : data.start_date|default('') }}">
-</div>
-
-<div>
-    <label>End date</label><br>
-    <input type="datetime-local" name="end_date"
-           value="{{ data.endDate is defined and data.endDate
-                ? data.endDate|date('Y-m-d\\TH:i')
-                : data.end_date|default('') }}">
-</div>
-
-<div>
-    <label>Registration deadline</label><br>
-    <input type="datetime-local" name="registration_deadline"
-           value="{{ data.registrationDeadline is defined and data.registrationDeadline
-                ? data.registrationDeadline|date('Y-m-d\\TH:i')
-                : data.registration_deadline|default('') }}">
-</div>
-
-<div>
-    <label>Status</label><br>
-    <select name="status" required>
-        {% for s in ['Draft','Active','Completed','Cancelled'] %}
-            <option value="{{ s }}"
-                {% if data.status is defined and data.status.value == s %}selected{% endif %}>
-                {{ s }}
-            </option>
-        {% endfor %}
-    </select>
-</div>
-
-<div>
-    <label>Min participants</label><br>
-    <input type="number" name="min_participants" min="0"
-           value="{{ data.minParticipants|default(0) }}">
-</div>
-
-<div>
-    <label>Max participants</label><br>
-    <input type="number" name="max_participants" min="0"
-           value="{{ data.maxParticipants|default(0) }}">
-</div>
-
-<div>
-    <label>Location</label><br>
-    <input type="text" name="location"
-           value="{{ data.location|default('') }}">
-</div>
-
-<div>
-    <label>URL</label><br>
-    <input type="url" name="url"
-           value="{{ data.url|default('') }}">
-</div>
-
-<div>
-    <label>Event type</label><br>
-    <select name="type_id" required>
-        {% for type in eventTypes %}
-            <option value="{{ type.id }}"
-                {% if data.typeId is defined and data.typeId == type.id %}selected{% endif %}>
-                {{ type.name }}
-            </option>
-        {% endfor %}
-    </select>
-</div>
-
-<div>
-    <label>Participation type</label><br>
-    <select name="participation_type_id" required>
-        {% for p in participationTypes %}
-            <option value="{{ p.id }}"
-                {% if data.participationTypeId is defined and data.participationTypeId == p.id %}selected{% endif %}>
-                {{ p.name }}
-            </option>
-        {% endfor %}
-    </select>
-</div>
-
-{% if currentUser %}
-    <div>
-        <label>Creator</label><br>
-        <strong>
-            {{ currentUser.user_id }}
-        </strong>
+<fieldset class="card-fieldset">
+    <legend class="card-legend">General Information</legend>
+    <div class="fieldset-body">
+        <div class="mb-3">
+            <label for="title" class="form-label fw-bold">Event Title</label>
+            <input type="text" class="form-control" id="title" name="title" 
+                   placeholder="Es. Hackathon - Image Recognition" required
+                   value="{{ data.title|default('') }}">
+        </div>
+        <div class="mb-3">
+            <label for="description" class="form-label fw-bold">Description</label>
+            <textarea class="form-control" id="description" name="description" rows="3" 
+                      placeholder="Describe event...">{{ data.description|default('') }}</textarea>
+        </div>
     </div>
-{% endif %}
+</fieldset>
+
+<div class="row">
+    <div class="col-lg-6">
+        <fieldset class="card-fieldset h-100">
+            <legend class="card-legend">Date and Hours</legend>
+            <div class="fieldset-body">
+                <div class="mb-3">
+                    <label for="start_date" class="form-label fw-bold text-primary">Start date and time</label>
+                    <input type="datetime-local" class="form-control" id="start_date" name="start_date" required
+                           value="{{ data.startDate is defined ? data.startDate|date('Y-m-d\\TH:i') : data.start_date|default('') }}">
+                </div>
+                <div class="mb-3">
+                    <label for="end_date" class="form-label fw-bold text-primary">End date and time</label>
+                    <input type="datetime-local" class="form-control" id="end_date" name="end_date"
+                           value="{{ data.endDate is defined and data.endDate ? data.endDate|date('Y-m-d\\TH:i') : data.end_date|default('') }}">
+                </div>
+                <div class="mb-3">
+                    <label for="registration_deadline" class="form-label fw-bold text-primary">Registration Deadline</label>
+                    <input type="datetime-local" class="form-control" id="registration_deadline" name="registration_deadline"
+                           value="{{ data.registrationDeadline is defined and data.registrationDeadline ? data.registrationDeadline|date('Y-m-d\\TH:i') : data.registration_deadline|default('') }}">
+                </div>
+            </div>
+        </fieldset>
+    </div>
+
+    <div class="col-lg-6">
+        <fieldset class="card-fieldset h-100">
+            <legend class="card-legend">Location and Modalities</legend>
+            <div class="fieldset-body">
+                <div class="row">
+                    <div class="col-6 mb-3">
+                        <label for="country" class="form-label fw-bold text-primary">Country</label>
+                        <input type="text" class="form-control" id="country" name="country" value="{{ data.country|default('Italy') }}">
+                    </div>
+                    <div class="col-6 mb-3">
+                        <label for="city" class="form-label fw-bold text-primary">City</label>
+                        <input type="text" class="form-control" id="city" name="city" value="{{ data.city|default('Bologna') }}">
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="location" class="form-label fw-bold text-primary">Location</label>
+                    <input type="text" class="form-control" id="location" name="location" 
+                           placeholder="Es. Aula 3, Campus / Online"
+                           value="{{ data.location|default('') }}">
+                </div>
+                <div class="mb-3">
+                    <label for="url" class="form-label fw-bold text-primary">External URL</label>
+                    <input type="url" class="form-control" id="url" name="url" 
+                           placeholder="https://..."
+                           value="{{ data.url|default('') }}">
+                </div>
+            </div>
+        </fieldset>
+    </div>
+</div>
+
+<div class="row mt-3">
+    <div class="col-lg-6">
+        <fieldset class="card-fieldset h-100">
+            <legend class="card-legend">Participation</legend>
+            <div class="fieldset-body">
+                <div class="mb-3">
+                    <label for="min_participants" class="form-label fw-bold text-primary">Min partecipants</label>
+                    <input type="number" class="form-control" id="min_participants" name="min_participants" min="0"
+                           value="{{ data.minParticipants|default(0) }}">
+                </div>
+                <div class="mb-3">
+                    <label for="max_participants" class="form-label fw-bold text-primary">Max partecipants</label>
+                    <input type="number" class="form-control" id="max_participants" name="max_participants" min="0"
+                           value="{{ data.maxParticipants|default(0) }}">
+                </div>
+                <div class="mb-3">
+                    <label for="participation_type_id" class="form-label fw-bold text-primary">Participation Type</label>
+                    <select class="form-select" id="participation_type_id" name="participation_type_id" required>
+                        {% for p in participationTypes %}
+                            <option value="{{ p.id }}"
+                                    {% if data.participationTypeId is defined and data.participationTypeId == p.id %}selected{% endif %}>
+                                {{ p.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+        </fieldset>
+    </div>
+
+    <div class="col-lg-6">
+        <fieldset class="card-fieldset h-100">
+            <legend class="card-legend">Event Type</legend>
+            <div class="fieldset-body">
+                <div class="mb-3">
+                    <label for="type_id" class="form-label fw-bold text-primary">Type</label>
+                    <select class="form-select" id="type_id" name="type_id" required>
+                        {% for type in eventTypes %}
+                            <option value="{{ type.id }}"
+                                    {% if data.typeId is defined and data.typeId == type.id %}selected{% endif %}>
+                                {{ type.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="status" class="form-label fw-bold text-primary">Status</label>
+                    <select class="form-select" id="status" name="status" required>
+                        {% for s in ['Draft','Active','Completed','Cancelled'] %}
+                            <option value="{{ s }}"
+                                    {% if data.status is defined and (data.status.value is defined ? data.status.value : data.status) == s %}selected{% endif %}>
+                                {{ s }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label for="organizer_display" class="form-label fw-bold text-primary">Event Organizer</label>
+                    <select class="form-select" id="organizer_display" disabled aria-label="Event Organizer">
+                        {% if currentUser %}
+                            <option selected>{{ currentUser.user_id }}</option>
+                        {% else %}
+                            <option selected>Other Users</option>
+                        {% endif %}
+                    </select>
+                </div>
+            </div>
+        </fieldset>
+    </div>
+</div>
+
+<fieldset class="card-fieldset mt-3">
+    <legend class="card-legend">Requested Skills</legend>
+    <div class="fieldset-body">
+        <div class="mb-3">
+            <label for="skills" class="form-label fw-bold text-primary">Enter the skills required for the event</label>
+            <input type="text" class="form-control" id="skills" name="skills" 
+                   placeholder="Cybersecurity, Web Development, CI/CD" 
+                   value="{{ data.skills|default('') }}" aria-describedby="skillsHelp">
+            <div id="skillsHelp" class="form-text">Separate skills with a comma.</div>
+        </div>
+    </div>
+</fieldset>

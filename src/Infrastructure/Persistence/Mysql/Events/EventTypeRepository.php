@@ -16,7 +16,7 @@ class EventTypeRepository implements IEventTypeRepository
 
     public function findAll(): array
     {
-        $stmt = $this->pdo->query('SELECT type_id AS id, name FROM event_type ORDER BY name');
+        $stmt = $this->pdo->query('SELECT id, name FROM event_type ORDER BY name');
 
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }

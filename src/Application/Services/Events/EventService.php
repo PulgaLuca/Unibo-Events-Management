@@ -42,6 +42,7 @@ class EventService
             $data['description'] ?? null,
             new \DateTime($data['start_date']),
             isset($data['end_date']) ? new \DateTime($data['end_date']) : null,
+            isset($data['image_url']) ? $data['image_url'] : '/assets/images/events/event-main.jpg',
             $data['location'] ?? null,
             $data['url'] ?? null,
             isset($data['registration_deadline']) ? new \DateTime($data['registration_deadline']) : null,
@@ -50,8 +51,7 @@ class EventService
             EventStatus::fromString($data['status']),
             $data['type_id'],
             $data['participation_type_id'],
-            $data['creator_user_id'] ?? null,
-            $data['creator_team_id'] ?? null
+            $data['creator_user_id'] ?? null
         );
 
         $this->eventRepository->save($event);
@@ -75,6 +75,7 @@ class EventService
             $data['description'] ?? $event->getDescription(),
             isset($data['start_date']) ? new \DateTime($data['start_date']) : $event->getStartDate(),
             array_key_exists('end_date', $data) ? ($data['end_date'] ? new \DateTime($data['end_date']) : null) : $event->getEndDate(),
+            isset($data['image_url']) ? $data['image_url'] : $event->getImageUrl(),
             $data['location'] ?? $event->getLocation(),
             $data['url'] ?? $event->getUrl(),
             isset($data['registration_deadline']) ? new \DateTime($data['registration_deadline']) : $event->getRegistrationDeadline(),

@@ -27,24 +27,29 @@ class EventController
     /**
      * List all events
      */
-    public function index(): Response
+    public function showEventMainPage(): Response
     {
-        // TODO: to activate when login works correctly
-        // if (!$this->authService->isAuthenticated()) {
-        //     return Response::redirect($_ENV['APP_URL'] . '/login');
-        // }
+        if (!$this->authService->isAuthenticated()) {
+            return Response::redirect($_ENV['APP_URL'] . '/login');
+        }
 
         $currentUser = $this->authService->getCurrentUser();
         $events = $this->eventService->findAll();
+        $eventTypes = $this->eventService->getEventTypes();
+        $participationTypes = $this->eventService->getParticipationTypes();
         
-        $html = $this->twig->render('events/index.twig', [
+        $html = $this->twig->render('eventIndex.twig', [
             'events' => $events,
             'success' => $_SESSION['success'] ?? null, // Utile come workaround in quanto delete esegue una POST ma poi il deleteEvent deve fare un redirect su /events
-            'currentUser' => $currentUser
+            'error' => $_SESSION['error'] ?? null,
+            'currentUser' => $currentUser,
+            'eventTypes' => $eventTypes,
+            'participationTypes' => $participationTypes
         ]);
 
         // Rimozione del messaggio di successo dalla sessione dopo averlo passato alla view.
         $_SESSION['success'] = null;
+        $_SESSION['error'] = null;
 
         return Response::html($html);
     }
@@ -52,111 +57,122 @@ class EventController
     /**
      * Show create event form
      */
-    public function createEvent(): Response
+    public function showEventCreatePage(): Response
     {
-        // TODO: to activate when login works correctly
-        // if (!$this->authService->isAuthenticated()) {
-        //     return Response::redirect($_ENV['APP_URL'] . '/login');
-        // }
+        if (!$this->authService->isAuthenticated()) {
+            return Response::redirect($_ENV['APP_URL'] . '/login');
+        }
 
         $currentUser = $this->authService->getCurrentUser();
+        // error_log(print_r($currentUser, true));
+        $eventTypes = $this->eventService->getEventTypes();
+        $participationTypes = $this->eventService->getParticipationTypes();
 
-        $html = $this->twig->render('events/create.twig', [
-            'eventTypes' => $this->eventService->getEventTypes(),
-            'participationTypes' => $this->eventService->getParticipationTypes(),
-            'currentUser' => $currentUser
+        $html = $this->twig->render('eventCreate.twig', [
+            'currentUser' => $currentUser,
+            'eventTypes' => $eventTypes,
+            'participationTypes' => $participationTypes
         ]);
 
         return Response::html($html);
     }
-
 
     /**
      * Handle create event submission
      */
     public function storeEvent(Request $request): Response
     {
-        // TODO: to activate when login works correctly
-        // if (!$this->authService->isAuthenticated()) {
-        //     return Response::redirect($_ENV['APP_URL'] . '/login');
-        // }
-
-        $currentUser = $this->authService->getCurrentUser();
+        if (!$this->authService->isAuthenticated()) {
+            return Response::redirect($_ENV['APP_URL'] . '/login');
+        }
 
         $data = $request->getParsedBody();
+        $currentUser = $this->authService->getCurrentUser();
+        $eventTypes = $this->eventService->getEventTypes();
+        $participationTypes = $this->eventService->getParticipationTypes();
 
-        try {
+        try
+        {
             $this->eventService->create($data);
-
-            $html = $this->twig->render('events/create.twig', [
-                'success' => 'Event created successfully!',
+            $_SESSION['success'] = 'Event created successfully!';
+            
+            $html = $this->twig->render('eventCreate.twig', [
+                'success' => $_SESSION['success'],
                 'data'  => $data,
-                'currentUser' => $currentUser
+                'currentUser' => $currentUser,
+                'eventTypes' => $eventTypes,
+                'participationTypes' => $participationTypes
             ]);
             return Response::html($html);
-
-        } catch (Exception $e) {
-            $html = $this->twig->render('events/create.twig', [
+        }
+        catch (Exception $e) 
+        {
+            $html = $this->twig->render('eventCreate.twig', [
                 'error' => $e->getMessage(),
                 'data'  => $data,
                 'currentUser' => $currentUser
             ]);
 
-            return Response::html($html, 400);
+            $_SESSION['error'] = 'Something went wrong while creating this event: ' . $e->getMessage();
+            
+            return Response::html($html);
         }
     }
 
     /**
      * Show single event
      */
-    public function showEvent(string $id): Response
+    public function showEventDetails(string $id): Response
     {
         try 
         {
-            // TODO: to activate when login works correctly
-            // if (!$this->authService->isAuthenticated()) {
-            //     return Response::redirect($_ENV['APP_URL'] . '/login');
-            // }
+            if (!$this->authService->isAuthenticated()) {
+                return Response::redirect($_ENV['APP_URL'] . '/login');
+            }
 
             $event = $this->eventService->findById($id);
             $currentUser = $this->authService->getCurrentUser();
 
-            $html = $this->twig->render('events/show.twig', [
+            $html = $this->twig->render('eventShow.twig', [
                 'event' => $event,
-                'eventTypes' => $this->eventService->getEventTypes(),
-                'participationTypes' => $this->eventService->getParticipationTypes(),
                 'currentUser' => $currentUser
             ]);
 
             return Response::html($html);
-        } catch (Exception $e) {
-            return Response::html('Event not found', 404);
+        }
+        catch (Exception $e) 
+        {
+            $_SESSION['error'] = 'Something went wrong while searching this event: ' . $e->getMessage();
+            
+            return Response::redirect('/events');
         }
     }
 
     /**
      * Show edit event form
      */
-    public function editEvent(string $id): Response
+    public function showEventEditPage(string $id): Response
     {
-        // TODO: to activate when login works correctly
-        // if (!$this->authService->isAuthenticated()) {
-        //     return Response::redirect($_ENV['APP_URL'] . '/login');
-        // }
+        if (!$this->authService->isAuthenticated()) {
+            return Response::redirect($_ENV['APP_URL'] . '/login');
+        }
 
-        $event = $this->eventService->findById($id);
+        $data = $this->eventService->findById($id);
         $currentUser = $this->authService->getCurrentUser();
+        $eventTypes = $this->eventService->getEventTypes();
+        $participationTypes = $this->eventService->getParticipationTypes();
 
-        $html = $this->twig->render('events/edit.twig', [
+        $html = $this->twig->render('eventEdit.twig', [
            'success' => $_SESSION['success'] ?? null,
-            'event' => $event,
-            'eventTypes' => $this->eventService->getEventTypes(),
-            'participationTypes' => $this->eventService->getParticipationTypes(),
+            'data' => $data,
+            'eventTypes' => $eventTypes,
+            'participationTypes' => $participationTypes,
             'currentUser' => $currentUser
         ]);
 
         // Rimozione del messaggio di successo dalla sessione dopo averlo passato alla view.
         $_SESSION['success'] = null;
+        $_SESSION['error'] = null;
 
         return Response::html($html);
     }
@@ -166,31 +182,32 @@ class EventController
      */
     public function updateEvent(Request $request, string $id): Response
     {
-        // TODO: to activate when login works correctly
-        // if (!$this->authService->isAuthenticated()) {
-        //     return Response::redirect($_ENV['APP_URL'] . '/login');
-        // }
+        if (!$this->authService->isAuthenticated()) {
+            return Response::redirect($_ENV['APP_URL'] . '/login');
+        }
 
         $currentUser = $this->authService->getCurrentUser();
-        $event = $request->getParsedBody();
+        $data = $request->getParsedBody();
 
-        try {
-            $this->eventService->update($id, $event);
-
-            // Aggiungi un messaggio di successo nella sessione
+        try 
+        {
+            $this->eventService->update($id, $data);
             $_SESSION['success'] = 'Event updated successfully!';
+            
+            return Response::redirect('/events');
 
-            // Redirigi alla pagina degli eventi
-            return Response::redirect('/events'); 
-
-        } catch (Exception $e) {
-            $html = $this->twig->render('events/edit.twig', [
-                'error' => $e->getMessage(),
-                'event' => $event,
+        } 
+        catch (Exception $e) 
+        {
+            $_SESSION['error'] = 'Something went wrong while updating this event: ' . $e->getMessage();
+            
+            $html = $this->twig->render('eventEdit.twig', [
+                'error' => $_SESSION['error'],
+                'event' => $data,
                 'currentUser' => $currentUser
             ]);
 
-            return Response::html($html, 400);
+            return Response::redirect('/events');
         }
     }
 
@@ -199,23 +216,21 @@ class EventController
      */
     public function deleteEvent(string $id): Response
     {
-        // TODO: to activate when login works correctly
-        // if (!$this->authService->isAuthenticated()) {
-        //     return Response::redirect($_ENV['APP_URL'] . '/login');
-        // }
+        if (!$this->authService->isAuthenticated()) {
+            return Response::redirect($_ENV['APP_URL'] . '/login');
+        }
 
-        $currentUser = $this->authService->getCurrentUser();
-        try {
+        try 
+        {    
             $this->eventService->delete($id);
-        
-            // Aggiungi un messaggio di successo nella sessione
             $_SESSION['success'] = 'Event deleted successfully!';
-
-            // Redirigi alla pagina degli eventi
-            return Response::redirect('/events'); 
             
-        } catch (Exception $e) {
-            return Response::html($e->getMessage(), 400);
+            return Response::redirect('/events');
+        } 
+        catch (Exception $e) 
+        {
+            $_SESSION['error'] = 'Something went wrong while deleting this event: ' . $e->getMessage();
+            return Response::redirect('/events');
         }
     }
 }

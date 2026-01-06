@@ -86,16 +86,16 @@ INSERT INTO TEAM_MEMBERSHIP (team_id, user_id, role, request_status) VALUES
 -- *******************************************
 
 -- E001: Created by TEAM T001
-INSERT INTO EVENT (event_id, title, description, start_date, end_date, location, min_participants, max_participants, status, type_id, participation_type_id, creator_team_id) VALUES
-('E001', 'Mini Hackathon - Img Rec', '24h internal competition on image recognition.', '2026-03-10 09:00:00', NULL, 'Computer Lab 3', 10, 30, 'Active', 'ET01', 'PT01', 'T001');
+INSERT INTO EVENT (event_id, title, description, start_date, end_date, image_url, location, min_participants, max_participants, status, type_id, participation_type_id, creator_team_id) VALUES
+('E001', 'Mini Hackathon - Img Rec', '24h internal competition on image recognition.', '2026-03-10 09:00:00', NULL, 'https://example.com/image1.jpg', 'Computer Lab 3', 10, 30, 'Active', 'ET01', 'PT01', 'T001');
 
 -- E002: Created by User U002
-INSERT INTO EVENT (event_id, title, description, start_date, end_date, location, max_participants, status, type_id, participation_type_id, creator_user_id) VALUES
-('E002', 'Workshop: Soft Skills for Work', 'Introductory session on effective communication.', '2026-02-15 14:00:00', '2026-02-15 17:00:00', 'Online (Zoom)', 50, 'Active', 'ET02', 'PT02', 'U002');
+INSERT INTO EVENT (event_id, title, description, start_date, end_date, image_url, location, max_participants, status, type_id, participation_type_id, creator_user_id) VALUES
+('E002', 'Workshop: Soft Skills for Work', 'Introductory session on effective communication.', '2026-02-15 14:00:00', '2026-02-15 17:00:00', 'https://example.com/image2.jpg', 'Online (Zoom)', 50, 'Active', 'ET02', 'PT02', 'U002');
 
--- E003: External Competition (Merging old external details into EVENT)
-INSERT INTO EVENT (event_id, title, description, start_date, end_date, location, url, registration_deadline, min_participants, max_participants, status, type_id, participation_type_id, creator_user_id) VALUES
-('E003', 'National Cybersecurity Contest', 'National CTF (Capture The Flag) competition.', '2026-04-01 10:00:00', NULL, 'Rome Fiere', 'http://www.national-ctf.it', '2026-03-15 23:59:59', 3, 5, 'Active', 'ET03', 'PT01', 'U001');
+-- E003: External Competition
+INSERT INTO EVENT (event_id, title, description, start_date, end_date, image_url, location, url, registration_deadline, min_participants, max_participants, status, type_id, participation_type_id, creator_user_id) VALUES
+('E003', 'National Cybersecurity Contest', 'National CTF (Capture The Flag) competition.', '2026-04-01 10:00:00', NULL, 'https://example.com/image3.jpg', 'Rome Fiere', 'http://www.national-ctf.it', '2026-03-15 23:59:59', 3, 5, 'Active', 'ET03', 'PT01', 'U001');
 
 -- Event Skills
 INSERT INTO EVENT_REQUIRED_SKILL (event_id, skill_id) VALUES ('E001', 'S001'), ('E001', 'S002'), ('E002', 'S004');

@@ -1,5 +1,4 @@
-SW Architecture:
-	https://softwarepatternslexicon.com/php/architectural-patterns-in-php/hexagonal-architecture-ports-and-adapters/
+SW Architecture:	https://softwarepatternslexicon.com/php/architectural-patterns-in-php/hexagonal-architecture-ports-and-adapters/
 
 Tool di validazione:
 	https://validator.w3.org/

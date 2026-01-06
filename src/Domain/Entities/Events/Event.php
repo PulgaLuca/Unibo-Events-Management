@@ -14,6 +14,7 @@ class Event
     private ?string $description;
     private DateTime $startDate;
     private ?DateTime $endDate;
+    private ?string $imageUrl;
     private ?string $location;
     private ?string $url;
     private ?DateTime $registrationDeadline;
@@ -22,7 +23,7 @@ class Event
     private EventStatus $status;
     private string $typeId;
     private string $participationTypeId;
-    private ?string $creatorUserId;
+    private ?int $creatorUserId;
     private ?string $creatorTeamId;
 
     public function __construct(
@@ -31,6 +32,7 @@ class Event
         ?string $description,
         DateTime $startDate,
         ?DateTime $endDate,
+        ?string $imageUrl,
         ?string $location,
         ?string $url,
         ?DateTime $registrationDeadline,
@@ -39,8 +41,7 @@ class Event
         EventStatus $status,
         string $typeId,
         string $participationTypeId,
-        ?string $creatorUserId,
-        ?string $creatorTeamId
+        ?int $creatorUserId
     ) {
         $this->assertValidDates($startDate, $endDate, $registrationDeadline);
         $this->assertValidParticipants($minParticipants, $maxParticipants);
@@ -50,6 +51,7 @@ class Event
         $this->description = $description;
         $this->startDate = $startDate;
         $this->endDate = $endDate;
+        $this->imageUrl = $imageUrl;
         $this->location = $location;
         $this->url = $url;
         $this->registrationDeadline = $registrationDeadline;
@@ -59,7 +61,6 @@ class Event
         $this->typeId = $typeId;
         $this->participationTypeId = $participationTypeId;
         $this->creatorUserId = $creatorUserId;
-        $this->creatorTeamId = $creatorTeamId;
     }
 
     /**
@@ -70,6 +71,7 @@ class Event
         ?string $description,
         DateTime $startDate,
         ?DateTime $endDate,
+        ?string $imageUrl,
         ?string $location,
         ?string $url,
         ?DateTime $registrationDeadline,
@@ -84,6 +86,7 @@ class Event
         $this->description = $description;
         $this->startDate = $startDate;
         $this->endDate = $endDate;
+        $this->imageUrl = $imageUrl;
         $this->location = $location;
         $this->url = $url;
         $this->registrationDeadline = $registrationDeadline;
@@ -147,6 +150,11 @@ class Event
         return $this->endDate;
     }
 
+    public function getImageUrl(): ?string
+    {
+        return $this->imageUrl;
+    }
+
     public function getLocation(): ?string
     {
         return $this->location;
@@ -187,13 +195,13 @@ class Event
         return $this->participationTypeId;
     }
 
-    public function getCreatorUserId(): ?string
+    public function getCreatorUserId(): ?int
     {
         return $this->creatorUserId;
     }
 
-    public function getCreatorTeamId(): ?string
-    {
-        return $this->creatorTeamId;
-    }
+    // public function getCreatorTeamId(): ?string
+    // {
+    //     return $this->creatorTeamId;
+    // }
 }

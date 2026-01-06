@@ -29,10 +29,9 @@ class EventController
      */
     public function showEventMainPage(): Response
     {
-        // TODO: to activate when login works correctly
-        // if (!$this->authService->isAuthenticated()) {
-        //     return Response::redirect($_ENV['APP_URL'] . '/login');
-        // }
+        if (!$this->authService->isAuthenticated()) {
+            return Response::redirect($_ENV['APP_URL'] . '/login');
+        }
 
         $currentUser = $this->authService->getCurrentUser();
         $events = $this->eventService->findAll();
@@ -60,10 +59,9 @@ class EventController
      */
     public function showEventCreatePage(): Response
     {
-        // TODO: to activate when login works correctly
-        // if (!$this->authService->isAuthenticated()) {
-        //     return Response::redirect($_ENV['APP_URL'] . '/login');
-        // }
+        if (!$this->authService->isAuthenticated()) {
+            return Response::redirect($_ENV['APP_URL'] . '/login');
+        }
 
         $currentUser = $this->authService->getCurrentUser();
         $eventTypes = $this->eventService->getEventTypes();
@@ -83,10 +81,9 @@ class EventController
      */
     public function storeEvent(Request $request): Response
     {
-        // TODO: to activate when login works correctly
-        // if (!$this->authService->isAuthenticated()) {
-        //     return Response::redirect($_ENV['APP_URL'] . '/login');
-        // }
+        if (!$this->authService->isAuthenticated()) {
+            return Response::redirect($_ENV['APP_URL'] . '/login');
+        }
 
         $currentUser = $this->authService->getCurrentUser();
         $data = $request->getParsedBody();
@@ -128,10 +125,9 @@ class EventController
     {
         try 
         {
-            // TODO: to activate when login works correctly
-            // if (!$this->authService->isAuthenticated()) {
-            //     return Response::redirect($_ENV['APP_URL'] . '/login');
-            // }
+            if (!$this->authService->isAuthenticated()) {
+                return Response::redirect($_ENV['APP_URL'] . '/login');
+            }
 
             $event = $this->eventService->findById($id);
             $currentUser = $this->authService->getCurrentUser();
@@ -156,10 +152,9 @@ class EventController
      */
     public function showEventEditPage(string $id): Response
     {
-        // TODO: to activate when login works correctly
-        // if (!$this->authService->isAuthenticated()) {
-        //     return Response::redirect($_ENV['APP_URL'] . '/login');
-        // }
+        if (!$this->authService->isAuthenticated()) {
+            return Response::redirect($_ENV['APP_URL'] . '/login');
+        }
 
         $data = $this->eventService->findById($id);
         $currentUser = $this->authService->getCurrentUser();
@@ -186,10 +181,9 @@ class EventController
      */
     public function updateEvent(Request $request, string $id): Response
     {
-        // TODO: to activate when login works correctly
-        // if (!$this->authService->isAuthenticated()) {
-        //     return Response::redirect($_ENV['APP_URL'] . '/login');
-        // }
+        if (!$this->authService->isAuthenticated()) {
+            return Response::redirect($_ENV['APP_URL'] . '/login');
+        }
 
         $currentUser = $this->authService->getCurrentUser();
         $data = $request->getParsedBody();
@@ -221,10 +215,9 @@ class EventController
      */
     public function deleteEvent(string $id): Response
     {
-        // TODO: to activate when login works correctly
-        // if (!$this->authService->isAuthenticated()) {
-        //     return Response::redirect($_ENV['APP_URL'] . '/login');
-        // }
+        if (!$this->authService->isAuthenticated()) {
+            return Response::redirect($_ENV['APP_URL'] . '/login');
+        }
 
         try 
         {    

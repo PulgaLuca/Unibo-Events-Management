@@ -50,6 +50,7 @@ php vendor\bin\phinx seed:run -c config\phinx.php
 php vendor/bin/phinx seed:run -c config/phinx.php
 ```
 
+
 ## 6) Start the development server
 Serve the app from the `public` directory:
 ```bash

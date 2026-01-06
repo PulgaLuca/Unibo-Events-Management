@@ -41,8 +41,7 @@ class Event
         EventStatus $status,
         string $typeId,
         string $participationTypeId,
-        ?string $creatorUserId,
-        ?string $creatorTeamId
+        ?string $creatorUserId
     ) {
         $this->assertValidDates($startDate, $endDate, $registrationDeadline);
         $this->assertValidParticipants($minParticipants, $maxParticipants);
@@ -62,7 +61,6 @@ class Event
         $this->typeId = $typeId;
         $this->participationTypeId = $participationTypeId;
         $this->creatorUserId = $creatorUserId;
-        $this->creatorTeamId = $creatorTeamId;
     }
 
     /**
@@ -202,8 +200,8 @@ class Event
         return $this->creatorUserId;
     }
 
-    public function getCreatorTeamId(): ?string
-    {
-        return $this->creatorTeamId;
-    }
+    // public function getCreatorTeamId(): ?string
+    // {
+    //     return $this->creatorTeamId;
+    // }
 }

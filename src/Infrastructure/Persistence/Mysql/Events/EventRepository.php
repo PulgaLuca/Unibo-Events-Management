@@ -23,13 +23,13 @@ class EventRepository implements IEventRepository
     {
         $sql = <<<SQL
             INSERT INTO EVENT (
-                event_id, title, description, start_date, end_date, image_url,
+                id, title, description, start_date, end_date, image_url,
                 location, url, registration_deadline,
                 min_participants, max_participants,
                 status, type_id, participation_type_id,
                 creator_user_id, creator_team_id
             ) VALUES (
-                :event_id, :title, :description, :start_date, :end_date, :image_url,
+                :id, :title, :description, :start_date, :end_date, :image_url,
                 :location, :url, :registration_deadline,
                 :min_participants, :max_participants,
                 :status, :type_id, :participation_type_id,
@@ -103,7 +103,7 @@ class EventRepository implements IEventRepository
     private function mapToEntity(array $row): Event
     {
         return new Event(
-            $row['event_id'],
+            $row['id'],
             $row['title'],
             $row['description'],
             new DateTime($row['start_date']),
@@ -117,8 +117,7 @@ class EventRepository implements IEventRepository
             EventStatus::fromString($row['status']),
             $row['type_id'],
             $row['participation_type_id'],
-            $row['creator_user_id'],
-            $row['creator_team_id']
+            $row['creator_user_id']
         );
     }
 
@@ -128,7 +127,7 @@ class EventRepository implements IEventRepository
     private function mapToDatabase(Event $event): array
     {
         return [
-            'event_id' => $event->getEventId(),
+            'id' => $event->getEventId(),
             'title' => $event->getTitle(),
             'description' => $event->getDescription(),
             'start_date' => $event->getStartDate()->format('Y-m-d H:i:s'),
@@ -142,15 +141,14 @@ class EventRepository implements IEventRepository
             'status' => $event->getStatus()->value,
             'type_id' => $event->getTypeId(),
             'participation_type_id' => $event->getParticipationTypeId(),
-            'creator_user_id' => $event->getCreatorUserId(),
-            'creator_team_id' => $event->getCreatorTeamId(),
+            'creator_user_id' => $event->getCreatorUserId()
         ];
     }
 
     private function mapToDatabaseUpdate(Event $event): array
     {
         return [
-            'event_id' => $event->getEventId(),
+            'id' => $event->getEventId(),
             'title' => $event->getTitle(),
             'description' => $event->getDescription(),
             'start_date' => $event->getStartDate()->format('Y-m-d H:i:s'),
@@ -161,10 +159,7 @@ class EventRepository implements IEventRepository
             'registration_deadline' => $event->getRegistrationDeadline()?->format('Y-m-d H:i:s'),
             'min_participants' => $event->getMinParticipants(),
             'max_participants' => $event->getMaxParticipants(),
-            'status' => $event->getStatus()->value,
-            'event_id' => $event->getEventId()
+            'status' => $event->getStatus()->value
         ];
     }
-
-
 }

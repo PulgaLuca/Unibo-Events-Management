@@ -16,7 +16,7 @@ class ParticipationTypeRepository implements IParticipationTypeRepository
 
     public function findAll(): array
     {
-        $stmt = $this->pdo->query('SELECT type_id AS id, name FROM participation_type ORDER BY name');
+        $stmt = $this->pdo->query('SELECT id, name FROM participation_type ORDER BY name');
 
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }

@@ -23,7 +23,7 @@ class Event
     private EventStatus $status;
     private string $typeId;
     private string $participationTypeId;
-    private ?string $creatorUserId;
+    private ?int $creatorUserId;
     private ?string $creatorTeamId;
 
     public function __construct(
@@ -41,7 +41,7 @@ class Event
         EventStatus $status,
         string $typeId,
         string $participationTypeId,
-        ?string $creatorUserId
+        ?int $creatorUserId
     ) {
         $this->assertValidDates($startDate, $endDate, $registrationDeadline);
         $this->assertValidParticipants($minParticipants, $maxParticipants);
@@ -195,7 +195,7 @@ class Event
         return $this->participationTypeId;
     }
 
-    public function getCreatorUserId(): ?string
+    public function getCreatorUserId(): ?int
     {
         return $this->creatorUserId;
     }

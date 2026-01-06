@@ -64,6 +64,7 @@ class EventController
         }
 
         $currentUser = $this->authService->getCurrentUser();
+        // error_log(print_r($currentUser, true));
         $eventTypes = $this->eventService->getEventTypes();
         $participationTypes = $this->eventService->getParticipationTypes();
 
@@ -85,8 +86,8 @@ class EventController
             return Response::redirect($_ENV['APP_URL'] . '/login');
         }
 
-        $currentUser = $this->authService->getCurrentUser();
         $data = $request->getParsedBody();
+        $currentUser = $this->authService->getCurrentUser();
         $eventTypes = $this->eventService->getEventTypes();
         $participationTypes = $this->eventService->getParticipationTypes();
 

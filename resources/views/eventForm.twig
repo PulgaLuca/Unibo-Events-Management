@@ -71,11 +71,11 @@
                 <div class="row">
                     <div class="col-6 mb-3">
                         <label for="country" class="form-label fw-bold text-primary">Country</label>
-                        <input type="text" class="form-control" id="country" name="country" value="{{ data.country|default('Italy') }}">
+                        <input type="text" class="form-control" id="country" name="country" placeholder="Italy" value="{{ data.country|default('') }}">
                     </div>
                     <div class="col-6 mb-3">
                         <label for="city" class="form-label fw-bold text-primary">City</label>
-                        <input type="text" class="form-control" id="city" name="city" value="{{ data.city|default('Bologna') }}">
+                        <input type="text" class="form-control" id="city" name="city" placeholder="Bologna" value="{{ data.city|default('') }}">
                     </div>
                 </div>
                 <div class="mb-3">
@@ -157,7 +157,7 @@
                     <label for="organizer_display" class="form-label fw-bold text-primary">Event Organizer</label>
                     <select class="form-select" id="organizer_display" disabled aria-label="Event Organizer">
                         {% if currentUser %}
-                            <option selected>{{ currentUser.user_id }}</option>
+                            <option selected>{{ currentUser.email }}</option>
                         {% else %}
                             <option selected>Other Users</option>
                         {% endif %}

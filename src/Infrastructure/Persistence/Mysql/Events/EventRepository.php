@@ -27,13 +27,13 @@ class EventRepository implements IEventRepository
                 location, url, registration_deadline,
                 min_participants, max_participants,
                 status, type_id, participation_type_id,
-                creator_user_id, creator_team_id
+                creator_user_id
             ) VALUES (
                 :id, :title, :description, :start_date, :end_date, :image_url,
                 :location, :url, :registration_deadline,
                 :min_participants, :max_participants,
                 :status, :type_id, :participation_type_id,
-                :creator_user_id, :creator_team_id
+                :creator_user_id
             )
         SQL;
 
@@ -56,7 +56,7 @@ class EventRepository implements IEventRepository
                 min_participants = :min_participants,
                 max_participants = :max_participants,
                 status = :status
-            WHERE event_id = :event_id
+            WHERE id = :id
         SQL;
 
         $stmt = $this->connection->prepare($sql);
@@ -66,16 +66,16 @@ class EventRepository implements IEventRepository
 
     public function delete(string $eventId): void
     {
-        $stmt = $this->connection->prepare('DELETE FROM EVENT WHERE event_id = :event_id');
+        $stmt = $this->connection->prepare('DELETE FROM EVENT WHERE id = :id');
 
-        $stmt->execute(['event_id' => $eventId]);
+        $stmt->execute(['id' => $eventId]);
     }
 
     public function findById(string $eventId): ?Event
     {
-        $stmt = $this->connection->prepare('SELECT * FROM EVENT WHERE event_id = :event_id');
+        $stmt = $this->connection->prepare('SELECT * FROM EVENT WHERE id = :id');
 
-        $stmt->execute(['event_id' => $eventId]);
+        $stmt->execute(['id' => $eventId]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if (!$row) {

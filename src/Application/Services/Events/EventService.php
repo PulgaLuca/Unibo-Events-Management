@@ -57,7 +57,7 @@ class EventService
         return $this->eventRepository->checkParticipation($eventId, $userId);
     }
 
-    public function resolveUserRoleInEvent(string $eventId, int $userId): string
+    public function resolveUserRoleInEvent(string $eventId, int $userId): ?string
     {
         return $this->eventRepository->getUserEventRole($eventId, $userId);
     }

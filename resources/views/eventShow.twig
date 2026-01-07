@@ -38,49 +38,44 @@
             </div>
         {% endif %}
 
-        <form method="post" action="/events/{{ data.eventId }}" enctype="multipart/form-data" id="event-form">
-            <input type="file" name="image" id="event_image" class="d-none" accept="image/jpeg, image/png, image/webp">            
-            
-            {% include "eventForm.twig" with {
-                data: data|default({}),
-                eventTypes: eventTypes,
-                participationTypes: participationTypes,
-                currentUser: currentUser
-            } %}
-            
-            <div class="d-flex gap-2 mt-4">
-                {% if isCreator %}
-                    <button type="submit" class="btn btn-primary px-4">
-                        Save
-                    </button>
+        {% include "eventForm.twig" with {
+            data: data|default({}),
+            eventTypes: eventTypes,
+            participationTypes: participationTypes,
+            currentUser: currentUser
+        } %}
 
-                    <form method="post" action="/events/{{ data.eventId }}/delete">
-                        <button type="submit" class="btn btn-danger px-4">
-                            Delete
+        <div class="d-flex gap-2 mt-4">
+            {% if isCreator %}
+                <button type="submit" class="btn btn-primary px-4">
+                    Save
+                </button>
+
+                <form method="post" action="/events/{{ data.eventId }}/delete">
+                    <button type="submit" class="btn btn-danger px-4">
+                        Delete
+                    </button>
+                </form>
+
+            {% else %}
+                {% if isSubscribed %}
+                    <form method="post" action="/events/{{ data.eventId }}/unsubscribe">
+                        <button type="submit" class="btn btn-outline-danger px-4">
+                            Unsubscribe
                         </button>
                     </form>
-
                 {% else %}
-                    {% if isSubscribed %}
-                        <form method="post" action="/events/{{ data.eventId }}/unsubscribe">
-                            <button type="submit" class="btn btn-outline-danger px-4">
-                                Unsubscribe
-                            </button>
-                        </form>
-                    {% else %}
-                        <form method="post" action="/events/{{ data.eventId }}/subscribe">
-                            <button type="submit" class="btn btn-success px-4">
-                                Subscribe
-                            </button>
-                        </form>
-                    {% endif %}
+                    <form method="post" action="/events/{{ data.eventId }}/subscribe">
+                        <button type="submit" class="btn btn-success px-4">
+                            Subscribe
+                        </button>
+                    </form>
                 {% endif %}
+            {% endif %}
 
-                <a href="/events" class="btn btn-secondary px-4">
-                    Back
-                </a>
-            </div>
-        </form>
-
+            <a href="/events" class="btn btn-secondary px-4">
+                Back
+            </a>
+        </div>
     </main>
 {% endblock %}

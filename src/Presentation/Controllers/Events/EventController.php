@@ -26,25 +26,34 @@ class EventController
 
     public function showEventMainPage(): Response
     {
-        if (!$this->authService->isAuthenticated()) {
+        try 
+        {
+            if (!$this->authService->isAuthenticated()) {
+                return Response::redirect($_ENV['APP_URL'] . '/login');
+            }
+
+            $currentUser = $this->authService->getCurrentUser();
+            $events = $this->eventService->findAll();
+            $eventsWithContext = $this->eventService->enrichEventsForUser($events, $currentUser->id);
+
+            $html = $this->twig->render('eventIndex.twig', [
+                'events' => $eventsWithContext,
+                'currentUser' => $currentUser,
+                'success' => $_SESSION['success'] ?? null,
+                'error' => $_SESSION['error'] ?? null
+            ]);
+
+            $_SESSION['success'] = null;
+            $_SESSION['error'] = null;
+
+            return Response::html($html);
+        } 
+        catch (Exception $e) 
+        {
+            $_SESSION['error'] = 'Something went wrong while loading events main page: ' . $e->getMessage();
+            
             return Response::redirect($_ENV['APP_URL'] . '/login');
         }
-
-        $currentUser = $this->authService->getCurrentUser();
-        $events = $this->eventService->findAll();
-        $eventsWithContext = $this->eventService->enrichEventsForUser($events, $currentUser->id);
-
-        $html = $this->twig->render('eventIndex.twig', [
-            'events' => $eventsWithContext,
-            'currentUser' => $currentUser,
-            'success' => $_SESSION['success'] ?? null,
-            'error' => $_SESSION['error'] ?? null
-        ]);
-
-        $_SESSION['success'] = null;
-        $_SESSION['error'] = null;
-
-        return Response::html($html);
     }
 
     /**
@@ -52,27 +61,39 @@ class EventController
      */
     public function showEventCreatePage(): Response
     {
-        if (!$this->authService->isAuthenticated()) {
-            return Response::redirect($_ENV['APP_URL'] . '/login');
+        try 
+        {
+            if (!$this->authService->isAuthenticated()) {
+                return Response::redirect($_ENV['APP_URL'] . '/login');
+            }
+
+            $currentUser = $this->authService->getCurrentUser();
+            $eventTypes = $this->eventService->getEventTypes();
+            $participationTypes = $this->eventService->getParticipationTypes();
+
+            $html = $this->twig->render('eventCreate.twig', [
+                'eventTypes' => $eventTypes,
+                'participationTypes' => $participationTypes,
+                'currentUser' => $currentUser,
+                'organizer' => $currentUser,
+                'isCreator' => true,
+                'isSubscribed' => true,
+                'userRole' => 'Lead',
+                'success' => $_SESSION['success'] ?? null,
+                'error' => $_SESSION['error'] ?? null
+            ]);
+
+            $_SESSION['success'] = null;
+            $_SESSION['error'] = null;
+
+            return Response::html($html);
         }
-
-        $currentUser = $this->authService->getCurrentUser();
-        $eventTypes = $this->eventService->getEventTypes();
-        $participationTypes = $this->eventService->getParticipationTypes();
-
-        $html = $this->twig->render('eventCreate.twig', [
-            'eventTypes' => $eventTypes,
-            'participationTypes' => $participationTypes,
-            'currentUser' => $currentUser,
-            'organizer' => $currentUser,
-            'isCreator' => true,
-            'isSubscribed' => true,
-            'userRole' => 'Lead',
-            'success' => $_SESSION['success'] ?? null,
-            'error' => $_SESSION['error'] ?? null
-        ]);
-
-        return Response::html($html);
+        catch (Exception $e)
+        {
+            $_SESSION['error'] = 'Something went wrong while loading create event page: ' . $e->getMessage();
+            
+            return Response::redirect($_ENV['APP_URL'] . '/events');
+        }
     }
 
     /**
@@ -80,17 +101,17 @@ class EventController
      */
     public function storeEvent(Request $request): Response
     {
-        if (!$this->authService->isAuthenticated()) {
-            return Response::redirect($_ENV['APP_URL'] . '/login');
-        }
-
-        $data = $request->getParsedBody();
-        $currentUser = $this->authService->getCurrentUser();
-        $eventTypes = $this->eventService->getEventTypes();
-        $participationTypes = $this->eventService->getParticipationTypes();
-
         try
         {
+            if (!$this->authService->isAuthenticated()) {
+                return Response::redirect($_ENV['APP_URL'] . '/login');
+            }
+
+            $data = $request->getParsedBody();
+            $currentUser = $this->authService->getCurrentUser();
+            $eventTypes = $this->eventService->getEventTypes();
+            $participationTypes = $this->eventService->getParticipationTypes();
+
             $this->eventService->create($data, $currentUser->id);
             $_SESSION['success'] = 'Event created successfully!';
             
@@ -105,6 +126,10 @@ class EventController
                 'isSubscribed' => true,
                 'userRole' => 'Lead'
             ]);
+
+            $_SESSION['success'] = null;
+            $_SESSION['error'] = null;
+
             return Response::html($html);
         }
         catch (Exception $e) 
@@ -132,11 +157,12 @@ class EventController
      */
     public function showEventDetails(string $id): Response
     {
-        if (!$this->authService->isAuthenticated()) {
-            return Response::redirect($_ENV['APP_URL'] . '/login');
-        }
+        try 
+        {
+            if (!$this->authService->isAuthenticated()) {
+                return Response::redirect($_ENV['APP_URL'] . '/login');
+            }
 
-        try {
             $event = $this->eventService->findById($id);
 
             if (!$event) {
@@ -170,81 +196,37 @@ class EventController
             $_SESSION['error'] = null;
 
             return Response::html($html);
-        } catch (Exception $e) {
+
+        } 
+        catch (Exception $e) 
+        {
             $_SESSION['error'] = $e->getMessage();
             return Response::redirect('/events');
         }
     }
-
-
-    /**
-     * Show edit event form
-     */
-    // public function showEventEditPage(string $id): Response
-    // {
-    //     if (!$this->authService->isAuthenticated()) {
-    //         return Response::redirect($_ENV['APP_URL'] . '/login');
-    //     }
-
-    //     $data = $this->eventService->findById($id);
-    //     $currentUser = $this->authService->getCurrentUser();
-    //     $eventTypes = $this->eventService->getEventTypes();
-    //     $participationTypes = $this->eventService->getParticipationTypes();
-
-    //     // Verifica se l'utente è iscritto e se è il creatore
-    //     $isSubscribed = $this->eventService->isUserSubscribed($id, $currentUser->id);
-    //     $isCreator = ($data->getCreatorUserId() === $currentUser->id);
-    //     error_log(print_r('isSubscribed: ' . $isSubscribed, true));
-    //     error_log(print_r('isCreator: ' . $isCreator, true));
-
-    //     if (!$isCreator) {
-    //         $_SESSION['error'] = 'Unauthorized action';
-    //         return Response::redirect($_ENV['APP_URL'] . '/events');
-    //     }
-
-    //     $html = $this->twig->render('eventEdit.twig', [
-    //        'success' => $_SESSION['success'] ?? null,
-    //         'data' => $data,
-    //         'eventTypes' => $eventTypes,
-    //         'participationTypes' => $participationTypes,
-    //         'currentUser' => $currentUser,
-    //         'isSubscribed' => $isSubscribed,
-    //         'isCreator' => $isCreator
-    //     ]);
-
-    //     // Rimozione del messaggio di successo dalla sessione dopo averlo passato alla view.
-    //     $_SESSION['success'] = null;
-    //     $_SESSION['error'] = null;
-
-    //     return Response::html($html);
-    // }
 
     /**
      * Handle update event submission
      */
     public function updateEvent(Request $request, string $id): Response
     {
-        if (!$this->authService->isAuthenticated()) {
-            return Response::redirect($_ENV['APP_URL'] . '/login');
-        }
-
-        $currentUser = $this->authService->getCurrentUser();
-        $data = $request->getParsedBody();
-        
-        $isSubscribed = $this->eventService->isUserSubscribed($id, $currentUser->id);
-        $isCreator = ($data['creator_user_id'] === $currentUser->id);
-        
-        error_log(print_r($data, true));
-        error_log(print_r($isSubscribed, true));
-        error_log(print_r($isCreator, true));
-
-        if (!$isCreator) {
-            $_SESSION['error'] = 'Unauthorized action';
-            return Response::redirect($_ENV['APP_URL'] . '/events');
-        }
-
         try 
         {
+            if (!$this->authService->isAuthenticated()) {
+                return Response::redirect($_ENV['APP_URL'] . '/login');
+            }
+
+            $currentUser = $this->authService->getCurrentUser();
+            $data = $request->getParsedBody();
+            
+            // $isSubscribed = $this->eventService->isUserSubscribed($id, $currentUser->id);
+            // $isCreator = ($data['creator_user_id'] === $currentUser->id);
+
+            // if (!$isCreator) {
+            //     $_SESSION['error'] = 'Unauthorized action';
+            //     return Response::redirect($_ENV['APP_URL'] . '/events');
+            // }
+
             $this->eventService->update($id, $data);
             $_SESSION['success'] = 'Event updated successfully!';
             
@@ -270,29 +252,23 @@ class EventController
      */
     public function deleteEvent(string $id): Response
     {
-        if (!$this->authService->isAuthenticated()) {
-            return Response::redirect($_ENV['APP_URL'] . '/login');
-        }
-
-        $data = $this->eventService->findById($id);
-        $currentUser = $this->authService->getCurrentUser();
-
-        $isSubscribed = $this->eventService->isUserSubscribed($id, $currentUser->id);
-        $isCreator = ($data->getCreatorUserId() === $currentUser->id);
-        
-        error_log(print_r($data, true));
-        error_log(print_r($currentUser, true));
-        error_log(print_r($isSubscribed, true));
-        error_log(print_r($isCreator, true));
-
-
-        if (!$isCreator) {
-            $_SESSION['error'] = 'Unauthorized action';
-            return Response::redirect($_ENV['APP_URL'] . '/events');
-        }
-
         try 
-        {    
+        {
+            if (!$this->authService->isAuthenticated()) {
+                return Response::redirect($_ENV['APP_URL'] . '/login');
+            }
+
+            $data = $this->eventService->findById($id);
+            $currentUser = $this->authService->getCurrentUser();
+
+            $isSubscribed = $this->eventService->isUserSubscribed($id, $currentUser->id);
+            $isCreator = ($data->getCreatorUserId() === $currentUser->id);
+
+            if (!$isCreator) {
+                $_SESSION['error'] = 'Unauthorized action';
+                return Response::redirect($_ENV['APP_URL'] . '/events');
+            }
+
             $this->eventService->delete($id);
             $_SESSION['success'] = 'Event deleted successfully!';
             
@@ -310,17 +286,21 @@ class EventController
      */
     public function subscribeToEvent(string $id): Response
     {
-        if (!$this->authService->isAuthenticated()) {
-            return Response::redirect($_ENV['APP_URL'] . '/login');
-        }
+        try 
+        {
+            if (!$this->authService->isAuthenticated()) {
+                return Response::redirect($_ENV['APP_URL'] . '/login');
+            }
 
-        try {
             $currentUser = $this->authService->getCurrentUser();
-            $this->eventService->subscribeUser($id, $currentUser['id']);
+            $this->eventService->subscribeUser($id, $currentUser->id);
             $_SESSION['success'] = 'Successfully subscribed to the event!';
             
             return Response::redirect('/events/' . $id);
-        } catch (Exception $e) {
+
+        } 
+        catch (Exception $e) 
+        {
             $_SESSION['error'] = 'Something went wrong while subscribing: ' . $e->getMessage();
             return Response::redirect('/events/' . $id);
         }
@@ -331,22 +311,22 @@ class EventController
      */
     public function unsubscribeFromEvent(string $id): Response
     {
-        if (!$this->authService->isAuthenticated()) {
-            return Response::redirect($_ENV['APP_URL'] . '/login');
-        }
+        try 
+        {
+            if (!$this->authService->isAuthenticated()) {
+                return Response::redirect($_ENV['APP_URL'] . '/login');
+            }
 
-        try {
             $currentUser = $this->authService->getCurrentUser();
-            $this->eventService->unsubscribeUser($id, $currentUser['id']);
+            $this->eventService->unsubscribeUser($id, $currentUser->id);
             $_SESSION['success'] = 'Successfully unsubscribed from the event!';
             
             return Response::redirect('/events/' . $id);
-        } catch (Exception $e) {
+        } 
+        catch (Exception $e) 
+        {
             $_SESSION['error'] = 'Something went wrong while unsubscribing: ' . $e->getMessage();
             return Response::redirect('/events/' . $id);
         }
     }
-
-    
-
 }

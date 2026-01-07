@@ -99,8 +99,6 @@ class EventRepository implements IEventRepository
 
     public function createParticipation(array $data): void
     {
-        error_log(print_r('createParticipation', true));
-
         $stmt = $this->connection->prepare(
             "INSERT INTO EVENT_PARTICIPATION 
             (id, event_id, user_id, team_id, role, registration_date) 
@@ -108,8 +106,6 @@ class EventRepository implements IEventRepository
         );
         
         $stmt->execute($data);
-        error_log(print_r('createParticipation', true));
-
     }
 
     public function deleteParticipation(string $eventId, int $userId): void
@@ -248,7 +244,7 @@ class EventRepository implements IEventRepository
     }
 
     /**
-     * Map DB row → Domain Entity
+     * Map DB row -> Domain Entity
      */
     private function mapToEntity(array $row): Event
     {
@@ -272,7 +268,7 @@ class EventRepository implements IEventRepository
     }
 
     /**
-     * Map Domain Entity → DB array
+     * Map Domain Entity -> DB array
      */
     private function mapToDatabase(Event $event): array
     {

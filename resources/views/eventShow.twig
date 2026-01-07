@@ -3,21 +3,79 @@
 {% block title %}Event Details{% endblock %}
 
 {% block content %}
-<h1>{{ event.title }}</h1>
+    <div class="position-relative text-white overflow-hidden rounded-3 mb-4" style="background-color: #000;">
+        <img src="{{ data.imageUrl }}"
+             id="main-event-image"
+             alt="Immagine di presentazione dell'evento."
+             class="w-100 object-fit-cover opacity-50" 
+             style="height: 400px; filter: brightness(0.6);">
+        
+        <div class="position-absolute top-0 start-0 w-100 h-100 p-4 d-flex flex-column justify-content-center">
+            <h1 class="display-5 fw-bold">Check out the event</h1>
+            <p class="lead">Challenge yourself to the test with your community <br>and bring your talent to the world.</p>
+            <p class="mb-4 d-none d-md-block">Take a look at internal events, workshops or <br>external competitions to find out more.</p>
+            <div>
+                <button class="btn btn-primary" type="button" onclick="document.getElementById('event_image').click();">
+                    Load image event
+                </button>
+                <input type="file" name="image" id="event_image" class="d-none" accept="image/*">
+            </div>
+        </div>
+    </div>
 
-<p><strong>Description:</strong> {{ event.description }}</p>
-<p><strong>Start:</strong> {{ event.startDate|date('Y-m-d H:i') }}</p>
-<p><strong>End:</strong>
-    {{ event.endDate ? event.endDate|date('Y-m-d H:i') : '—' }}
-</p>
-<p><strong>Status:</strong> {{ event.status.value }}</p>
-<p><strong>Location:</strong> {{ event.location }}</p>
-<p><strong>URL:</strong>
-    {% if event.url %}
-        <a href="{{ event.url }}">{{ event.url }}</a>
-    {% endif %}
-</p>
+    <main class="container mb-5">
+        {% if error %}
+            <div class="alert alert-danger alert-dismissible fade show" role="alert" id="js-error-container">
+                <strong>Error:</strong> {{ error }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endif %}
 
-<a href="/events/{{ event.eventId }}/edit">Edit</a> |
-<a href="/events">Back to list</a>
+        {% if success %}
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                {{ success }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endif %}
+
+        {% include "eventForm.twig" with {
+            data: data|default({}),
+            eventTypes: eventTypes,
+            participationTypes: participationTypes,
+            currentUser: currentUser
+        } %}
+
+        <div class="d-flex gap-2 mt-4">
+            {% if isCreator %}
+                <button type="submit" class="btn btn-primary px-4">
+                    Save
+                </button>
+
+                <form method="post" action="/events/{{ data.eventId }}/delete">
+                    <button type="submit" class="btn btn-danger px-4">
+                        Delete
+                    </button>
+                </form>
+
+            {% else %}
+                {% if isSubscribed %}
+                    <form method="post" action="/events/{{ data.eventId }}/unsubscribe">
+                        <button type="submit" class="btn btn-outline-danger px-4">
+                            Unsubscribe
+                        </button>
+                    </form>
+                {% else %}
+                    <form method="post" action="/events/{{ data.eventId }}/subscribe">
+                        <button type="submit" class="btn btn-success px-4">
+                            Subscribe
+                        </button>
+                    </form>
+                {% endif %}
+            {% endif %}
+
+            <a href="/events" class="btn btn-secondary px-4">
+                Back
+            </a>
+        </div>
+    </main>
 {% endblock %}

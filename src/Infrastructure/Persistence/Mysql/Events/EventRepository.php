@@ -97,6 +97,46 @@ class EventRepository implements IEventRepository
         return $events;
     }
 
+    public function createParticipation(array $data): void
+    {
+        $stmt = $this->connection->prepare(
+            "INSERT INTO EVENT_PARTICIPATION 
+            (id, event_id, user_id, team_id, role, registration_date) 
+            VALUES (:id, :event_id, :user_id, :team_id, :role, :registration_date)"
+        );
+        
+        $stmt->execute($data);
+    }
+
+    public function deleteParticipation(string $eventId, int $userId): void
+    {
+        $stmt = $this->connection->prepare(
+            "DELETE FROM EVENT_PARTICIPATION 
+            WHERE event_id = :event_id AND user_id = :user_id"
+        );
+        
+        $stmt->execute([
+            'event_id' => $eventId,
+            'user_id' => $userId
+        ]);
+    }
+
+    public function checkParticipation(string $eventId, int $userId): bool
+    {
+        $stmt = $this->connection->prepare(
+            "SELECT COUNT(*) as count FROM EVENT_PARTICIPATION 
+            WHERE event_id = :event_id AND user_id = :user_id"
+        );
+        
+        $stmt->execute([
+            'event_id' => $eventId,
+            'user_id' => $userId
+        ]);
+        
+        $result = $stmt->fetch();
+        return $result['count'] > 0;
+    }
+
     /**
      * Map DB row → Domain Entity
      */

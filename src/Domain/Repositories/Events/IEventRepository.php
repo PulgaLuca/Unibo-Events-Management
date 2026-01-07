@@ -34,4 +34,10 @@ interface IEventRepository
      * @return Event[]
      */
     public function findAll(): array;
+
+    public function createParticipation(array $data): void;
+
+    public function deleteParticipation(string $eventId, int $userId): void;
+
+    public function checkParticipation(string $eventId, int $userId): bool;
 }

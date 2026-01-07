@@ -29,6 +29,31 @@ class EventService
         $this->participationTypeRepository = $participationTypeRepository;
     }
 
+    public function subscribeUser(string $eventId, int $userId): void
+    {
+        // Verifica che l'evento esista
+        $event = $this->findById($eventId);
+        
+        // Inserisci la partecipazione
+        $this->eventRepository->createParticipation([
+            'participation_id' => Uuid::uuid4()->toString(),
+            'event_id' => $eventId,
+            'user_id' => $userId,
+            'team_id' => null,
+            'role' => 'Participant'
+        ]);
+    }
+
+    public function unsubscribeUser(string $eventId, int $userId): void
+    {
+        $this->eventRepository->deleteParticipation($eventId, $userId);
+    }
+
+    public function isUserSubscribed(string $eventId, int $userId): bool
+    {
+        return $this->eventRepository->checkParticipation($eventId, $userId);
+    }
+
     /**
      * Create a new Event
      */
@@ -55,6 +80,7 @@ class EventService
         );
 
         $this->eventRepository->save($event);
+        $this->subscribeUser($event->getEventId(), $event->getCreatorUserId());
 
         return $event;
     }
@@ -116,7 +142,7 @@ class EventService
 
         return $event;
     }
-
+    
     /**
      * Get all Events
      */

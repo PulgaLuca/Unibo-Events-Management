@@ -99,6 +99,8 @@ class EventRepository implements IEventRepository
 
     public function createParticipation(array $data): void
     {
+        error_log(print_r('createParticipation', true));
+
         $stmt = $this->connection->prepare(
             "INSERT INTO EVENT_PARTICIPATION 
             (id, event_id, user_id, team_id, role, registration_date) 
@@ -106,6 +108,8 @@ class EventRepository implements IEventRepository
         );
         
         $stmt->execute($data);
+        error_log(print_r('createParticipation', true));
+
     }
 
     public function deleteParticipation(string $eventId, int $userId): void
@@ -121,6 +125,24 @@ class EventRepository implements IEventRepository
         ]);
     }
 
+    public function getUserEventRole(string $eventId, int $userId): ?string
+    {
+        $stmt = $this->connection->prepare(
+            "SELECT role 
+            FROM EVENT_PARTICIPATION 
+            WHERE event_id = :event_id AND user_id = :user_id"
+        );
+
+        $stmt->execute([
+            'event_id' => $eventId,
+            'user_id' => $userId
+        ]);
+
+        $role = $stmt->fetchColumn();
+        return $role !== false ? $role : null;
+    }
+
+
     public function checkParticipation(string $eventId, int $userId): bool
     {
         $stmt = $this->connection->prepare(
@@ -135,6 +157,94 @@ class EventRepository implements IEventRepository
         
         $result = $stmt->fetch();
         return $result['count'] > 0;
+    }
+
+    public function getEventParticipants(string $eventId): array
+    {
+        $stmt = $this->connection->prepare(
+            "SELECT 
+                u.user_id,
+                u.first_name,
+                u.last_name,
+                ep.role,
+                ep.registration_date
+            FROM EVENT_PARTICIPATION ep
+            JOIN USER u ON u.user_id = ep.user_id
+            WHERE ep.event_id = :event_id
+            AND ep.user_id IS NOT NULL"
+        );
+
+        $stmt->execute(['event_id' => $eventId]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+
+    public function getEventTeamsWithMembers(string $eventId): array
+    {
+        $stmt = $this->connection->prepare(
+            "SELECT
+                t.team_id,
+                t.name AS team_name,
+                u.user_id,
+                u.first_name,
+                u.last_name,
+                tm.role AS team_role
+            FROM EVENT_PARTICIPATION ep
+            JOIN TEAM t ON t.team_id = ep.team_id
+            JOIN TEAM_MEMBERSHIP tm ON tm.team_id = t.team_id
+            JOIN USER u ON u.user_id = tm.user_id
+            WHERE ep.event_id = :event_id
+            AND tm.request_status = 'Accepted'"
+        );
+
+        $stmt->execute(['event_id' => $eventId]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function findEventsCreatedByUser(int $userId): array
+    {
+        $stmt = $this->connection->prepare(
+            "SELECT * FROM EVENT WHERE creator_user_id = :user_id"
+        );
+
+        $stmt->execute(['user_id' => $userId]);
+
+        return array_map(
+            fn($row) => $this->mapToEntity($row),
+            $stmt->fetchAll(PDO::FETCH_ASSOC)
+        );
+    }
+
+    public function findEventsJoinedByUser(int $userId): array
+    {
+        $stmt = $this->connection->prepare(
+            "SELECT DISTINCT e.*
+            FROM EVENT e
+            JOIN EVENT_PARTICIPATION ep ON ep.event_id = e.id
+            LEFT JOIN TEAM_MEMBERSHIP tm ON tm.team_id = ep.team_id
+            WHERE ep.user_id = :user_id
+                OR tm.user_id = :user_id"
+        );
+
+        $stmt->execute(['user_id' => $userId]);
+
+        return array_map(
+            fn($row) => $this->mapToEntity($row),
+            $stmt->fetchAll(PDO::FETCH_ASSOC)
+        );
+    }
+
+    public function getRequiredSkills(string $eventId): array
+    {
+        $stmt = $this->connection->prepare(
+            "SELECT s.skill_id, s.name
+            FROM EVENT_REQUIRED_SKILL ers
+            JOIN SKILL s ON s.skill_id = ers.skill_id
+            WHERE ers.event_id = :event_id"
+        );
+
+        $stmt->execute(['event_id' => $eventId]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     /**

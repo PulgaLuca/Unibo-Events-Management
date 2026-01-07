@@ -24,9 +24,6 @@ class EventController
         $this->twig = $twig;
     }
 
-    /**
-     * List all events
-     */
     public function showEventMainPage(): Response
     {
         if (!$this->authService->isAuthenticated()) {
@@ -35,19 +32,15 @@ class EventController
 
         $currentUser = $this->authService->getCurrentUser();
         $events = $this->eventService->findAll();
-        $eventTypes = $this->eventService->getEventTypes();
-        $participationTypes = $this->eventService->getParticipationTypes();
-        
+        $eventsWithContext = $this->eventService->enrichEventsForUser($events, $currentUser->id);
+
         $html = $this->twig->render('eventIndex.twig', [
-            'events' => $events,
-            'success' => $_SESSION['success'] ?? null, // Utile come workaround in quanto delete esegue una POST ma poi il deleteEvent deve fare un redirect su /events
-            'error' => $_SESSION['error'] ?? null,
+            'events' => $eventsWithContext,
             'currentUser' => $currentUser,
-            'eventTypes' => $eventTypes,
-            'participationTypes' => $participationTypes
+            'success' => $_SESSION['success'] ?? null,
+            'error' => $_SESSION['error'] ?? null
         ]);
 
-        // Rimozione del messaggio di successo dalla sessione dopo averlo passato alla view.
         $_SESSION['success'] = null;
         $_SESSION['error'] = null;
 
@@ -64,14 +57,19 @@ class EventController
         }
 
         $currentUser = $this->authService->getCurrentUser();
-        // error_log(print_r($currentUser, true));
         $eventTypes = $this->eventService->getEventTypes();
         $participationTypes = $this->eventService->getParticipationTypes();
 
         $html = $this->twig->render('eventCreate.twig', [
-            'currentUser' => $currentUser,
             'eventTypes' => $eventTypes,
-            'participationTypes' => $participationTypes
+            'participationTypes' => $participationTypes,
+            'currentUser' => $currentUser,
+            'organizer' => $currentUser,
+            'isCreator' => true,
+            'isSubscribed' => true,
+            'userRole' => 'Lead',
+            'success' => $_SESSION['success'] ?? null,
+            'error' => $_SESSION['error'] ?? null
         ]);
 
         return Response::html($html);
@@ -93,7 +91,7 @@ class EventController
 
         try
         {
-            $this->eventService->create($data);
+            $this->eventService->create($data, $currentUser->id);
             $_SESSION['success'] = 'Event created successfully!';
             
             $html = $this->twig->render('eventCreate.twig', [
@@ -101,7 +99,11 @@ class EventController
                 'data'  => $data,
                 'currentUser' => $currentUser,
                 'eventTypes' => $eventTypes,
-                'participationTypes' => $participationTypes
+                'participationTypes' => $participationTypes,
+                'organizer' => $currentUser,
+                'isCreator' => true,
+                'isSubscribed' => true,
+                'userRole' => 'Lead'
             ]);
             return Response::html($html);
         }
@@ -110,7 +112,13 @@ class EventController
             $html = $this->twig->render('eventCreate.twig', [
                 'error' => $e->getMessage(),
                 'data'  => $data,
-                'currentUser' => $currentUser
+                'currentUser' => $currentUser,
+                'eventTypes' => $eventTypes,
+                'participationTypes' => $participationTypes,
+                'organizer' => $currentUser,
+                'isCreator' => true,
+                'isSubscribed' => true,
+                'userRole' => 'Lead'
             ]);
 
             $_SESSION['error'] = 'Something went wrong while creating this event: ' . $e->getMessage();
@@ -124,79 +132,92 @@ class EventController
      */
     public function showEventDetails(string $id): Response
     {
-        try 
-        {
-            if (!$this->authService->isAuthenticated()) {
-                return Response::redirect($_ENV['APP_URL'] . '/login');
-            }
-
-            $data = $this->eventService->findById($id);
-            $currentUser = $this->authService->getCurrentUser();
-            $eventTypes = $this->eventService->getEventTypes();
-            $participationTypes = $this->eventService->getParticipationTypes();
-
-            // Verifica se l'utente è iscritto e se è il creatore
-            $isSubscribed = $this->eventService->isUserSubscribed($id, $currentUser->id);
-            $isCreator = ($data->getCreatorUserId() === $currentUser->id);
-
-            $html = $this->twig->render('eventShow.twig', [
-                'data' => $data,
-                'eventTypes' => $eventTypes,
-                'participationTypes' => $participationTypes,
-                'currentUser' => $currentUser,
-                'isSubscribed' => $isSubscribed,
-                'isCreator' => $isCreator
-            ]);
-
-            return Response::html($html);
-        }
-        catch (Exception $e) 
-        {
-            $_SESSION['error'] = 'Something went wrong while searching this event: ' . $e->getMessage();
-            
-            return Response::redirect($_ENV['APP_URL'] . '/events');
-        }
-    }
-
-    /**
-     * Show edit event form
-     */
-    public function showEventEditPage(string $id): Response
-    {
         if (!$this->authService->isAuthenticated()) {
             return Response::redirect($_ENV['APP_URL'] . '/login');
         }
 
-        $data = $this->eventService->findById($id);
-        $currentUser = $this->authService->getCurrentUser();
-        $eventTypes = $this->eventService->getEventTypes();
-        $participationTypes = $this->eventService->getParticipationTypes();
+        try {
+            $event = $this->eventService->findById($id);
 
-        // Verifica se l'utente è iscritto e se è il creatore
-        $isSubscribed = $this->eventService->isUserSubscribed($id, $currentUser->id);
-        $isCreator = ($data->getCreatorUserId() === $currentUser->id);
+            if (!$event) {
+                $_SESSION['error'] = 'Event not found';
+                return Response::redirect('/events');
+            }
 
-        if (!$isCreator) {
-            $_SESSION['error'] = 'Unauthorized action';
-            return Response::redirect($_ENV['APP_URL'] . '/events');
+            $currentUser = $this->authService->getCurrentUser();
+            $organizer = $this->eventService->getEventCreator($id);
+            $eventTypes = $this->eventService->getEventTypes();
+            $participationTypes = $this->eventService->getParticipationTypes();
+
+            $isCreator = $event->getCreatorUserId() === $currentUser->id;
+            $isSubscribed = $this->eventService->isUserSubscribed($id, $currentUser->id);
+            $userRole = $this->eventService->resolveUserRoleInEvent($id, $currentUser->id);
+
+            $html = $this->twig->render('eventShow.twig', [
+                'data' => $event,
+                'eventTypes' => $eventTypes,
+                'participationTypes' => $participationTypes,
+                'currentUser' => $currentUser,
+                'organizer' => $organizer,
+                'isCreator' => $isCreator,
+                'isSubscribed' => $isSubscribed,
+                'userRole' => $userRole,
+                'success' => $_SESSION['success'] ?? null,
+                'error' => $_SESSION['error'] ?? null
+            ]);
+
+            $_SESSION['success'] = null;
+            $_SESSION['error'] = null;
+
+            return Response::html($html);
+        } catch (Exception $e) {
+            $_SESSION['error'] = $e->getMessage();
+            return Response::redirect('/events');
         }
-
-        $html = $this->twig->render('eventEdit.twig', [
-           'success' => $_SESSION['success'] ?? null,
-            'data' => $data,
-            'eventTypes' => $eventTypes,
-            'participationTypes' => $participationTypes,
-            'currentUser' => $currentUser,
-            'isSubscribed' => $isSubscribed,
-            'isCreator' => $isCreator
-        ]);
-
-        // Rimozione del messaggio di successo dalla sessione dopo averlo passato alla view.
-        $_SESSION['success'] = null;
-        $_SESSION['error'] = null;
-
-        return Response::html($html);
     }
+
+
+    /**
+     * Show edit event form
+     */
+    // public function showEventEditPage(string $id): Response
+    // {
+    //     if (!$this->authService->isAuthenticated()) {
+    //         return Response::redirect($_ENV['APP_URL'] . '/login');
+    //     }
+
+    //     $data = $this->eventService->findById($id);
+    //     $currentUser = $this->authService->getCurrentUser();
+    //     $eventTypes = $this->eventService->getEventTypes();
+    //     $participationTypes = $this->eventService->getParticipationTypes();
+
+    //     // Verifica se l'utente è iscritto e se è il creatore
+    //     $isSubscribed = $this->eventService->isUserSubscribed($id, $currentUser->id);
+    //     $isCreator = ($data->getCreatorUserId() === $currentUser->id);
+    //     error_log(print_r('isSubscribed: ' . $isSubscribed, true));
+    //     error_log(print_r('isCreator: ' . $isCreator, true));
+
+    //     if (!$isCreator) {
+    //         $_SESSION['error'] = 'Unauthorized action';
+    //         return Response::redirect($_ENV['APP_URL'] . '/events');
+    //     }
+
+    //     $html = $this->twig->render('eventEdit.twig', [
+    //        'success' => $_SESSION['success'] ?? null,
+    //         'data' => $data,
+    //         'eventTypes' => $eventTypes,
+    //         'participationTypes' => $participationTypes,
+    //         'currentUser' => $currentUser,
+    //         'isSubscribed' => $isSubscribed,
+    //         'isCreator' => $isCreator
+    //     ]);
+
+    //     // Rimozione del messaggio di successo dalla sessione dopo averlo passato alla view.
+    //     $_SESSION['success'] = null;
+    //     $_SESSION['error'] = null;
+
+    //     return Response::html($html);
+    // }
 
     /**
      * Handle update event submission
@@ -209,10 +230,13 @@ class EventController
 
         $currentUser = $this->authService->getCurrentUser();
         $data = $request->getParsedBody();
-
-        // Verifica se l'utente è iscritto e se è il creatore
+        
         $isSubscribed = $this->eventService->isUserSubscribed($id, $currentUser->id);
         $isCreator = ($data['creator_user_id'] === $currentUser->id);
+        
+        error_log(print_r($data, true));
+        error_log(print_r($isSubscribed, true));
+        error_log(print_r($isCreator, true));
 
         if (!$isCreator) {
             $_SESSION['error'] = 'Unauthorized action';
@@ -253,11 +277,16 @@ class EventController
         $data = $this->eventService->findById($id);
         $currentUser = $this->authService->getCurrentUser();
 
-        // Verifica se l'utente è iscritto e se è il creatore
         $isSubscribed = $this->eventService->isUserSubscribed($id, $currentUser->id);
         $isCreator = ($data->getCreatorUserId() === $currentUser->id);
+        
+        error_log(print_r($data, true));
+        error_log(print_r($currentUser, true));
+        error_log(print_r($isSubscribed, true));
+        error_log(print_r($isCreator, true));
 
-        if ($isCreator) {
+
+        if (!$isCreator) {
             $_SESSION['error'] = 'Unauthorized action';
             return Response::redirect($_ENV['APP_URL'] . '/events');
         }
@@ -317,4 +346,7 @@ class EventController
             return Response::redirect('/events/' . $id);
         }
     }
+
+    
+
 }

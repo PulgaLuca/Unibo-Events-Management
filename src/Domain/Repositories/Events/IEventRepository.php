@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Domain\Repositories\Events;
 
 use App\Domain\Entities\Events\Event;
+use App\Domain\Entities\Auth\User;
 
 interface IEventRepository
 {
@@ -40,4 +41,16 @@ interface IEventRepository
     public function deleteParticipation(string $eventId, int $userId): void;
 
     public function checkParticipation(string $eventId, int $userId): bool;
+
+    public function getUserEventRole(string $eventId, int $userId): ?string;
+
+    public function getEventParticipants(string $eventId): array;
+    
+    public function getEventTeamsWithMembers(string $eventId): array;
+    
+    public function findEventsCreatedByUser(int $userId): array;
+    
+    public function findEventsJoinedByUser(int $userId): array;
+    
+    public function getRequiredSkills(string $eventId): array;
 }

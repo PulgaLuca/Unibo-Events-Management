@@ -5,10 +5,13 @@ declare(strict_types=1);
 namespace App\Application\Services\Events;
 
 use App\Domain\Entities\Events\Event;
+use App\Domain\Entities\Auth\User;
 use App\Domain\Entities\Events\EventStatus;
+use App\Domain\Repositories\Auth\IUserRepository;
 use App\Domain\Repositories\Events\IEventRepository;
 use App\Domain\Repositories\Events\IEventTypeRepository;
 use App\Domain\Repositories\Events\IParticipationTypeRepository;
+use App\Infrastructure\Persistence\Mysql\Auth;
 
 use Exception;
 use Ramsey\Uuid\Uuid;
@@ -18,29 +21,29 @@ class EventService
     private IEventRepository $eventRepository;
     private IEventTypeRepository $eventTypeRepository;
     private IParticipationTypeRepository $participationTypeRepository;
+    private IUserRepository $userRepository;
 
     public function __construct(
         IEventRepository $eventRepository,
         IEventTypeRepository $eventTypeRepository,
-        IParticipationTypeRepository $participationTypeRepository
+        IParticipationTypeRepository $participationTypeRepository,
+        IUserRepository $userRepository
     ) {
         $this->eventRepository = $eventRepository;
         $this->eventTypeRepository = $eventTypeRepository;
         $this->participationTypeRepository = $participationTypeRepository;
+        $this->userRepository = $userRepository;
     }
 
     public function subscribeUser(string $eventId, int $userId): void
     {
-        // Verifica che l'evento esista
-        $event = $this->findById($eventId);
-        
-        // Inserisci la partecipazione
         $this->eventRepository->createParticipation([
-            'participation_id' => Uuid::uuid4()->toString(),
+            'id' => Uuid::uuid4()->toString(),
             'event_id' => $eventId,
             'user_id' => $userId,
             'team_id' => null,
-            'role' => 'Participant'
+            'role' => 'Participant',
+            'registration_date' => date("Y-m-d H:i:s")
         ]);
     }
 
@@ -54,15 +57,21 @@ class EventService
         return $this->eventRepository->checkParticipation($eventId, $userId);
     }
 
+    public function resolveUserRoleInEvent(string $eventId, int $userId): string
+    {
+        return $this->eventRepository->getUserEventRole($eventId, $userId);
+    }
+
     /**
      * Create a new Event
      */
-    public function create(array $data): Event
+    public function create(array $data, int $organizerId): Event
     {
         $this->validate($data);
+        $eventId = Uuid::uuid4()->toString();
 
         $event = new Event(
-            Uuid::uuid4()->toString(),
+            $eventId,
             $data['title'],
             $data['description'] ?? null,
             new \DateTime($data['start_date']),
@@ -76,11 +85,11 @@ class EventService
             EventStatus::fromString($data['status']),
             $data['type_id'],
             $data['participation_type_id'],
-            $data['creator_user_id'] ?? null
+            $organizerId
         );
-
+        
         $this->eventRepository->save($event);
-        $this->subscribeUser($event->getEventId(), $event->getCreatorUserId());
+        $this->subscribeUser($eventId, $organizerId);
 
         return $event;
     }
@@ -160,6 +169,38 @@ class EventService
     {
         return $this->participationTypeRepository->findAll();
     }
+
+    public function enrichEventsForUser(array $events, int $userId): array
+    {
+        $result = [];
+
+        foreach ($events as $event) {
+            $eventId = $event->getEventId();
+
+            $result[] = [
+                'event' => $event,
+                'isCreator' => $event->getCreatorUserId() === $userId,
+                'isSubscribed' => $this->isUserSubscribed($eventId, $userId),
+                'userRole' => $this->resolveUserRoleInEvent($eventId, $userId)
+            ];
+        }
+
+        return $result;
+    }
+
+    public function getEventCreator(string $eventId): ?User
+    {
+        $event = $this->findById($eventId);
+
+        if (!$event || !$event->getCreatorUserId()) {
+            return null;
+        }
+
+        return $this->userRepository->findById(
+            $event->getCreatorUserId()
+        );
+    }
+
 
     /**
      * Basic business validation

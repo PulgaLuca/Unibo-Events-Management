@@ -48,10 +48,39 @@
                 currentUser: currentUser
             } %}
             
-            <div class="d-flex justify-content-end gap-2 mt-4 pb-5">
-                <a href="/events" class="btn btn-danger px-4">Back</a>
-                <a href="/events/{{ data.eventId }}/edit" class="btn btn-primary px-4">Edit</a>
+            <div class="d-flex gap-2 mt-4">
+                {% if isCreator %}
+                    <button type="submit" class="btn btn-primary px-4">
+                        Save
+                    </button>
+
+                    <form method="post" action="/events/{{ data.eventId }}/delete">
+                        <button type="submit" class="btn btn-danger px-4">
+                            Delete
+                        </button>
+                    </form>
+
+                {% else %}
+                    {% if isSubscribed %}
+                        <form method="post" action="/events/{{ data.eventId }}/unsubscribe">
+                            <button type="submit" class="btn btn-outline-danger px-4">
+                                Unsubscribe
+                            </button>
+                        </form>
+                    {% else %}
+                        <form method="post" action="/events/{{ data.eventId }}/subscribe">
+                            <button type="submit" class="btn btn-success px-4">
+                                Subscribe
+                            </button>
+                        </form>
+                    {% endif %}
+                {% endif %}
+
+                <a href="/events" class="btn btn-secondary px-4">
+                    Back
+                </a>
             </div>
         </form>
+
     </main>
 {% endblock %}

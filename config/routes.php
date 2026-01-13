@@ -6,6 +6,7 @@ use App\Presentation\Controllers\Auth\UserController;
 use App\Presentation\Controllers\Auth\ProfileController;
 use App\Presentation\Controllers\HomeController;
 use App\Presentation\Controllers\Events\EventController;
+use App\Presentation\Controllers\Teams\TeamController;
 
 return [
     ['GET', '/', [HomeController::class, 'index']],
@@ -23,5 +24,14 @@ return [
     ['GET', '/events/{id}', [EventController::class, 'showEventDetails']],  // Visualizza un singolo evento
     ['GET', '/events/{id}/edit', [EventController::class, 'showEventEditPage']],  // Visualizza il modulo di modifica per un evento
     ['POST', '/events/{id}', [EventController::class, 'updateEvent']],  // Gestisce la modifica dell'evento
-    ['POST', '/events/{id}/delete', [EventController::class, 'deleteEvent']]  // Gestisce la cancellazione dell'evento
+    ['POST', '/events/{id}/delete', [EventController::class, 'deleteEvent']], // Gestisce la cancellazione dell'evento
+
+
+    
+    
+    ['GET', '/teams', [TeamController::class, 'index']],          // lista team
+    ['GET', '/teams/create', [TeamController::class, 'create']], // form crea team
+    ['POST', '/teams', [TeamController::class, 'store']],        // salva team
+    ['GET', '/teams/{id}', [TeamController::class, 'show']],     // dettaglio team
+    ['POST', '/teams/{id}/join', [TeamController::class, 'join']], // entra nel team
 ];

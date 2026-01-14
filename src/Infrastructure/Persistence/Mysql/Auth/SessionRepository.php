@@ -20,13 +20,21 @@ class SessionRepository implements ISessionRepository
 
     public function findByToken(string $tokenHash): ?Session
     {
-        $query = "SELECT * FROM {$this->table} WHERE token_hash = ? AND expires_at > NOW()";
+        // 1. Uso parametri nominati (:token_hash) invece di ? per chiarezza (opzionale ma consigliato)
+        $query = "SELECT * FROM {$this->table} WHERE token_hash = :token_hash AND expires_at > NOW()";
+        
         $stmt = $this->pdo->prepare($query);
-        $stmt->execute([$tokenHash]);
+        $stmt->execute(['token_hash' => $tokenHash]);
+        
         $stmt->setFetchMode(PDO::FETCH_CLASS, Session::class);
-        return $stmt->fetch();
-    }
+        
+        $result = $stmt->fetch();
 
+        // 2. SOLUZIONE DELL'ERRORE:
+        // Se $result è false (nessun record), restituisce null. Altrimenti restituisce l'oggetto.
+        return $result ?: null;
+    }
+    
     public function create(Session $session): Session
     {
         $query = "INSERT INTO {$this->table} (user_id, token_hash, user_agent, expires_at, created_at, updated_at) 

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Creato il: Gen 07, 2026 alle 23:45
+-- Creato il: Gen 16, 2026 alle 21:00
 -- Versione del server: 8.0.29
 -- Versione PHP: 8.2.12
 
@@ -73,6 +73,7 @@ CREATE TABLE `event_participation` (
 --
 
 INSERT INTO `event_participation` (`id`, `event_id`, `user_id`, `team_id`, `role`, `registration_date`) VALUES
+('88ac08b8-54db-4a07-b44a-c2b74f1dfe0c', 'EV001', 4, NULL, 'Participant', '2026-01-14 13:53:51'),
 ('EP001', 'EV001', 3, NULL, 'Lead', '2026-01-06 01:34:36'),
 ('EP002', 'EV001', 2, NULL, 'Participant', '2026-01-06 01:34:36');
 
@@ -165,7 +166,8 @@ INSERT INTO `phinx_log` (`version`, `migration_name`, `start_time`, `end_time`, 
 (20260106004240, 'CreateTeamTable', '2026-01-06 00:31:03', '2026-01-06 00:31:03', 0),
 (20260106004327, 'CreateEventTable', '2026-01-06 00:31:13', '2026-01-06 00:31:13', 0),
 (20260106005539, 'CreateEventRequiredSkillTable', '2026-01-06 00:31:21', '2026-01-06 00:31:21', 0),
-(20260106005853, 'CreateEventParticipationTable', '2026-01-06 00:31:30', '2026-01-06 00:31:30', 0);
+(20260106005853, 'CreateEventParticipationTable', '2026-01-06 00:31:30', '2026-01-06 00:31:30', 0),
+(20260116195350, 'RemoveMentorIdFromTeam', '2026-01-16 18:56:22', '2026-01-16 18:56:22', 0);
 
 -- --------------------------------------------------------
 
@@ -189,7 +191,9 @@ CREATE TABLE `sessions` (
 
 INSERT INTO `sessions` (`id`, `user_id`, `token_hash`, `user_agent`, `expires_at`, `created_at`, `updated_at`) VALUES
 (3, 3, 'cf03c944b95e5f939b263f06f5ab4380ba74103cdcaaec7dd441c9d5c7efa435', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36', '2026-01-07 13:26:31', '2026-01-06 14:26:31', '2026-01-06 14:26:31'),
-(4, 3, '2dd3d5fcefce067ac874feebe7e69687098e18195699305e4ebce26f2635c48c', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36', '2026-01-08 17:33:53', '2026-01-07 18:33:53', '2026-01-07 18:33:53');
+(4, 3, '2dd3d5fcefce067ac874feebe7e69687098e18195699305e4ebce26f2635c48c', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36', '2026-01-08 17:33:53', '2026-01-07 18:33:53', '2026-01-07 18:33:53'),
+(5, 4, 'f18d5f461364d137583a548ecdfe1029b9e7c8f98e6342670c0f61fbfca98bcb', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36', '2026-01-15 14:51:38', '2026-01-14 15:51:38', '2026-01-14 15:51:38'),
+(6, 3, '8354b19d595e005634f821fd50b6e6d10e1c7f7448fb32ae61720aa96ac067e7', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36', '2026-01-17 19:46:55', '2026-01-16 20:46:55', '2026-01-16 20:46:55');
 
 -- --------------------------------------------------------
 
@@ -316,7 +320,6 @@ CREATE TABLE `team` (
   `status` enum('Searching','Full','Inactive') COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `max_participants` smallint DEFAULT NULL,
   `min_participants` smallint DEFAULT '1',
-  `mentor_id` int UNSIGNED DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -324,8 +327,8 @@ CREATE TABLE `team` (
 -- Dump dei dati per la tabella `team`
 --
 
-INSERT INTO `team` (`id`, `name`, `description`, `status`, `max_participants`, `min_participants`, `mentor_id`, `created_at`) VALUES
-('TM001', 'Unibois', 'Team focused on competitive programming', 'Searching', 5, 3, 1, '2026-01-06 01:34:36');
+INSERT INTO `team` (`id`, `name`, `description`, `status`, `max_participants`, `min_participants`, `created_at`) VALUES
+('TM001', 'Unibois', 'Team focused on competitive programming', 'Searching', 5, 3, '2026-01-06 01:34:36');
 
 -- --------------------------------------------------------
 
@@ -351,7 +354,8 @@ CREATE TABLE `users` (
 INSERT INTO `users` (`id`, `email`, `password`, `first_name`, `last_name`, `created_at`, `updated_at`, `role`) VALUES
 (1, 'alice@example.com', 'alice', 'Alice', 'Rossi', '2026-01-06 01:33:28', '2026-01-06 02:43:22', 'student'),
 (2, 'bob@example.com', 'bob', 'Bob', 'Bianchi', '2026-01-06 01:33:28', '2026-01-06 02:43:18', 'student'),
-(3, 'luca.pulga@gmail.com', '$2y$12$BAKc98w/WCWA8iT68fyZhu57Xde2AGl98XJPE/oVvoJdp21lLVzeS', 'Luca', 'Pulga', '2026-01-06 02:44:35', '2026-01-06 02:44:35', '');
+(3, 'luca.pulga@gmail.com', '$2y$12$BAKc98w/WCWA8iT68fyZhu57Xde2AGl98XJPE/oVvoJdp21lLVzeS', 'Luca', 'Pulga', '2026-01-06 02:44:35', '2026-01-06 02:44:35', ''),
+(4, 'lucapulga@gmail.com', '$2y$12$6pxu7rkDe0GjeVyW8f6gOOq/xZyXPfca/OBb21TGUOivs.QKryz42', 'Luca', 'Pulga', '2026-01-14 15:48:17', '2026-01-14 15:48:17', '');
 
 -- --------------------------------------------------------
 
@@ -437,8 +441,7 @@ ALTER TABLE `skills`
 -- Indici per le tabelle `team`
 --
 ALTER TABLE `team`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `mentor_id` (`mentor_id`);
+  ADD PRIMARY KEY (`id`);
 
 --
 -- Indici per le tabelle `users`
@@ -461,7 +464,7 @@ ALTER TABLE `user_skills`
 -- AUTO_INCREMENT per la tabella `sessions`
 --
 ALTER TABLE `sessions`
-  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT per la tabella `skills`
@@ -473,7 +476,7 @@ ALTER TABLE `skills`
 -- AUTO_INCREMENT per la tabella `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT per la tabella `user_skills`
@@ -507,12 +510,6 @@ ALTER TABLE `event_participation`
 ALTER TABLE `event_required_skill`
   ADD CONSTRAINT `event_required_skill_ibfk_1` FOREIGN KEY (`event_id`) REFERENCES `event` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `event_required_skill_ibfk_2` FOREIGN KEY (`skill_id`) REFERENCES `skills` (`id`) ON DELETE RESTRICT;
-
---
--- Limiti per la tabella `team`
---
-ALTER TABLE `team`
-  ADD CONSTRAINT `team_ibfk_1` FOREIGN KEY (`mentor_id`) REFERENCES `users` (`id`) ON DELETE SET NULL;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

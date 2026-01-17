@@ -250,9 +250,9 @@
 </main>
 {% endblock %}
 
- {% block scripts %}
+{% block scripts %}
 <script>
-document.getElementById('filtersForm').addEventListener('submit', function(e) {
+document.getElementById('filtersForm').addEventListener('submit', function (e) {
     e.preventDefault();
 
     const formData = new FormData(this);
@@ -262,15 +262,19 @@ document.getElementById('filtersForm').addEventListener('submit', function(e) {
         if (value) params.append(key, value);
     }
 
-    fetch('/events/filter?' + params.toString(), {
+    fetch('/events?' + params.toString(), {
         method: 'GET',
-        headers: { 'Accept': 'text/html' }
+        headers: {
+            'Accept': 'text/html',
+            'X-Requested-With': 'XMLHttpRequest'
+        }
     })
     .then(res => res.text())
     .then(html => {
         document.getElementById('eventsContainer').innerHTML = html;
-    })
-    .catch(err => console.error(err));
+    });
 });
+
 </script>
+
 {% endblock %}

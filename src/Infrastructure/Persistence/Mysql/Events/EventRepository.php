@@ -353,16 +353,19 @@ class EventRepository implements IEventRepository
      */
     private function mapToEntity(array $row): Event
     {
+
+        error_log(print_r($row, true));
         $location = null;
 
-        if ($row['location_id']) {
+        if (!empty($row['location_id'])) {
             $location = new Location(
                 $row['location_id'],
-                $row['location_country'],
-                $row['location_city'],
-                $row['location_description']
+                $row['location_country'] ?? '',
+                $row['location_city'] ?? '',
+                $row['location_description'] ?? ''
             );
         }
+
 
         return new Event(
             $row['id'],
@@ -423,5 +426,96 @@ class EventRepository implements IEventRepository
             'max_participants' => $event->getMaxParticipants(),
             'status' => $event->getStatus()->value
         ];
+    }
+
+    private function mapRowsToEvents(array $rows): array
+    {
+        return array_map(fn($row) => $this->mapToEntity($row), $rows);
+    }
+
+    private function baseSelect(): string
+    {
+        return "
+            SELECT DISTINCT
+                e.*,
+                l.id AS location_id,
+                l.country AS location_country,
+                l.city AS location_city,
+                l.description AS location_description
+            FROM EVENT e
+            LEFT JOIN LOCATION l ON l.id = e.location_id
+        ";
+    }
+
+    // PRESET FILTERS
+    public function findMyUpcomingEvents(int $userId): array
+    {
+        $sql = $this->baseSelect() . "
+            LEFT JOIN EVENT_PARTICIPATION s ON s.event_id = e.id
+            WHERE (e.creator_user_id = :userId OR s.user_id = :userId)
+            AND e.start_date >= NOW()
+            ORDER BY e.start_date ASC
+        ";
+
+        $stmt = $this->connection->prepare($sql);
+        $stmt->execute(['userId' => $userId]);
+
+        return $this->mapRowsToEvents($stmt->fetchAll(PDO::FETCH_ASSOC));
+    }
+
+    public function findHostedByUser(int $userId): array
+    {
+        $sql = $this->baseSelect() . "
+            WHERE e.creator_user_id = :userId
+            ORDER BY e.start_date DESC
+        ";
+
+        $stmt = $this->connection->prepare($sql);
+        $stmt->execute(['userId' => $userId]);
+
+        return $this->mapRowsToEvents($stmt->fetchAll(PDO::FETCH_ASSOC));
+    }
+
+
+    public function findTrendingEvents(): array
+    {
+        $sql = $this->baseSelect() . "
+            LEFT JOIN EVENT_PARTICIPATION s ON s.event_id = e.id
+            GROUP BY e.id
+            ORDER BY COUNT(s.user_id) DESC
+            LIMIT 20
+        ";
+
+        $stmt = $this->connection->prepare($sql);
+        $stmt->execute();
+
+        return $this->mapRowsToEvents($stmt->fetchAll(PDO::FETCH_ASSOC));
+    }
+
+
+    public function findUpcomingEvents(): array
+    {
+        $sql = $this->baseSelect() . "
+            WHERE e.start_date >= NOW()
+            ORDER BY e.start_date ASC
+        ";
+
+        $stmt = $this->connection->prepare($sql);
+        $stmt->execute();
+
+        return $this->mapRowsToEvents($stmt->fetchAll(PDO::FETCH_ASSOC));
+    }
+
+    public function findPastEvents(): array
+    {
+        $sql = $this->baseSelect() . "
+            WHERE e.start_date < NOW()
+            ORDER BY e.start_date DESC
+        ";
+
+        $stmt = $this->connection->prepare($sql);
+        $stmt->execute();
+
+        return $this->mapRowsToEvents($stmt->fetchAll(PDO::FETCH_ASSOC));
     }
 }

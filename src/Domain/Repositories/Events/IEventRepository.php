@@ -54,4 +54,14 @@ interface IEventRepository
     public function getRequiredSkills(string $eventId): array;
 
     public function findByFilters(array $filters): array;
+
+    public function findMyUpcomingEvents(int $userId): array;
+
+    public function findHostedByUser(int $userId): array;
+
+    public function findTrendingEvents(): array;
+
+    public function findUpcomingEvents(): array;
+
+    public function findPastEvents(): array;
 }

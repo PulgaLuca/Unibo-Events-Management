@@ -24,37 +24,37 @@ class EventController
         $this->twig = $twig;
     }
 
-    public function showEventMainPage(): Response
+    public function showEventMainPage(Request $request): Response
     {
-        try 
-        {
-            if (!$this->authService->isAuthenticated()) {
-                return Response::redirect($_ENV['APP_URL'] . '/login');
-            }
-
-            $currentUser = $this->authService->getCurrentUser();
-            $events = $this->eventService->findAll();
-            $eventsWithContext = $this->eventService->enrichEventsForUser($events, $currentUser->id);
-
-            $html = $this->twig->render('eventIndex.twig', [
-                'events' => $eventsWithContext,
-                'currentUser' => $currentUser,
-                'success' => $_SESSION['success'] ?? null,
-                'error' => $_SESSION['error'] ?? null
-            ]);
-
-            $_SESSION['success'] = null;
-            $_SESSION['error'] = null;
-
-            return Response::html($html);
-        } 
-        catch (Exception $e) 
-        {
-            $_SESSION['error'] = 'Something went wrong while loading events main page: ' . $e->getMessage();
-            
-            return Response::redirect($_ENV['APP_URL'] . '/login');
+        if (!$this->authService->isAuthenticated()) {
+            return Response::redirect('/login');
         }
+
+        $currentUser = $this->authService->getCurrentUser();
+        $filters = $request->getQueryParams();
+
+        $events = $this->eventService->getEventsByFilters($filters, $currentUser);
+        $eventsWithContext = $this->eventService->enrichEventsForUser($events, $currentUser->id);
+
+        // AJAX -> restituisce solo la lista
+        if ($request->isXmlHttpRequest()) {
+            return new Response(
+                $this->twig->render('partials/eventsList.twig', [
+                    'events' => $eventsWithContext
+                ])
+            );
+        }
+
+        // Render pagina completa
+        return new Response(
+            $this->twig->render('eventIndex.twig', [
+                'events' => $eventsWithContext,
+                'filters' => $filters,
+                'currentUser' => $currentUser
+            ])
+        );
     }
+
 
     /**
      * Show create event form
@@ -330,26 +330,26 @@ class EventController
         }
     }
 
-    public function filterEvents(Request $request): Response
-    {
-        if (!$this->authService->isAuthenticated()) {
-            return Response::redirect($_ENV['APP_URL'] . '/login');
-        }
+    // public function filterEvents(Request $request): Response
+    // {
+    //     if (!$this->authService->isAuthenticated()) {
+    //         return Response::redirect($_ENV['APP_URL'] . '/login');
+    //     }
 
-        $currentUser = $this->authService->getCurrentUser();
-        $filters = $request->getQueryParams(); // q, country, city, status...
-        $events = $this->eventService->filterEvents($filters);
-        $eventsWithContext = $this->eventService->enrichEventsForUser($events, $currentUser->id);
+    //     $currentUser = $this->authService->getCurrentUser();
+    //     $filters = $request->getQueryParams(); // q, country, city, status...
+    //     $events = $this->eventService->filterEvents($filters);
+    //     $eventsWithContext = $this->eventService->enrichEventsForUser($events, $currentUser->id);
 
-        error_log(print_r($events,true));
-        error_log(print_r($eventsWithContext,true));
+    //     error_log(print_r($events,true));
+    //     error_log(print_r($eventsWithContext,true));
 
-        // ritorna solo la lista eventi renderizzata
-        $html = $this->twig->render('partials/eventsList.twig', [
-            'events' => $eventsWithContext
-        ]);
+    //     // ritorna solo la lista eventi renderizzata
+    //     $html = $this->twig->render('partials/eventsList.twig', [
+    //         'events' => $eventsWithContext
+    //     ]);
 
-        return Response::html($html);
-    }
+    //     return Response::html($html);
+    // }
 
 }

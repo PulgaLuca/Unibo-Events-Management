@@ -234,10 +234,30 @@ class EventService
         );
     }
 
-    public function filterEvents(array $filters): array
+    // public function filterEvents(array $filters): array
+    // {
+    //     return $this->eventRepository->findByFilters($filters);
+    // }
+
+    public function getEventsByFilters(array $filters, User $user): array
     {
+        $preset = $filters['preset'] ?? null;
+
+        if ($preset) {
+            return match ($preset) {
+                'my_upcoming' => $this->eventRepository->findMyUpcomingEvents($user->id),
+                'hosted'      => $this->eventRepository->findHostedByUser($user->id),
+                'trending'    => $this->eventRepository->findTrendingEvents(),
+                'upcoming'    => $this->eventRepository->findUpcomingEvents(),
+                'past'        => $this->eventRepository->findPastEvents(),
+                default       => $this->eventRepository->findByFilters($filters),
+            };
+        }
+
+        // No preset filters but only custom filters
         return $this->eventRepository->findByFilters($filters);
     }
+
 
 
 

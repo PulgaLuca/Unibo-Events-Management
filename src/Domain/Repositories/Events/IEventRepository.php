@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Domain\Repositories\Events;
 
 use App\Domain\Entities\Events\Event;
-use App\Domain\Entities\Auth\User;
 
 interface IEventRepository
 {

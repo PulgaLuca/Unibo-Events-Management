@@ -42,17 +42,27 @@
         height: 100%;
         min-height: 200px;
         background-color: #f8f9fa;
-        display: flex; align-items: center; justify-content: center;
+        display: flex; 
+        align-items: center; 
+        justify-content: center;
     }
     .card-event-img {
-        width: 100%; height: 100%; object-fit: cover;
+        width: 100%; 
+        height: 100%; 
+        object-fit: cover;
     }
     
     .event-detail-row {
-        display: flex; align-items: flex-start; gap: 10px;
-        margin-bottom: 0.5rem; color: #555; font-size: 0.9rem;
+        display: flex; 
+        align-items: flex-start; 
+        gap: 10px;
+        margin-bottom: 0.5rem; 
+        color: #555; 
+        font-size: 1.2rem;
     }
-    .event-detail-row i { margin-top: 3px; }
+    .event-detail-row i {
+        margin-top: 3px;
+    }
     
     /* Badge stato */
     .badge-status {
@@ -130,7 +140,7 @@
                 {% set event = item.event %}
                 {% set isCreator = item.isCreator %}
                 {% set isSubscribed = item.isSubscribed %}
-                <div class="col-lg-6">
+                <div class="col-12">
                     <article class="card event-card h-100">
                         <div class="row g-0 h-100">
                             <div class="col-md-7 p-3 d-flex flex-column">
@@ -154,7 +164,7 @@
                                 {% if event.location %}
                                 <div class="event-detail-row">
                                     <i class="bi bi-geo-alt text-primary" aria-hidden="true"></i>
-                                    <span class="text-truncate">{{ event.location }}</span>
+                                    <span class="text-truncate">{{ event.location.country }}, {{ event.location.city }}</span>
                                 </div>
                                 {% endif %}
 

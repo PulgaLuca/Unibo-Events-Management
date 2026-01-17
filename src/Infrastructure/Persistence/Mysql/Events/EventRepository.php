@@ -7,16 +7,21 @@ namespace App\Infrastructure\Persistence\Mysql\Events;
 use App\Domain\Entities\Events\Event;
 use App\Domain\Entities\Events\EventStatus;
 use App\Domain\Repositories\Events\IEventRepository;
+use \App\Domain\Entities\Events\Location;
+use \App\Domain\Repositories\Location\ILocationRepository;
+
 use DateTime;
 use PDO;
 
 class EventRepository implements IEventRepository
 {
+    private ILocationRepository $locationRepository;
     private PDO $connection;
 
-    public function __construct(PDO $pdoConnection)
+    public function __construct(PDO $pdoConnection, ILocationRepository $locationRepository)
     {
         $this->connection = $pdoConnection;
+        $this->locationRepository = $locationRepository;
     }
 
     public function save(Event $event): void
@@ -24,13 +29,13 @@ class EventRepository implements IEventRepository
         $sql = <<<SQL
             INSERT INTO EVENT (
                 id, title, description, start_date, end_date, image_url,
-                location, url, registration_deadline,
+                location_id, url, registration_deadline,
                 min_participants, max_participants,
                 status, type_id, participation_type_id,
                 creator_user_id
             ) VALUES (
                 :id, :title, :description, :start_date, :end_date, :image_url,
-                :location, :url, :registration_deadline,
+                :location_id, :url, :registration_deadline,
                 :min_participants, :max_participants,
                 :status, :type_id, :participation_type_id,
                 :creator_user_id
@@ -50,7 +55,7 @@ class EventRepository implements IEventRepository
                 start_date = :start_date,
                 end_date = :end_date,
                 image_url = :image_url,
-                location = :location,
+                location_id = :location_id,
                 url = :url,
                 registration_deadline = :registration_deadline,
                 min_participants = :min_participants,
@@ -73,8 +78,9 @@ class EventRepository implements IEventRepository
 
     public function findById(string $eventId): ?Event
     {
-        $stmt = $this->connection->prepare('SELECT * FROM EVENT WHERE id = :id');
-
+        $stmt = $this->connection->prepare(
+            "SELECT * FROM EVENT WHERE id = :id"
+        );
         $stmt->execute(['id' => $eventId]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -82,12 +88,45 @@ class EventRepository implements IEventRepository
             return null;
         }
 
-        return $this->mapToEntity($row);
+        $location = null;
+        if ($row['location_id']) {
+            $location = $this->locationRepository->findById($row['location_id']);
+        }
+
+        return new Event(
+            $row['id'],
+            $row['title'],
+            $row['description'],
+            new \DateTime($row['start_date']),
+            $row['end_date'] ? new \DateTime($row['end_date']) : null,
+            $row['image_url'],
+            $location,
+            $row['url'],
+            $row['registration_deadline'] ? new \DateTime($row['registration_deadline']) : null,
+            (int)$row['min_participants'],
+            $row['max_participants'] !== null ? (int)$row['max_participants'] : null,
+            EventStatus::fromString($row['status']),
+            $row['type_id'],
+            $row['participation_type_id'],
+            $row['creator_user_id']
+        );
     }
 
     public function findAll(): array
     {
-        $stmt = $this->connection->query('SELECT * FROM EVENT ORDER BY start_date DESC');
+        $sql = <<<SQL
+            SELECT 
+                e.*,
+                l.id AS location_id,
+                l.country AS location_country,
+                l.city AS location_city,
+                l.description AS location_description
+            FROM EVENT e
+            LEFT JOIN LOCATION l ON l.id = e.location_id
+            ORDER BY e.start_date DESC
+        SQL;
+
+        $stmt = $this->connection->query($sql);
 
         $events = [];
         while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
@@ -248,6 +287,17 @@ class EventRepository implements IEventRepository
      */
     private function mapToEntity(array $row): Event
     {
+        $location = null;
+
+        if ($row['location_id']) {
+            $location = new Location(
+                $row['location_id'],
+                $row['location_country'],
+                $row['location_city'],
+                $row['location_description']
+            );
+        }
+
         return new Event(
             $row['id'],
             $row['title'],
@@ -255,7 +305,7 @@ class EventRepository implements IEventRepository
             new DateTime($row['start_date']),
             $row['end_date'] ? new DateTime($row['end_date']) : null,
             $row['image_url'],
-            $row['location'],
+            $location,
             $row['url'],
             $row['registration_deadline'] ? new DateTime($row['registration_deadline']) : null,
             (int) $row['min_participants'],
@@ -279,7 +329,7 @@ class EventRepository implements IEventRepository
             'start_date' => $event->getStartDate()->format('Y-m-d H:i:s'),
             'end_date' => $event->getEndDate()?->format('Y-m-d H:i:s'),
             'image_url' => $event->getImageUrl(),
-            'location' => $event->getLocation(),
+            'location_id' => $event->getLocation()->getId(),
             'url' => $event->getUrl(),
             'registration_deadline' => $event->getRegistrationDeadline()?->format('Y-m-d H:i:s'),
             'min_participants' => $event->getMinParticipants(),
@@ -300,7 +350,7 @@ class EventRepository implements IEventRepository
             'start_date' => $event->getStartDate()->format('Y-m-d H:i:s'),
             'end_date' => $event->getEndDate()?->format('Y-m-d H:i:s'),
             'image_url' => $event->getImageUrl(),
-            'location' => $event->getLocation(),
+            'location_id' => $event->getLocation()->getId(),
             'url' => $event->getUrl(),
             'registration_deadline' => $event->getRegistrationDeadline()?->format('Y-m-d H:i:s'),
             'min_participants' => $event->getMinParticipants(),

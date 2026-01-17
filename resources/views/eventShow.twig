@@ -14,12 +14,12 @@
             <h1 class="display-5 fw-bold">Check out the event</h1>
             <p class="lead">Challenge yourself to the test with your community <br>and bring your talent to the world.</p>
             <p class="mb-4 d-none d-md-block">Take a look at internal events, workshops or <br>external competitions to find out more.</p>
-            <div>
+            {# <div>
                 <button class="btn btn-primary" type="button" onclick="document.getElementById('event_image').click();">
                     Load image event
                 </button>
                 <input type="file" name="image" id="event_image" class="d-none" accept="image/*">
-            </div>
+            </div> #}
         </div>
     </div>
 
@@ -38,16 +38,18 @@
             </div>
         {% endif %}
 
-        {% include "eventForm.twig" with {
-            data: data|default({}),
-            eventTypes: eventTypes,
-            participationTypes: participationTypes,
-            currentUser: currentUser
-        } %}
+        <form method="post" action="/events/{{ data.eventId }}" id="form-event-save">
+            {% include "eventForm.twig" with {
+                data: data|default({}),
+                eventTypes: eventTypes,
+                participationTypes: participationTypes,
+                currentUser: currentUser
+            } %}
+        </form>
 
         <div class="d-flex gap-2 mt-4">
             {% if isCreator %}
-                <button type="submit" class="btn btn-primary px-4">
+                <button type="submit" form="form-event-save" class="btn btn-primary px-4">
                     Save
                 </button>
 

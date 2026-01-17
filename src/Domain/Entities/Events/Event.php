@@ -6,6 +6,7 @@ namespace App\Domain\Entities\Events;
 
 use DateTime;
 use InvalidArgumentException;
+use Locale;
 
 class Event
 {
@@ -15,7 +16,7 @@ class Event
     private DateTime $startDate;
     private ?DateTime $endDate;
     private ?string $imageUrl;
-    private ?string $location;
+    private ?Location $location;
     private ?string $url;
     private ?DateTime $registrationDeadline;
     private int $minParticipants;
@@ -33,7 +34,7 @@ class Event
         DateTime $startDate,
         ?DateTime $endDate,
         ?string $imageUrl,
-        ?string $location,
+        ?Location $location,
         ?string $url,
         ?DateTime $registrationDeadline,
         int $minParticipants,
@@ -72,7 +73,7 @@ class Event
         DateTime $startDate,
         ?DateTime $endDate,
         ?string $imageUrl,
-        ?string $location,
+        ?Location $location,
         ?string $url,
         ?DateTime $registrationDeadline,
         int $minParticipants,
@@ -155,7 +156,7 @@ class Event
         return $this->imageUrl;
     }
 
-    public function getLocation(): ?string
+    public function getLocation(): ?Location
     {
         return $this->location;
     }

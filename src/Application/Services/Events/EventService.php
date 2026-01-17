@@ -5,13 +5,14 @@ declare(strict_types=1);
 namespace App\Application\Services\Events;
 
 use App\Domain\Entities\Events\Event;
+use App\Domain\Entities\Events\Location;
 use App\Domain\Entities\Auth\User;
 use App\Domain\Entities\Events\EventStatus;
 use App\Domain\Repositories\Auth\IUserRepository;
 use App\Domain\Repositories\Events\IEventRepository;
 use App\Domain\Repositories\Events\IEventTypeRepository;
+use App\Domain\Repositories\Location\ILocationRepository;
 use App\Domain\Repositories\Events\IParticipationTypeRepository;
-use App\Infrastructure\Persistence\Mysql\Auth;
 
 use Exception;
 use Ramsey\Uuid\Uuid;
@@ -19,17 +20,20 @@ use Ramsey\Uuid\Uuid;
 class EventService
 {
     private IEventRepository $eventRepository;
+    private ILocationRepository $locationRepository;
     private IEventTypeRepository $eventTypeRepository;
     private IParticipationTypeRepository $participationTypeRepository;
     private IUserRepository $userRepository;
 
     public function __construct(
         IEventRepository $eventRepository,
+        ILocationRepository $locationRepository,
         IEventTypeRepository $eventTypeRepository,
         IParticipationTypeRepository $participationTypeRepository,
         IUserRepository $userRepository
     ) {
         $this->eventRepository = $eventRepository;
+        $this->locationRepository = $locationRepository;
         $this->eventTypeRepository = $eventTypeRepository;
         $this->participationTypeRepository = $participationTypeRepository;
         $this->userRepository = $userRepository;
@@ -70,6 +74,19 @@ class EventService
         $this->validate($data);
         $eventId = Uuid::uuid4()->toString();
 
+        $location = null;
+
+        if (!empty($data['location_country']) && !empty($data['location_city'])) {
+            $location = new Location(
+                Uuid::uuid4()->toString(),
+                $data['location_country'],
+                $data['location_city'],
+                $data['location_description'] ?? null
+            );
+
+            $this->locationRepository->create($location);
+        }
+
         $event = new Event(
             $eventId,
             $data['title'],
@@ -77,10 +94,10 @@ class EventService
             new \DateTime($data['start_date']),
             isset($data['end_date']) ? new \DateTime($data['end_date']) : null,
             isset($data['image_url']) ? $data['image_url'] : '/assets/images/events/event-main.jpg',
-            $data['location'] ?? null,
+            $location,
             $data['url'] ?? null,
             isset($data['registration_deadline']) ? new \DateTime($data['registration_deadline']) : null,
-            (int) ($data['min_participants'] ?? 0),
+            isset($data['min_participants']) ? (int) $data['min_participants'] : null,
             isset($data['max_participants']) ? (int) $data['max_participants'] : null,
             EventStatus::fromString($data['status']),
             $data['type_id'],
@@ -105,13 +122,29 @@ class EventService
             throw new Exception('Event not found');
         }
 
+        $location = null;
+
+        if (!empty($data['location_id'])) {
+            $location = new Location(
+                $data['location_id'],
+                $data['location_country'],
+                $data['location_city'],
+                $data['location_description'] ?? null
+            );
+
+            $this->locationRepository->update($location);
+        } else {
+            $location = $event->getLocation();
+        }
+
+
         $event->update(
             $data['title'] ?? $event->getTitle(),
             $data['description'] ?? $event->getDescription(),
             isset($data['start_date']) ? new \DateTime($data['start_date']) : $event->getStartDate(),
             array_key_exists('end_date', $data) ? ($data['end_date'] ? new \DateTime($data['end_date']) : null) : $event->getEndDate(),
             isset($data['image_url']) ? $data['image_url'] : $event->getImageUrl(),
-            $data['location'] ?? $event->getLocation(),
+            $location,
             $data['url'] ?? $event->getUrl(),
             isset($data['registration_deadline']) ? new \DateTime($data['registration_deadline']) : $event->getRegistrationDeadline(),
             (int)($data['min_participants'] ?? $event->getMinParticipants()),

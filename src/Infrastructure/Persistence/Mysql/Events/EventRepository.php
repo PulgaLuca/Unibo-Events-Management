@@ -7,16 +7,21 @@ namespace App\Infrastructure\Persistence\Mysql\Events;
 use App\Domain\Entities\Events\Event;
 use App\Domain\Entities\Events\EventStatus;
 use App\Domain\Repositories\Events\IEventRepository;
+use \App\Domain\Entities\Events\Location;
+use \App\Domain\Repositories\Location\ILocationRepository;
+
 use DateTime;
 use PDO;
 
 class EventRepository implements IEventRepository
 {
+    private ILocationRepository $locationRepository;
     private PDO $connection;
 
-    public function __construct(PDO $pdoConnection)
+    public function __construct(PDO $pdoConnection, ILocationRepository $locationRepository)
     {
         $this->connection = $pdoConnection;
+        $this->locationRepository = $locationRepository;
     }
 
     public function save(Event $event): void
@@ -24,13 +29,13 @@ class EventRepository implements IEventRepository
         $sql = <<<SQL
             INSERT INTO EVENT (
                 id, title, description, start_date, end_date, image_url,
-                location, url, registration_deadline,
+                location_id, url, registration_deadline,
                 min_participants, max_participants,
                 status, type_id, participation_type_id,
                 creator_user_id
             ) VALUES (
                 :id, :title, :description, :start_date, :end_date, :image_url,
-                :location, :url, :registration_deadline,
+                :location_id, :url, :registration_deadline,
                 :min_participants, :max_participants,
                 :status, :type_id, :participation_type_id,
                 :creator_user_id
@@ -50,7 +55,7 @@ class EventRepository implements IEventRepository
                 start_date = :start_date,
                 end_date = :end_date,
                 image_url = :image_url,
-                location = :location,
+                location_id = :location_id,
                 url = :url,
                 registration_deadline = :registration_deadline,
                 min_participants = :min_participants,
@@ -73,8 +78,9 @@ class EventRepository implements IEventRepository
 
     public function findById(string $eventId): ?Event
     {
-        $stmt = $this->connection->prepare('SELECT * FROM EVENT WHERE id = :id');
-
+        $stmt = $this->connection->prepare(
+            "SELECT * FROM EVENT WHERE id = :id"
+        );
         $stmt->execute(['id' => $eventId]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -82,12 +88,45 @@ class EventRepository implements IEventRepository
             return null;
         }
 
-        return $this->mapToEntity($row);
+        $location = null;
+        if ($row['location_id']) {
+            $location = $this->locationRepository->findById($row['location_id']);
+        }
+
+        return new Event(
+            $row['id'],
+            $row['title'],
+            $row['description'],
+            new \DateTime($row['start_date']),
+            $row['end_date'] ? new \DateTime($row['end_date']) : null,
+            $row['image_url'],
+            $location,
+            $row['url'],
+            $row['registration_deadline'] ? new \DateTime($row['registration_deadline']) : null,
+            (int)$row['min_participants'],
+            $row['max_participants'] !== null ? (int)$row['max_participants'] : null,
+            EventStatus::fromString($row['status']),
+            $row['type_id'],
+            $row['participation_type_id'],
+            $row['creator_user_id']
+        );
     }
 
     public function findAll(): array
     {
-        $stmt = $this->connection->query('SELECT * FROM EVENT ORDER BY start_date DESC');
+        $sql = <<<SQL
+            SELECT 
+                e.*,
+                l.id AS location_id,
+                l.country AS location_country,
+                l.city AS location_city,
+                l.description AS location_description
+            FROM EVENT e
+            LEFT JOIN LOCATION l ON l.id = e.location_id
+            ORDER BY e.start_date DESC
+        SQL;
+
+        $stmt = $this->connection->query($sql);
 
         $events = [];
         while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
@@ -243,11 +282,91 @@ class EventRepository implements IEventRepository
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    public function findByFilters(array $filters): array
+    {
+        $sql = "SELECT e.*, l.id AS location_id, l.country AS location_country, l.city AS location_city, l.description AS location_description
+                FROM EVENT e
+                LEFT JOIN LOCATION l ON e.location_id = l.id";
+
+        $conditions = [];
+        $params = [];
+
+        if (!empty($filters['q'])) {
+            $conditions[] = "(e.title LIKE :q OR e.description LIKE :q)";
+            $params[':q'] = "%{$filters['q']}%";
+        }
+
+        if (!empty($filters['country'])) {
+            $conditions[] = "l.country = :country";
+            $params[':country'] = $filters['country'];
+        }
+
+        if (!empty($filters['city'])) {
+            $conditions[] = "l.city = :city";
+            $params[':city'] = $filters['city'];
+        }
+
+        if (!empty($filters['status'])) {
+            $conditions[] = "e.status = :status";
+            $params[':status'] = $filters['status'];
+        }
+
+        if (!empty($filters['participationType'])) {
+            $conditions[] = "e.participation_type_id = :participationType";
+            $params[':participationType'] = $filters['participationType'];
+        }
+
+        if (!empty($filters['startDate'])) {
+            $conditions[] = "e.start_date >= :startDate";
+            $params[':startDate'] = $filters['startDate'];
+        }
+
+        if (!empty($filters['endDate'])) {
+            $conditions[] = "e.end_date <= :endDate";
+            $params[':endDate'] = $filters['endDate'];
+        }
+
+        if (!empty($filters['registrationDeadline'])) {
+            $conditions[] = "e.registration_deadline <= :registrationDeadline";
+            $params[':registrationDeadline'] = $filters['registrationDeadline'];
+        }
+
+        if (!empty($conditions)) {
+            $sql .= " WHERE " . implode(" AND ", $conditions);
+        }
+
+        $sql .= " ORDER BY e.start_date DESC";
+
+        $stmt = $this->connection->prepare($sql);
+        $stmt->execute($params);
+
+        $events = [];
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $events[] = $this->mapToEntity($row);
+        }
+        
+        return $events;
+    }
+
     /**
      * Map DB row -> Domain Entity
      */
     private function mapToEntity(array $row): Event
     {
+
+        error_log(print_r($row, true));
+        $location = null;
+
+        if (!empty($row['location_id'])) {
+            $location = new Location(
+                $row['location_id'],
+                $row['location_country'] ?? '',
+                $row['location_city'] ?? '',
+                $row['location_description'] ?? ''
+            );
+        }
+
+
         return new Event(
             $row['id'],
             $row['title'],
@@ -255,7 +374,7 @@ class EventRepository implements IEventRepository
             new DateTime($row['start_date']),
             $row['end_date'] ? new DateTime($row['end_date']) : null,
             $row['image_url'],
-            $row['location'],
+            $location,
             $row['url'],
             $row['registration_deadline'] ? new DateTime($row['registration_deadline']) : null,
             (int) $row['min_participants'],
@@ -279,7 +398,7 @@ class EventRepository implements IEventRepository
             'start_date' => $event->getStartDate()->format('Y-m-d H:i:s'),
             'end_date' => $event->getEndDate()?->format('Y-m-d H:i:s'),
             'image_url' => $event->getImageUrl(),
-            'location' => $event->getLocation(),
+            'location_id' => $event->getLocation()->getId(),
             'url' => $event->getUrl(),
             'registration_deadline' => $event->getRegistrationDeadline()?->format('Y-m-d H:i:s'),
             'min_participants' => $event->getMinParticipants(),
@@ -300,12 +419,103 @@ class EventRepository implements IEventRepository
             'start_date' => $event->getStartDate()->format('Y-m-d H:i:s'),
             'end_date' => $event->getEndDate()?->format('Y-m-d H:i:s'),
             'image_url' => $event->getImageUrl(),
-            'location' => $event->getLocation(),
+            'location_id' => $event->getLocation()->getId(),
             'url' => $event->getUrl(),
             'registration_deadline' => $event->getRegistrationDeadline()?->format('Y-m-d H:i:s'),
             'min_participants' => $event->getMinParticipants(),
             'max_participants' => $event->getMaxParticipants(),
             'status' => $event->getStatus()->value
         ];
+    }
+
+    private function mapRowsToEvents(array $rows): array
+    {
+        return array_map(fn($row) => $this->mapToEntity($row), $rows);
+    }
+
+    private function baseSelect(): string
+    {
+        return "
+            SELECT DISTINCT
+                e.*,
+                l.id AS location_id,
+                l.country AS location_country,
+                l.city AS location_city,
+                l.description AS location_description
+            FROM EVENT e
+            LEFT JOIN LOCATION l ON l.id = e.location_id
+        ";
+    }
+
+    // PRESET FILTERS
+    public function findMyUpcomingEvents(int $userId): array
+    {
+        $sql = $this->baseSelect() . "
+            LEFT JOIN EVENT_PARTICIPATION s ON s.event_id = e.id
+            WHERE (e.creator_user_id = :userId OR s.user_id = :userId)
+            AND e.start_date >= NOW()
+            ORDER BY e.start_date ASC
+        ";
+
+        $stmt = $this->connection->prepare($sql);
+        $stmt->execute(['userId' => $userId]);
+
+        return $this->mapRowsToEvents($stmt->fetchAll(PDO::FETCH_ASSOC));
+    }
+
+    public function findHostedByUser(int $userId): array
+    {
+        $sql = $this->baseSelect() . "
+            WHERE e.creator_user_id = :userId
+            ORDER BY e.start_date DESC
+        ";
+
+        $stmt = $this->connection->prepare($sql);
+        $stmt->execute(['userId' => $userId]);
+
+        return $this->mapRowsToEvents($stmt->fetchAll(PDO::FETCH_ASSOC));
+    }
+
+
+    public function findTrendingEvents(): array
+    {
+        $sql = $this->baseSelect() . "
+            LEFT JOIN EVENT_PARTICIPATION s ON s.event_id = e.id
+            GROUP BY e.id
+            ORDER BY COUNT(s.user_id) DESC
+            LIMIT 20
+        ";
+
+        $stmt = $this->connection->prepare($sql);
+        $stmt->execute();
+
+        return $this->mapRowsToEvents($stmt->fetchAll(PDO::FETCH_ASSOC));
+    }
+
+
+    public function findUpcomingEvents(): array
+    {
+        $sql = $this->baseSelect() . "
+            WHERE e.start_date >= NOW()
+            ORDER BY e.start_date ASC
+        ";
+
+        $stmt = $this->connection->prepare($sql);
+        $stmt->execute();
+
+        return $this->mapRowsToEvents($stmt->fetchAll(PDO::FETCH_ASSOC));
+    }
+
+    public function findPastEvents(): array
+    {
+        $sql = $this->baseSelect() . "
+            WHERE e.start_date < NOW()
+            ORDER BY e.start_date DESC
+        ";
+
+        $stmt = $this->connection->prepare($sql);
+        $stmt->execute();
+
+        return $this->mapRowsToEvents($stmt->fetchAll(PDO::FETCH_ASSOC));
     }
 }

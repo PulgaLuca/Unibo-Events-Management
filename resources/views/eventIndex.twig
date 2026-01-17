@@ -42,17 +42,27 @@
         height: 100%;
         min-height: 200px;
         background-color: #f8f9fa;
-        display: flex; align-items: center; justify-content: center;
+        display: flex; 
+        align-items: center; 
+        justify-content: center;
     }
     .card-event-img {
-        width: 100%; height: 100%; object-fit: cover;
+        width: 100%; 
+        height: 100%; 
+        object-fit: cover;
     }
     
     .event-detail-row {
-        display: flex; align-items: flex-start; gap: 10px;
-        margin-bottom: 0.5rem; color: #555; font-size: 0.9rem;
+        display: flex; 
+        align-items: flex-start; 
+        gap: 10px;
+        margin-bottom: 0.5rem; 
+        color: #555; 
+        font-size: 1.2rem;
     }
-    .event-detail-row i { margin-top: 3px; }
+    .event-detail-row i {
+        margin-top: 3px;
+    }
     
     /* Badge stato */
     .badge-status {
@@ -66,6 +76,13 @@
     .status-active { background-color: #198754; color: #fff; }
     .status-completed { background-color: #0d6efd; color: #fff; }
     .status-cancelled { background-color: #dc3545; color: #fff; }
+
+    /* Stile per i bottoni Quick Filter attivi */
+    .btn-check:checked + .btn, .btn.active, .btn.show, .btn:first-child:active, :not(.btn-check)+.btn:active {
+        background-color: var(--bs-primary);
+        color: white;
+        border-color: var(--bs-primary);
+    }
 </style>
 
 <header class="hero-section">
@@ -100,124 +117,164 @@
         </div>
     {% endif %}
 
-    <section aria-labelledby="search-heading" class="mb-5 p-4 bg-white rounded shadow-sm border">
-        <h2 id="search-heading" class="h5 text-primary fw-bold mb-3">Filter Events</h2>
-        <form action="/events" method="GET" class="row g-3">
-            <div class="col-md-4">
-                <label for="search" class="visually-hidden">Search</label>
-                <div class="input-group">
-                    <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
-                    <input type="search" name="q" class="form-control" id="search" placeholder="Search by event name...">
+    <section aria-labelledby="search-heading" class="mb-5 p-4 bg-light rounded shadow-sm border">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2 id="search-heading" class="h5 text-primary fw-bold m-0">
+                <i class="bi bi-sliders me-2"></i>Filter Events
+            </h2>
+            
+            <a href="/events" class="btn btn-sm btn-outline-secondary border-0">
+                <i class="bi bi-x-lg me-1"></i>Clear all
+            </a>
+        </div>
+
+        <form id="filtersForm" action="/events" method="GET">
+            <div class="row g-3">
+                
+                <div class="col-md-4">
+                    <label for="search" class="form-label small fw-bold text-muted">Keyword</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+                        <input type="search" name="q" class="form-control" id="search" 
+                               value="{{ filters.q ?? '' }}" placeholder="Event name...">
+                    </div>
                 </div>
-            </div>
-            <div class="col-md-3">
-                <select name="status" class="form-select" aria-label="Filtra per stato">
-                    <option value="" selected>Status</option>
-                    <option value="Active">Active</option>
-                    <option value="Draft">Draft</option>
-                    <option value="Completed">Completed</option>
-                </select>
-            </div>
-            <div class="col-md-2">
-                <button type="submit" class="btn btn-outline-primary w-100">Filter</button>
+                
+                <div class="col-md-4">
+                    <label for="country" class="form-label small fw-bold text-muted">Country</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-white"><i class="bi bi-geo-alt"></i></span>
+                        <input type="text" name="country" class="form-control" id="country" 
+                               value="{{ filters.country ?? '' }}" placeholder="e.g. Italy">
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <label for="city" class="form-label small fw-bold text-muted">City</label>
+                    <input type="text" name="city" class="form-control" id="city" 
+                           value="{{ filters.city ?? '' }}" placeholder="e.g. Rome">
+                </div>
+
+                <div class="col-md-6">
+                    <label for="status" class="form-label small fw-bold text-muted">Status</label>
+                    <select name="status" id="status" class="form-select">
+                        <option value="" {% if not filters.status %}selected{% endif %}>All Statuses</option>
+                        <option value="Active" {% if filters.status == 'Active' %}selected{% endif %}>Active</option>
+                        <option value="Draft" {% if filters.status == 'Draft' %}selected{% endif %}>Draft</option>
+                        <option value="Completed" {% if filters.status == 'Completed' %}selected{% endif %}>Completed</option>
+                        <option value="Cancelled" {% if filters.status == 'Cancelled' %}selected{% endif %}>Cancelled</option>
+                    </select>
+                </div>
+
+                <div class="col-md-6">
+                    <label for="participationType" class="form-label small fw-bold text-muted">Participation Type</label>
+                    <select name="participationType" id="participationType" class="form-select">
+                        <option value="" {% if not filters.participationType %}selected{% endif %}>All Types</option>
+                        <option value="InPerson" {% if filters.participationType == 'InPerson' %}selected{% endif %}>In Person</option>
+                        <option value="Online" {% if filters.participationType == 'Online' %}selected{% endif %}>Online</option>
+                        <option value="Hybrid" {% if filters.participationType == 'Hybrid' %}selected{% endif %}>Hybrid</option>
+                    </select>
+                </div>
+
+                {#  Date  #}
+                <div class="col-md-4">
+                    <label for="startDate" class="form-label small fw-bold text-muted">Starts After</label>
+                    <input type="date" name="startDate" class="form-control" id="startDate" 
+                           value="{{ filters.startDate ?? '' }}">
+                </div>
+
+                <div class="col-md-4">
+                    <label for="endDate" class="form-label small fw-bold text-muted">Ends Before</label>
+                    <input type="date" name="endDate" class="form-control" id="endDate" 
+                           value="{{ filters.endDate ?? '' }}">
+                </div>
+
+                <div class="col-md-4">
+                    <label for="regDeadline" class="form-label small fw-bold text-muted">Registration Deadline</label>
+                    <input type="date" name="registrationDeadline" class="form-control" id="regDeadline" 
+                           value="{{ filters.registrationDeadline ?? '' }}">
+                </div>
+
+                <div class="col-12 mt-4 text-end">
+                    <button type="submit" class="btn btn-primary px-5 fw-bold">
+                        <i class="bi bi-filter me-2"></i>Apply Filters
+                    </button>
+                </div>
             </div>
         </form>
     </section>
 
-    <section aria-label="Events List">
-        <div class="row g-4">
-            {% for item in events %}
-                {% set event = item.event %}
-                {% set isCreator = item.isCreator %}
-                {% set isSubscribed = item.isSubscribed %}
-                <div class="col-lg-6">
-                    <article class="card event-card h-100">
-                        <div class="row g-0 h-100">
-                            <div class="col-md-7 p-3 d-flex flex-column">
-                                <div class="d-flex justify-content-between align-items-start mb-2">
-                                    <h3 class="h5 fw-bold mb-0 text-truncate" title="{{ event.title }}">
-                                        {{ event.title }}
-                                    </h3>
-                                    <span class="badge badge-status status-{{ event.status.value|lower }}">
-                                        {{ event.status.value }}
-                                    </span>
-                                </div>
-                                
-                                <div class="event-detail-row mt-3">
-                                    <i class="bi bi-calendar-event text-primary" aria-hidden="true"></i>
-                                    <span>
-                                        {{ event.startDate|date('d/m/Y') }}<br>
-                                        <small class="text-muted">{{ event.startDate|date('H:i') }}</small>
-                                    </span>
-                                </div>
-                                
-                                {% if event.location %}
-                                <div class="event-detail-row">
-                                    <i class="bi bi-geo-alt text-primary" aria-hidden="true"></i>
-                                    <span class="text-truncate">{{ event.location }}</span>
-                                </div>
-                                {% endif %}
+    {# --- NUOVA BARRA FILTRI RAPIDI (PRESET) --- #}
+    <section aria-label="Quick Filters" class="mb-5">
+        <h3 class="h6 text-muted fw-bold mb-3 text-uppercase small">Quick Filters</h3>
+        <div class="d-flex flex-wrap gap-2">
+            
+            {% if currentUser %}
+                {# I tuoi prossimi eventi: Iscritto E Creato dall'utente #}
+                <a href="/events?preset=my_upcoming" 
+                   class="btn btn-outline-primary rounded-pill {% if filters.preset == 'my_upcoming' %}active{% endif %}">
+                    <i class="bi bi-calendar-check me-2"></i>I tuoi prossimi eventi
+                </a>
 
-                                <div class="mt-auto pt-3 d-flex flex-wrap gap-2 align-items-center">
-                                    <a href="/events/{{ event.eventId }}" 
-                                    class="btn btn-primary btn-sm rounded-pill px-3">
-                                        View
-                                    </a>
+                {# Eventi ospitati: Creati dall'utente #}
+                <a href="/events?preset=hosted" 
+                   class="btn btn-outline-primary rounded-pill {% if filters.preset == 'hosted' %}active{% endif %}">
+                    <i class="bi bi-person-workspace me-2"></i>Eventi ospitati
+                </a>
+            {% endif %}
 
-                                    {% if isCreator %}
-                                        <form method="post" action="/events/{{ event.eventId }}/delete" class="d-inline">
-                                            <button type="submit"
-                                                    class="btn btn-outline-danger btn-sm rounded-pill px-3"
-                                                    onclick="return confirm('Delete event {{ event.title }}?')">
-                                                <i class="bi bi-trash"></i>
-                                            </button>
-                                        </form>
+            {# Eventi in tendenza: Maggior numero di iscritti #}
+            <a href="/events?preset=trending" 
+               class="btn btn-outline-info rounded-pill {% if filters.preset == 'trending' %}active{% endif %}">
+                <i class="bi bi-graph-up-arrow me-2"></i>Eventi in tendenza
+            </a>
 
-                                    {% else %}
-                                        {% if isSubscribed %}
-                                            <form method="post" action="/events/{{ event.eventId }}/unsubscribe" class="d-inline">
-                                                <button class="btn btn-outline-danger btn-sm rounded-pill px-3">
-                                                    Unsubscribe
-                                                </button>
-                                            </form>
-                                        {% else %}
-                                            <form method="post" action="/events/{{ event.eventId }}/subscribe" class="d-inline">
-                                                <button class="btn btn-success btn-sm rounded-pill px-3">
-                                                    Subscribe
-                                                </button>
-                                            </form>
-                                        {% endif %}
-                                    {% endif %}
-                                </div>
-                            </div>
-                            
-                            <div class="col-md-5 d-none d-md-block">
-                                <div class="card-img-wrapper">
-                                    {% if event.imageUrl %}
-                                        <img src="{{ event.imageUrl }}" class="card-event-img" alt="Image of event {{ event.title }}">
-                                    {% else %}
-                                        <div class="text-center text-muted p-3">
-                                            <i class="bi bi-image display-4 mb-2"></i>
-                                            <p class="small m-0">No image</p>
-                                        </div>
-                                    {% endif %}
-                                </div>
-                            </div>
-                        </div>
-                    </article>
-                </div>
-            {% else %}
-                <div class="col-12">
-                    <div class="text-center py-5 border rounded bg-white">
-                        <i class="bi bi-calendar-x display-1 text-muted mb-3"></i>
-                        <h3 class="h4">No events found</h3>
-                        <p class="text-muted">Start by creating your first event. There will be fireworks here!</p>
-                        <a href="/events/create" class="btn btn-primary mt-2">Create new event</a>
-                    </div>
-                </div>
-            {% endfor %}
+            {# Prossimi eventi: Logica backend (data registrazione < oggi) #}
+            <a href="/events?preset=upcoming" 
+               class="btn btn-outline-success rounded-pill {% if filters.preset == 'upcoming' %}active{% endif %}">
+                <i class="bi bi-hourglass-split me-2"></i>Prossimi eventi
+            </a>
+
+            {# Eventi passati: Logica backend (data registrazione > oggi) #}
+            <a href="/events?preset=past" 
+               class="btn btn-outline-secondary rounded-pill {% if filters.preset == 'past' %}active{% endif %}">
+                <i class="bi bi-clock-history me-2"></i>Eventi passati
+            </a>
+
         </div>
     </section>
 
+    <section id="eventsContainer" aria-label="Events List">
+        {% include "partials/eventsList.twig" with { events: events } %}
+    </section>
 </main>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.getElementById('filtersForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+
+    const formData = new FormData(this);
+    const params = new URLSearchParams();
+
+    for (const [key, value] of formData.entries()) {
+        if (value) params.append(key, value);
+    }
+
+    fetch('/events?' + params.toString(), {
+        method: 'GET',
+        headers: {
+            'Accept': 'text/html',
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(res => res.text())
+    .then(html => {
+        document.getElementById('eventsContainer').innerHTML = html;
+    });
+});
+
+</script>
+
 {% endblock %}

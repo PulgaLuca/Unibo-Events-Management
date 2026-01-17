@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Domain\Repositories\Events;
 
 use App\Domain\Entities\Events\Event;
-use App\Domain\Entities\Auth\User;
 
 interface IEventRepository
 {
@@ -53,4 +52,16 @@ interface IEventRepository
     public function findEventsJoinedByUser(int $userId): array;
     
     public function getRequiredSkills(string $eventId): array;
+
+    public function findByFilters(array $filters): array;
+
+    public function findMyUpcomingEvents(int $userId): array;
+
+    public function findHostedByUser(int $userId): array;
+
+    public function findTrendingEvents(): array;
+
+    public function findUpcomingEvents(): array;
+
+    public function findPastEvents(): array;
 }

@@ -90,4 +90,12 @@ class Request
 
         return $headers;
     }
+
+    public function isXmlHttpRequest(): bool
+    {
+        $headers = array_change_key_case($this->headers, CASE_LOWER);
+
+        return isset($headers['x-requested-with'])
+            && $headers['x-requested-with'] === 'XMLHttpRequest';
+    }
 }

@@ -176,7 +176,7 @@ class EventController
             $organizer = $this->eventService->getEventCreator($id);
             $eventTypes = $this->eventService->getEventTypes();
             $participationTypes = $this->eventService->getParticipationTypes();
-
+            $participants = $this->eventService->getEventParticipants($id);
             $isCreator = $event->getCreatorUserId() === $currentUser->id;
             $isSubscribed = $this->eventService->isUserSubscribed($id, $currentUser->id);
             $userRole = $this->eventService->resolveUserRoleInEvent($id, $currentUser->id);
@@ -190,6 +190,7 @@ class EventController
                 'isCreator' => $isCreator,
                 'isSubscribed' => $isSubscribed,
                 'userRole' => $userRole,
+                'participants' => $participants,
                 'success' => $_SESSION['success'] ?? null,
                 'error' => $_SESSION['error'] ?? null
             ]);

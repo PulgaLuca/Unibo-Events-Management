@@ -259,6 +259,10 @@ class EventService
     }
 
 
+    public function getEventParticipants(string $eventId): array
+    {
+        return $this->eventRepository->getEventParticipants($eventId);
+    }
 
 
     /**

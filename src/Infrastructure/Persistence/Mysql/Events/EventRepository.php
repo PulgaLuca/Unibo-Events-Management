@@ -198,13 +198,14 @@ class EventRepository implements IEventRepository
     {
         $stmt = $this->connection->prepare(
             "SELECT 
-                u.user_id,
+                u.id,
                 u.first_name,
                 u.last_name,
+                u.email,
                 ep.role,
                 ep.registration_date
             FROM EVENT_PARTICIPATION ep
-            JOIN USER u ON u.user_id = ep.user_id
+            JOIN USERS u ON u.id = ep.user_id
             WHERE ep.event_id = :event_id
             AND ep.user_id IS NOT NULL"
         );
@@ -212,7 +213,6 @@ class EventRepository implements IEventRepository
         $stmt->execute(['event_id' => $eventId]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
-
 
     public function getEventTeamsWithMembers(string $eventId): array
     {
@@ -240,25 +240,6 @@ class EventRepository implements IEventRepository
     {
         $stmt = $this->connection->prepare(
             "SELECT * FROM EVENT WHERE creator_user_id = :user_id"
-        );
-
-        $stmt->execute(['user_id' => $userId]);
-
-        return array_map(
-            fn($row) => $this->mapToEntity($row),
-            $stmt->fetchAll(PDO::FETCH_ASSOC)
-        );
-    }
-
-    public function findEventsJoinedByUser(int $userId): array
-    {
-        $stmt = $this->connection->prepare(
-            "SELECT DISTINCT e.*
-            FROM EVENT e
-            JOIN EVENT_PARTICIPATION ep ON ep.event_id = e.id
-            LEFT JOIN TEAM_MEMBERSHIP tm ON tm.team_id = ep.team_id
-            WHERE ep.user_id = :user_id
-                OR tm.user_id = :user_id"
         );
 
         $stmt->execute(['user_id' => $userId]);

@@ -49,8 +49,6 @@ interface IEventRepository
     
     public function findEventsCreatedByUser(int $userId): array;
     
-    public function findEventsJoinedByUser(int $userId): array;
-    
     public function getRequiredSkills(string $eventId): array;
 
     public function findByFilters(array $filters): array;

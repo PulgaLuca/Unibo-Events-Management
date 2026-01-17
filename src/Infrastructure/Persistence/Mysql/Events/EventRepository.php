@@ -282,6 +282,72 @@ class EventRepository implements IEventRepository
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    public function findByFilters(array $filters): array
+    {
+        $sql = "SELECT e.*, l.id AS location_id, l.country AS location_country, l.city AS location_city, l.description AS location_description
+                FROM EVENT e
+                LEFT JOIN LOCATION l ON e.location_id = l.id";
+
+        $conditions = [];
+        $params = [];
+
+        if (!empty($filters['q'])) {
+            $conditions[] = "(e.title LIKE :q OR e.description LIKE :q)";
+            $params[':q'] = "%{$filters['q']}%";
+        }
+
+        if (!empty($filters['country'])) {
+            $conditions[] = "l.country = :country";
+            $params[':country'] = $filters['country'];
+        }
+
+        if (!empty($filters['city'])) {
+            $conditions[] = "l.city = :city";
+            $params[':city'] = $filters['city'];
+        }
+
+        if (!empty($filters['status'])) {
+            $conditions[] = "e.status = :status";
+            $params[':status'] = $filters['status'];
+        }
+
+        if (!empty($filters['participationType'])) {
+            $conditions[] = "e.participation_type_id = :participationType";
+            $params[':participationType'] = $filters['participationType'];
+        }
+
+        if (!empty($filters['startDate'])) {
+            $conditions[] = "e.start_date >= :startDate";
+            $params[':startDate'] = $filters['startDate'];
+        }
+
+        if (!empty($filters['endDate'])) {
+            $conditions[] = "e.end_date <= :endDate";
+            $params[':endDate'] = $filters['endDate'];
+        }
+
+        if (!empty($filters['registrationDeadline'])) {
+            $conditions[] = "e.registration_deadline <= :registrationDeadline";
+            $params[':registrationDeadline'] = $filters['registrationDeadline'];
+        }
+
+        if (!empty($conditions)) {
+            $sql .= " WHERE " . implode(" AND ", $conditions);
+        }
+
+        $sql .= " ORDER BY e.start_date DESC";
+
+        $stmt = $this->connection->prepare($sql);
+        $stmt->execute($params);
+
+        $events = [];
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $events[] = $this->mapToEntity($row);
+        }
+        
+        return $events;
+    }
+
     /**
      * Map DB row -> Domain Entity
      */

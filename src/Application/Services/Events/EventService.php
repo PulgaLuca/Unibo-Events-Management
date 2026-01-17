@@ -234,6 +234,12 @@ class EventService
         );
     }
 
+    public function filterEvents(array $filters): array
+    {
+        return $this->eventRepository->findByFilters($filters);
+    }
+
+
 
     /**
      * Basic business validation

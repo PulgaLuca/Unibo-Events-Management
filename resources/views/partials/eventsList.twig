@@ -1,0 +1,81 @@
+<div class="row g-4">
+    {% for item in events %}
+        {% set event = item.event %}
+        {% set isCreator = item.isCreator %}
+        {% set isSubscribed = item.isSubscribed %}
+        <div class="col-12">
+            <article class="card event-card h-100">
+                <div class="row g-0 h-100">
+                    <div class="col-md-7 p-3 d-flex flex-column">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h3 class="h5 fw-bold mb-0 text-truncate" title="{{ event.title }}">
+                                {{ event.title }}
+                            </h3>
+                            <span class="badge badge-status status-{{ event.status.value|lower }}">
+                                {{ event.status.value }}
+                            </span>
+                        </div>
+                        <div class="event-detail-row mt-3">
+                            <i class="bi bi-calendar-event text-primary" aria-hidden="true"></i>
+                            <span>
+                                {{ event.startDate|date('d/m/Y') }}<br>
+                                <small class="text-muted">{{ event.startDate|date('H:i') }}</small>
+                            </span>
+                        </div>
+                        {% if event.location %}
+                        <div class="event-detail-row">
+                            <i class="bi bi-geo-alt text-primary" aria-hidden="true"></i>
+                            <span class="text-truncate">{{ event.location.country }}, {{ event.location.city }}</span>
+                        </div>
+                        {% endif %}
+
+                        <div class="mt-auto pt-3 d-flex flex-wrap gap-2 align-items-center">
+                            <a href="/events/{{ event.eventId }}" class="btn btn-primary btn-sm rounded-pill px-3">View</a>
+
+                            {% if isCreator %}
+                                <form method="post" action="/events/{{ event.eventId }}/delete" class="d-inline">
+                                    <button type="submit" class="btn btn-outline-danger btn-sm rounded-pill px-3"
+                                            onclick="return confirm('Delete event {{ event.title }}?')">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </form>
+                            {% else %}
+                                {% if isSubscribed %}
+                                    <form method="post" action="/events/{{ event.eventId }}/unsubscribe" class="d-inline">
+                                        <button class="btn btn-outline-danger btn-sm rounded-pill px-3">Unsubscribe</button>
+                                    </form>
+                                {% else %}
+                                    <form method="post" action="/events/{{ event.eventId }}/subscribe" class="d-inline">
+                                        <button class="btn btn-success btn-sm rounded-pill px-3">Subscribe</button>
+                                    </form>
+                                {% endif %}
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="col-md-5 d-none d-md-block">
+                        <div class="card-img-wrapper">
+                            {% if event.imageUrl %}
+                                <img src="{{ event.imageUrl }}" class="card-event-img" alt="Image of event {{ event.title }}">
+                            {% else %}
+                                <div class="text-center text-muted p-3">
+                                    <i class="bi bi-image display-4 mb-2"></i>
+                                    <p class="small m-0">No image</p>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </article>
+        </div>
+    {% else %}
+        <div class="col-12">
+            <div class="text-center py-5 border rounded bg-white">
+                <i class="bi bi-calendar-x display-1 text-muted mb-3"></i>
+                <h3 class="h4">No events found</h3>
+                <p class="text-muted">Start by creating your first event. There will be fireworks here!</p>
+                <a href="/events/create" class="btn btn-primary mt-2">Create new event</a>
+            </div>
+        </div>
+    {% endfor %}
+</div>

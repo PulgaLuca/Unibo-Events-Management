@@ -3,65 +3,87 @@
         {% set event = item.event %}
         {% set isCreator = item.isCreator %}
         {% set isSubscribed = item.isSubscribed %}
+        
         <div class="col-12">
-            <article class="card event-card h-100">
+            {# aria-labelledby per dare un nome univoco alla sezione #}
+            <article class="card event-card h-100 shadow-sm border" aria-labelledby="event-title-{{ event.eventId }}">
                 <div class="row g-0 h-100">
-                    <div class="col-md-7 p-3 d-flex flex-column">
+                    <div class="col-md-7 p-4 d-flex flex-column">
+                        
                         <div class="d-flex justify-content-between align-items-start mb-2">
-                            <h3 class="h5 fw-bold mb-0 text-truncate" title="{{ event.title }}">
-                                {{ event.title }}
+                            <h3 id="event-title-{{ event.eventId }}" class="h5 fw-bold mb-0">
+                                <a href="/events/{{ event.eventId }}" class="text-decoration-none text-dark stretched-link-target">
+                                    {{ event.title }}
+                                </a>
                             </h3>
-                            <span class="badge badge-status status-{{ event.status.value|lower }}">
-                                {{ event.status.value }}
+                            {# badge con contrasto elevato #}
+                            <span class="badge status-{{ event.status.value|lower }} px-2 py-1">
+                                <span class="visually-hidden">Stato evento: </span>{{ event.status.value }}
                             </span>
                         </div>
-                        <div class="event-detail-row mt-3">
-                            <i class="bi bi-calendar-event text-primary" aria-hidden="true"></i>
-                            <span> 
-                                <strong>Start Date:</strong> <br>{{ event.startDate|date('d/m/Y') }}
-                                <small class="text-muted">{{ event.startDate|date('H:i') }}</small>
-                            </span>
-                        </div>
-                        {% if event.location %}
-                        <div class="event-detail-row">
-                            <i class="bi bi-geo-alt text-primary" aria-hidden="true"></i>
-                            <strong>Location:</strong>
-                            <span class="text-truncate">{{ event.location.country }}, {{ event.location.city }}</span>
-                        </div>
-                        {% endif %}
 
-                        <div class="mt-auto pt-3 d-flex flex-wrap gap-2 align-items-center">
-                            <a href="/events/{{ event.eventId }}" class="btn btn-primary btn-sm rounded-pill px-3">View</a>
+                        <div class="mt-3">
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="bi bi-calendar-event me-2 text-primary" aria-hidden="true"></i>
+                                <span>
+                                    <span class="visually-hidden">Data di inizio:</span>
+                                    <strong>{{ event.startDate|date('d/m/Y') }}</strong> 
+                                    <span class="text-secondary ms-1">alle {{ event.startDate|date('H:i') }}</span>
+                                </span>
+                            </div>
+                            
+                            {% if event.location %}
+                            <div class="d-flex align-items-center">
+                                <i class="bi bi-geo-alt me-2 text-primary" aria-hidden="true"></i>
+                                <span>
+                                    <span class="visually-hidden">Luogo:</span>
+                                    {{ event.location.country }}, {{ event.location.city }}
+                                </span>
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        {# Bottoni: assicurarsi che abbiano z-index se si usa stretched-link sulla card #}
+                        <div class="mt-auto pt-4 d-flex flex-wrap gap-2 align-items-center" style="position: relative; z-index: 2;">
+                            <a href="/events/{{ event.eventId }}" class="btn btn-primary btn-sm px-4 fw-bold">
+                                Vedi <span class="visually-hidden">dettagli evento {{ event.title }}</span>
+                            </a>
 
                             {% if isCreator %}
                                 <form method="post" action="/events/{{ event.eventId }}/delete" class="d-inline">
-                                    <button type="submit" class="btn btn-outline-danger btn-sm rounded-pill px-3"
-                                            onclick="return confirm('Delete event {{ event.title }}?')">
-                                        <i class="bi bi-trash"></i>
+                                    <button type="submit" class="btn btn-outline-danger btn-sm px-3"
+                                            aria-label="Elimina evento {{ event.title }}"
+                                            onclick="return confirm('Sei sicuro di voler eliminare {{ event.title }}?')">
+                                        <i class="bi bi-trash" aria-hidden="true"></i> Elimina
                                     </button>
                                 </form>
                             {% else %}
                                 {% if isSubscribed %}
                                     <form method="post" action="/events/{{ event.eventId }}/unsubscribe" class="d-inline">
-                                        <button class="btn btn-outline-danger btn-sm rounded-pill px-3">Unsubscribe</button>
+                                        <button class="btn btn-outline-danger btn-sm px-3 fw-bold">
+                                            Disiscriviti <span class="visually-hidden">da {{ event.title }}</span>
+                                        </button>
                                     </form>
                                 {% else %}
                                     <form method="post" action="/events/{{ event.eventId }}/subscribe" class="d-inline">
-                                        <button class="btn btn-success btn-sm rounded-pill px-3">Subscribe</button>
+                                        <button class="btn btn-success btn-sm px-3 fw-bold text-white">
+                                            Iscriviti <span class="visually-hidden">a {{ event.title }}</span>
+                                        </button>
                                     </form>
                                 {% endif %}
                             {% endif %}
                         </div>
                     </div>
 
-                    <div class="col-md-5 d-none d-md-block">
-                        <div class="card-img-wrapper">
+                    <div class="col-md-5 d-none d-md-block" aria-hidden="true">
+                        <div class="h-100" style="min-height: 200px;">
                             {% if event.imageUrl %}
-                                <img src="{{ event.imageUrl }}" class="card-event-img" alt="Image of event {{ event.title }}">
+                                <img src="{{ event.imageUrl }}" class="w-100 h-100 object-fit-cover" 
+                                     alt="" role="presentation"
+                                     style="border-top-right-radius: 0.375rem; border-bottom-right-radius: 0.375rem;">
                             {% else %}
-                                <div class="text-center text-muted p-3">
-                                    <i class="bi bi-image display-4 mb-2"></i>
-                                    <p class="small m-0">No image</p>
+                                <div class="bg-light h-100 d-flex align-items-center justify-content-center border-start">
+                                    <i class="bi bi-image text-muted display-4"></i>
                                 </div>
                             {% endif %}
                         </div>
@@ -71,11 +93,11 @@
         </div>
     {% else %}
         <div class="col-12">
-            <div class="text-center py-5 border rounded bg-white">
-                <i class="bi bi-calendar-x display-1 text-muted mb-3"></i>
-                <h3 class="h4">No events found</h3>
-                <p class="text-muted">Start by creating your first event. There will be fireworks here!</p>
-                <a href="/events/create" class="btn btn-primary mt-2">Create new event</a>
+            <div class="text-center py-5 border rounded bg-white shadow-sm" role="status">
+                <i class="bi bi-calendar-x display-1 text-secondary mb-3" aria-hidden="true"></i>
+                <h3 class="h4 fw-bold">Nessun evento trovato</h3>
+                <p class="text-secondary lead">Inizia creando il tuo primo evento!</p>
+                <a href="/events/create" class="btn btn-primary btn-lg mt-2 fw-bold">Crea nuovo evento</a>
             </div>
         </div>
     {% endfor %}

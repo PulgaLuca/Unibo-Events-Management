@@ -1,102 +1,104 @@
 {% extends 'layouts/base.twig' %}
 
-{% block title %}Event Details{% endblock %}
+{% block title %}Event Details - {{ data.title }}{% endblock %}
 
 {% block content %}
-    <div class="position-relative text-white overflow-hidden rounded-3 mb-4" style="background-color: #000;">
+    <header class="position-relative text-white overflow-hidden rounded-3 mb-4" style="background-color: #000;">
         <img src="{{ data.imageUrl }}"
              id="main-event-image"
-             alt="Immagine di presentazione dell'evento."
-             class="w-100 object-fit-cover opacity-50" 
-             style="height: 400px; filter: brightness(0.6);">
+             alt="" 
+             role="presentation"
+             class="w-100 object-fit-cover" 
+             style="height: 400px; filter: brightness(0.4);">
         
-        <div class="position-absolute top-0 start-0 w-100 h-100 p-4 d-flex flex-column justify-content-center">
-            <h1 class="display-5 fw-bold">Check out the event</h1>
-            <p class="lead">Challenge yourself to the test with your community <br>and bring your talent to the world.</p>
-            <p class="mb-4 d-none d-md-block">Take a look at internal events, workshops or <br>external competitions to find out more.</p>
-            {# <div>
-                <button class="btn btn-primary" type="button" onclick="document.getElementById('event_image').click();">
-                    Load image event
-                </button>
-                <input type="file" name="image" id="event_image" class="d-none" accept="image/*">
-            </div> #}
+        <div class="position-absolute top-0 start-0 w-100 h-100 p-4 d-flex flex-column justify-content-center bg-dark bg-opacity-25">
+            <h1 class="display-5 fw-bold" id="event-heading">Check out the event: {{ data.title }}</h1>
+            <p class="lead">Challenge yourself to the test with your community and bring your talent to the world.</p>
+            <p class="mb-4 d-none d-md-block">Take a look at internal events, workshops or external competitions to find out more.</p>
         </div>
-    </div>
+    </header>
 
-    <main class="container mb-5">
+    <main class="container mb-5" id="main-content">
         {% if error %}
-            <div class="alert alert-danger alert-dismissible fade show" role="alert" id="js-error-container">
+            <div class="alert alert-danger alert-dismissible fade show" role="alert" aria-live="assertive">
+                <i class="bi bi-exclamation-octagon-fill me-2" aria-hidden="true"></i>
                 <strong>Error:</strong> {{ error }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close error message"></button>
             </div>
         {% endif %}
 
         {% if success %}
-            <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <div class="alert alert-success alert-dismissible fade show" role="alert" aria-live="polite">
+                <i class="bi bi-check-circle-fill me-2" aria-hidden="true"></i>
                 {{ success }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close success message"></button>
             </div>
         {% endif %}
 
-        <form method="post" action="/events/{{ data.eventId }}" id="form-event-save">
-            {% include "eventForm.twig" with {
-                data: data|default({}),
-                eventTypes: eventTypes,
-                participationTypes: participationTypes,
-                currentUser: currentUser
-            } %}
-        </form>
+        <section aria-labelledby="form-heading">
+            <h2 id="form-heading" class="visually-hidden">Event Configuration</h2>
+            <form method="post" action="/events/{{ data.eventId }}" id="form-event-save">
+                {% include "eventForm.twig" with {
+                    data: data|default({}),
+                    eventTypes: eventTypes,
+                    participationTypes: participationTypes,
+                    currentUser: currentUser
+                } %}
+            </form>
+        </section>
 
-        <div class="d-flex gap-2 mt-4">
+        <nav class="d-flex flex-wrap gap-3 mt-4" aria-label="Event actions">
             {% if isCreator %}
-                <button type="submit" form="form-event-save" class="btn btn-primary px-4">
-                    Save
+                <button type="submit" form="form-event-save" class="btn btn-primary px-4 py-2 fw-bold">
+                    <i class="bi bi-save me-2" aria-hidden="true"></i>Save Changes
                 </button>
 
-                <form method="post" action="/events/{{ data.eventId }}/delete">
-                    <button type="submit" class="btn btn-danger px-4">
-                        Delete
+                <form method="post" action="/events/{{ data.eventId }}/delete" onsubmit="return confirm('Are you sure you want to delete this event?');">
+                    <button type="submit" class="btn btn-danger px-4 py-2 fw-bold">
+                        <i class="bi bi-trash me-2" aria-hidden="true"></i>Delete Event
                     </button>
                 </form>
-
             {% else %}
                 {% if isSubscribed %}
                     <form method="post" action="/events/{{ data.eventId }}/unsubscribe">
-                        <button type="submit" class="btn btn-outline-danger px-4">
-                            Unsubscribe
+                        <button type="submit" class="btn btn-outline-danger px-4 py-2 fw-bold">
+                            Unsubscribe from Event
                         </button>
                     </form>
                 {% else %}
                     <form method="post" action="/events/{{ data.eventId }}/subscribe">
-                        <button type="submit" class="btn btn-success px-4">
-                            Subscribe
+                        <button type="submit" class="btn btn-success px-4 py-2 fw-bold text-white">
+                            Subscribe to Event
                         </button>
                     </form>
                 {% endif %}
             {% endif %}
 
-            <a href="/events" class="btn btn-secondary px-4">
-                Back
+            <a href="/events" class="btn btn-secondary px-4 py-2 fw-bold">
+                <i class="bi bi-arrow-left me-2" aria-hidden="true"></i>Back to List
             </a>
-        </div>
+        </nav>
 
         {% if isCreator %}
-            <hr class="my-5">
+            <hr class="my-5" role="presentation">
             
-            <div class="card shadow-sm border-0">
+            <section class="card shadow-sm border-0" aria-labelledby="participants-title">
                 <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
-                    <h3 class="h5 m-0 fw-bold text-primary">
-                        <i class="bi bi-people-fill me-2"></i>Partecipanti Iscritti
+                    <h2 class="h5 m-0 fw-bold text-primary" id="participants-title">
+                        <i class="bi bi-people-fill me-2" aria-hidden="true"></i>Partecipanti Iscritti
                         {% if participants is defined %}
-                            <span class="badge bg-secondary rounded-pill ms-2">{{ participants|length }}</span>
+                            <span class="badge bg-dark rounded-pill ms-2">
+                                <span class="visually-hidden">Total participants: </span>{{ participants|length }}
+                            </span>
                         {% endif %}
-                    </h3>
+                    </h2>
                 </div>
                 
                 <div class="card-body p-0">
                     {% if participants is defined and participants is not empty %}
                         <div class="table-responsive">
                             <table class="table table-hover align-middle mb-0">
+                                <caption class="visually-hidden">List of registered participants and their roles</caption>
                                 <thead class="table-light">
                                     <tr>
                                         <th scope="col" class="ps-4">Utente</th>
@@ -109,12 +111,9 @@
                                     {% for participant in participants %}
                                         <tr>
                                             <td class="ps-4">
-                                                <div class="d-flex align-items-center">
-                                                    <div>
-                                                        <div class="fw-bold text-dark">{{ participant.first_name }} {{ participant.last_name }} - {{ participant.email }}</div>
-                                                        <div class="small text-muted">ID: #{{ participant.id }}</div>
-                                                    </div>
-                                                </div>
+                                                <div class="fw-bold text-dark">{{ participant.first_name }} {{ participant.last_name }}</div>
+                                                <div class="small text-secondary">{{ participant.email }}</div>
+                                                <div class="visually-hidden">Participant ID: {{ participant.id }}</div>
                                             </td>
                                             <td>
                                                 <span class="badge bg-light text-dark border">
@@ -122,11 +121,14 @@
                                                 </span>
                                             </td>
                                             <td>
-                                                <i class="bi bi-calendar-event me-1 text-muted"></i>
-                                                {{ participant.registration_date|date('d/m/Y H:i') }}
+                                                <time datetime="{{ participant.registration_date|date('Y-m-d H:i') }}">
+                                                    {{ participant.registration_date|date('d/m/Y H:i') }}
+                                                </time>
                                             </td>
                                             <td class="text-end pe-4">
-                                                <a href="/profile/{{ participant.id }}" class="btn btn-sm btn-outline-secondary">
+                                                <a href="/profile/{{ participant.id }}" 
+                                                   class="btn btn-sm btn-outline-dark"
+                                                   aria-label="View profile of {{ participant.first_name }} {{ participant.last_name }}">
                                                     Vedi Profilo
                                                 </a>
                                             </td>
@@ -137,12 +139,12 @@
                         </div>
                     {% else %}
                         <div class="text-center py-5">
-                            <i class="bi bi-person-slash display-4 text-muted mb-3"></i>
+                            <i class="bi bi-person-slash display-4 text-muted mb-3" aria-hidden="true"></i>
                             <p class="text-muted lead">Nessun partecipante iscritto ancora.</p>
                         </div>
                     {% endif %}
                 </div>
-            </div>
+            </section>
         {% endif %}
     </main>
 {% endblock %}
@@ -153,14 +155,14 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Recuperiamo i valori dal template Twig o dai campi input
+    // Recuperiamo i valori dal template Twig
     const city = "{{ data.location.city|default('') }}";
     const country = "{{ data.location.country|default('') }}";
     const description = "{{ data.location.description|default('') }}";
     const mapContainer = document.getElementById('event-map');
     const statusText = document.getElementById('map-status');
 
-    // Se non c'è una città, nascondiamo la mappa o mostriamo un messaggio
+    // Se non c'è una città mostriamo il messaggio
     if (!city) {
         mapContainer.style.display = 'none';
         statusText.innerText = "Specifica una città per vedere la mappa.";
@@ -181,7 +183,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Inizializza la mappa
                 const map = L.map('event-map').setView([lat, lon], 13);
 
-                // Aggiunge i "Tiles" (lo stile della mappa) di OpenStreetMap
+                // Stile mappa di OpenStreetMap
                 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                     maxZoom: 19,
                     attribution: '© OpenStreetMap'
@@ -192,10 +194,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     .bindPopup(`<b>${city}</b><br>${country}`)
                     .openPopup();
                 
-                statusText.style.display = 'none'; // Nasconde il testo di caricamento
+                statusText.style.display = 'none';
             } else {
                 statusText.innerText = "Impossibile trovare la posizione sulla mappa.";
-                // Opzionale: Mostra una mappa generica o nascondila
             }
         })
         .catch(err => {

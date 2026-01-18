@@ -1,5 +1,5 @@
 <style>
-    /* Stili locali per fieldset accessibili */
+    /* Local styles for accessible fieldset */
     fieldset.card-fieldset {
         border: 1px solid #dee2e6;
         border-radius: 0.375rem;
@@ -22,6 +22,7 @@
         padding: 1rem;
     }
 </style>
+
 {% set readonly = not isCreator %}
 <fieldset class="card-fieldset">
     <legend class="card-legend">General Information</legend>
@@ -29,7 +30,7 @@
         <div class="mb-3">
             <label for="title" class="form-label fw-bold">Event Title</label>
             <input type="text" class="form-control" id="title" name="title" 
-                   placeholder="Es. Hackathon - Image Recognition" required
+                   placeholder="e.g., Hackathon - Image Recognition" required
                    value="{{ data.title|default('') }}" {% if readonly %}readonly{% endif %}>
         </div>
         <div class="mb-3">
@@ -43,7 +44,7 @@
 <div class="row">
     <div class="col-lg-6">
         <fieldset class="card-fieldset h-100">
-            <legend class="card-legend">Date and Hours</legend>
+            <legend class="card-legend">Date and Times</legend>
             <div class="fieldset-body">
                 <div class="mb-3">
                     <label for="start_date" class="form-label fw-bold text-primary">Start date and time</label>
@@ -65,48 +66,48 @@
     </div>
 
     <div class="col-lg-6">
-    <fieldset class="card-fieldset h-100">
-        <legend class="card-legend">Location and Modalities</legend>
-        <div class="fieldset-body">
-            <div class="row">
-                <div class="col-6 mb-3">
-                    <label for="location_country" class="form-label fw-bold text-primary">Country</label>
-                    <input type="text" class="form-control" id="location_country" name="location_country" 
-                           placeholder="Italy" value="{{ data.location.country|default('') }}" {% if readonly %}readonly{% endif %}>
+        <fieldset class="card-fieldset h-100">
+            <legend class="card-legend">Location and Modalities</legend>
+            <div class="fieldset-body">
+                <div class="row">
+                    <div class="col-6 mb-3">
+                        <label for="location_country" class="form-label fw-bold text-primary">Country</label>
+                        <input type="text" class="form-control" id="location_country" name="location_country" 
+                               placeholder="Italy" value="{{ data.location.country|default('') }}" {% if readonly %}readonly{% endif %}>
+                    </div>
+                    <div class="col-6 mb-3">
+                        <label for="location_city" class="form-label fw-bold text-primary">City</label>
+                        <input type="text" class="form-control" id="location_city" name="location_city" 
+                               placeholder="Bologna" value="{{ data.location.city|default('') }}" {% if readonly %}readonly{% endif %}>
+                    </div>
                 </div>
-                <div class="col-6 mb-3">
-                    <label for="location_city" class="form-label fw-bold text-primary">City</label>
-                    <input type="text" class="form-control" id="location_city" name="location_city" 
-                           placeholder="Bologna" value="{{ data.location.city|default('') }}" {% if readonly %}readonly{% endif %}>
-                </div>
-            </div>
 
-            <div class="mb-3">
-                <div id="event-map" 
-                        role="application" 
-                        aria-label="Mappa interattiva della posizione dell'evento"
-                        style="height: 250px; width: 100%; border-radius: 8px; border: 1px solid #dee2e6; background: #eee;">
+                <div class="mb-3">
+                    <div id="event-map" 
+                            role="application" 
+                            aria-label="Interactive map of the event location"
+                            style="height: 250px; width: 100%; border-radius: 8px; border: 1px solid #dee2e6; background: #eee;">
+                    </div>
+                    <small class="text-secondary fst-italic ms-1" id="map-status" aria-live="polite">Loading map...</small>
                 </div>
-                <small class="text-secondary fst-italic ms-1" id="map-status" aria-live="polite">Caricamento mappa...</small>
-            </div>
-            
-            <div class="mb-3">
-                <label for="location_description" class="form-label fw-bold">Indirizzo o Nota</label>
-                <input type="text" class="form-control" id="location_description" name="location_description" 
-                        placeholder="Es. Aula 3, Campus / Online"
-                        value="{{ data.location.description|default('') }}" {% if readonly %}readonly{% endif %}>
-            </div>
+                
+                <div class="mb-3">
+                    <label for="location_description" class="form-label fw-bold text-primary">Description</label>
+                    <input type="text" class="form-control" id="location_description" name="location_description" 
+                            placeholder="e.g., Room 3, Campus / Online"
+                            value="{{ data.location.description|default('') }}" {% if readonly %}readonly{% endif %}>
+                </div>
 
-            <div class="mb-3">
-                <label for="url" class="form-label fw-bold text-primary">External URL</label>
-                <input type="url" class="form-control" id="url" name="url" 
-                       placeholder="https://..." 
-                       value="{{ data.url|default('') }}" {% if readonly %}readonly{% endif %}>
+                <div class="mb-3">
+                    <label for="url" class="form-label fw-bold text-primary">External URL</label>
+                    <input type="url" class="form-control" id="url" name="url" 
+                           placeholder="https://..." 
+                           value="{{ data.url|default('') }}" {% if readonly %}readonly{% endif %}>
+                </div>
+                <input type="hidden" name="location_id" value="{{ data.location.id|default('') }}">
             </div>
-            <input type="hidden" name="location_id" value="{{ data.location.id|default('') }}">
-        </div>
-    </fieldset>
-</div>
+        </fieldset>
+    </div>
 </div>
 
 <div class="row mt-3">
@@ -115,12 +116,12 @@
             <legend class="card-legend">Participation</legend>
             <div class="fieldset-body">
                 <div class="mb-3">
-                    <label for="min_participants" class="form-label fw-bold text-primary">Min partecipants</label>
+                    <label for="min_participants" class="form-label fw-bold text-primary">Min participants</label>
                     <input type="number" class="form-control" id="min_participants" name="min_participants" min="0"
                            value="{{ data.minParticipants|default(0) }}" {% if readonly %}readonly{% endif %}>
                 </div>
                 <div class="mb-3">
-                    <label for="max_participants" class="form-label fw-bold text-primary">Max partecipants</label>
+                    <label for="max_participants" class="form-label fw-bold text-primary">Max participants</label>
                     <input type="number" class="form-control" id="max_participants" name="max_participants" min="0"
                            value="{{ data.maxParticipants|default(0) }}" {% if readonly %}readonly{% endif %}>
                 </div>
@@ -187,16 +188,16 @@
 </div>
 
 <fieldset class="card-fieldset mt-3">
-    <legend class="card-legend">6. Competenze Richieste</legend>
+    <legend class="card-legend">6. Required Skills</legend>
     <div class="fieldset-body">
         <div class="mb-3">
-            <label for="skills" class="form-label fw-bold">Elenca le skill necessarie</label>
+            <label for="skills" class="form-label fw-bold">List the required skills</label>
             <input type="text" class="form-control" id="skills" name="skills" 
-                   placeholder="Esempio: Cybersecurity, Web Development, CI/CD" 
+                   placeholder="e.g., Cybersecurity, Web Development, CI/CD" 
                    value="{{ data.requiredSkillsAsString|default('') }}" 
                    aria-describedby="skillsHelp" 
                    {% if readonly %}readonly{% endif %}>
-            <div id="skillsHelp" class="form-text">Separa le competenze con una virgola (es. React, SQL, Figma).</div>
+            <div id="skillsHelp" class="form-text">Separate skills with a comma (e.g., React, SQL, Figma).</div>
         </div>
     </div>
 </fieldset>

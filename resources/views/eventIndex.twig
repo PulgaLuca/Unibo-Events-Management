@@ -87,15 +87,15 @@
 
 <header class="hero-section">
     <img src="https://images.unsplash.com/photo-1540575467063-178a50c2df87?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" 
-         alt="Folla che applaude ad un evento tech." 
+         alt="A crowd applauding at a tech event." 
          class="hero-img">
     
     <div class="hero-overlay text-white">
-        <h1 class="display-4 fw-bold">Gestisci i tuoi eventi</h1>
-        <p class="lead mt-3 fw-normal">Organizza, monitora e fai crescere la tua community.</p>
+        <h1 class="display-4 fw-bold">Manage Your Events</h1>
+        <p class="lead mt-3 fw-normal">Organize, monitor, and grow your community.</p>
         <div class="mt-4">
             <a href="/events/create" class="btn btn-primary btn-lg fw-bold">
-                <i class="bi bi-plus-lg me-2" aria-hidden="true"></i>Crea nuovo evento
+                <i class="bi bi-plus-lg me-2" aria-hidden="true"></i>Create New Event
             </a>
         </div>
     </div>
@@ -203,7 +203,7 @@
         </form>
     </section>
 
-    {# --- Filtri preset --- #}
+    {# --- Preset Filters --- #}
     <section aria-label="Quick Filters" class="mb-5">
         <h3 class="h6 text-muted fw-bold mb-3 text-uppercase small">Quick Filters</h3>
         <div class="d-flex flex-wrap gap-2">
@@ -211,32 +211,32 @@
             {% if currentUser %}
                 <a href="/events?preset=my_upcoming" 
                    class="btn btn-primary rounded-pill {% if filters.preset == 'my_upcoming' %}active{% endif %}">
-                    <i class="bi bi-calendar-check me-2"></i>I tuoi prossimi eventi
+                    <i class="bi bi-calendar-check me-2"></i>Your Upcoming Events
                 </a>
 
-                {# Eventi ospitati: creati dall'utente #}
+                {# Hosted events: created by the user #}
                 <a href="/events?preset=hosted" 
                    class="btn btn-warning rounded-pill {% if filters.preset == 'hosted' %}active{% endif %}">
-                    <i class="bi bi-person-workspace me-2"></i>Eventi ospitati
+                    <i class="bi bi-person-workspace me-2"></i>Hosted Events
                 </a>
             {% endif %}
 
-            {# Eventi in tendenza: maggior numero di iscritti #}
+            {# Trending events: highest number of participants #}
             <a href="/events?preset=trending" 
                class="btn btn-success rounded-pill {% if filters.preset == 'trending' %}active{% endif %}">
-                <i class="bi bi-graph-up-arrow me-2"></i>Eventi in tendenza
+                <i class="bi bi-graph-up-arrow me-2"></i>Trending Events
             </a>
 
-            {# Prossimi eventi: logica backend (data registrazione < oggi) #}
+            {# Upcoming events: backend logic (registration date < today) #}
             <a href="/events?preset=upcoming" 
                class="btn btn-danger rounded-pill {% if filters.preset == 'upcoming' %}active{% endif %}">
-                <i class="bi bi-hourglass-split me-2"></i>Prossimi eventi
+                <i class="bi bi-hourglass-split me-2"></i>Upcoming Events
             </a>
 
-            {# Eventi passati: logica backend (data registrazione > oggi) #}
+            {# Past events: backend logic (registration date > today) #}
             <a href="/events?preset=past" 
                class="btn btn-dark rounded-pill {% if filters.preset == 'past' %}active{% endif %}">
-                <i class="bi bi-clock-history me-2"></i>Eventi passati
+                <i class="bi bi-clock-history me-2"></i>Past Events
             </a>
 
         </div>

@@ -195,18 +195,14 @@ class EventService
 
         // Skill attuali
         $currentSkillIds = $this->eventRepository->getSkillIdsForEvent($eventId);
-
-        // Skill nuove (id)
+        // Skill nuove
         $newSkillIds = [];
 
         foreach ($skills as $skillName) {
             $newSkillIds[] = $this->skillRepository->findOrCreateByName($skillName);
         }
 
-        // ➕ da aggiungere
         $toAdd = array_diff($newSkillIds, $currentSkillIds);
-
-        // ➖ da rimuovere
         $toRemove = array_diff($currentSkillIds, $newSkillIds);
 
         foreach ($toAdd as $skillId) {
@@ -217,7 +213,6 @@ class EventService
             $this->eventRepository->detachSkill($eventId, $skillId);
         }
     }
-
 
     /**
      * Delete Event
@@ -296,11 +291,6 @@ class EventService
         );
     }
 
-    // public function filterEvents(array $filters): array
-    // {
-    //     return $this->eventRepository->findByFilters($filters);
-    // }
-
     public function getEventsByFilters(array $filters, User $user): array
     {
         $preset = $filters['preset'] ?? null;
@@ -320,12 +310,10 @@ class EventService
         return $this->eventRepository->findByFilters($filters);
     }
 
-
     public function getEventParticipants(string $eventId): array
     {
         return $this->eventRepository->getEventParticipants($eventId);
     }
-
 
     /**
      * Basic business validation

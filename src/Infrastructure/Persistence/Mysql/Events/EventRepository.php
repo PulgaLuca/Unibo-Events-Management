@@ -376,7 +376,6 @@ class EventRepository implements IEventRepository
     }
 
 
-
     /**
      * Map DB row -> Domain Entity
      */

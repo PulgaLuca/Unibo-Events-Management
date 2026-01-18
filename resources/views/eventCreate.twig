@@ -3,7 +3,6 @@
 {% block title %}Crea un nuovo evento{% endblock %}
 
 {% block content %}
-    {# Hero Section con contrasto migliorato #}
     <header class="position-relative text-white overflow-hidden rounded-3 mb-4" style="background-color: #000;">
         <img src="/assets/images/events/event-main.jpg"
              id="main-event-image"
@@ -21,7 +20,7 @@
 
     <main class="container mb-5" id="main-content">
         
-        {# Feedback Regioni Live: Fondamentale per WCAG AA #}
+        {# Feedback per WCAG level AA #}
         <div id="alert-container" aria-live="assertive" aria-atomic="true">
             {% if error %}
                 <div class="alert alert-danger alert-dismissible fade show" role="alert">
@@ -40,7 +39,6 @@
             {% endif %}
         </div>
 
-        {# Inizio Form #}
         <form method="post" action="/events/create" enctype="multipart/form-data" id="event-form" novalidate>
             
             <section aria-labelledby="form-section-title">
@@ -54,7 +52,6 @@
                 } %}
             </section>
             
-            {# Pulsanti di azione: Ordine logico e colori a contrasto #}
             <div class="d-flex justify-content-end gap-3 mt-4 pb-5">
                 <a href="/events" class="btn btn-outline-dark px-4 py-2 fw-bold">
                     Annulla <span class="visually-hidden">e torna alla lista eventi</span>

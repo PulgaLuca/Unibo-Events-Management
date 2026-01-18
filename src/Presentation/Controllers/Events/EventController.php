@@ -55,7 +55,6 @@ class EventController
         );
     }
 
-
     /**
      * Show create event form
      */
@@ -328,28 +327,6 @@ class EventController
             return Response::redirect('/events/' . $id);
         }
     }
-
-    // public function filterEvents(Request $request): Response
-    // {
-    //     if (!$this->authService->isAuthenticated()) {
-    //         return Response::redirect($_ENV['APP_URL'] . '/login');
-    //     }
-
-    //     $currentUser = $this->authService->getCurrentUser();
-    //     $filters = $request->getQueryParams(); // q, country, city, status...
-    //     $events = $this->eventService->filterEvents($filters);
-    //     $eventsWithContext = $this->eventService->enrichEventsForUser($events, $currentUser->id);
-
-    //     error_log(print_r($events,true));
-    //     error_log(print_r($eventsWithContext,true));
-
-    //     // ritorna solo la lista eventi renderizzata
-    //     $html = $this->twig->render('partials/eventsList.twig', [
-    //         'events' => $eventsWithContext
-    //     ]);
-
-    //     return Response::html($html);
-    // }
 
     public function home(): Response
     {

@@ -5,19 +5,18 @@
         {% set isSubscribed = item.isSubscribed %}
         
         <div class="col-12">
-            {# Aggiunto aria-labelledby per dare un nome univoco alla sezione #}
+            {# aria-labelledby per dare un nome univoco alla sezione #}
             <article class="card event-card h-100 shadow-sm border" aria-labelledby="event-title-{{ event.eventId }}">
                 <div class="row g-0 h-100">
                     <div class="col-md-7 p-4 d-flex flex-column">
                         
                         <div class="d-flex justify-content-between align-items-start mb-2">
-                            {# Titolo con ID univoco e link esplicito #}
                             <h3 id="event-title-{{ event.eventId }}" class="h5 fw-bold mb-0">
                                 <a href="/events/{{ event.eventId }}" class="text-decoration-none text-dark stretched-link-target">
                                     {{ event.title }}
                                 </a>
                             </h3>
-                            {# I badge hanno bisogno di un contrasto elevato (es. bg-dark o colori saturi) #}
+                            {# badge con contrasto elevato #}
                             <span class="badge status-{{ event.status.value|lower }} px-2 py-1">
                                 <span class="visually-hidden">Stato evento: </span>{{ event.status.value }}
                             </span>

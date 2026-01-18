@@ -155,14 +155,14 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Recuperiamo i valori dal template Twig o dai campi input
+    // Recuperiamo i valori dal template Twig
     const city = "{{ data.location.city|default('') }}";
     const country = "{{ data.location.country|default('') }}";
     const description = "{{ data.location.description|default('') }}";
     const mapContainer = document.getElementById('event-map');
     const statusText = document.getElementById('map-status');
 
-    // Se non c'è una città, nascondiamo la mappa o mostriamo un messaggio
+    // Se non c'è una città mostriamo il messaggio
     if (!city) {
         mapContainer.style.display = 'none';
         statusText.innerText = "Specifica una città per vedere la mappa.";
@@ -183,7 +183,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Inizializza la mappa
                 const map = L.map('event-map').setView([lat, lon], 13);
 
-                // Aggiunge i "Tiles" (lo stile della mappa) di OpenStreetMap
+                // Stile mappa di OpenStreetMap
                 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                     maxZoom: 19,
                     attribution: '© OpenStreetMap'
@@ -194,10 +194,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     .bindPopup(`<b>${city}</b><br>${country}`)
                     .openPopup();
                 
-                statusText.style.display = 'none'; // Nasconde il testo di caricamento
+                statusText.style.display = 'none';
             } else {
                 statusText.innerText = "Impossibile trovare la posizione sulla mappa.";
-                // Opzionale: Mostra una mappa generica o nascondila
             }
         })
         .catch(err => {

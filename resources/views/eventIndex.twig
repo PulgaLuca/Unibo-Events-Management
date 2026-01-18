@@ -4,7 +4,7 @@
 
 {% block content %}
 <style>
-    /* --- Stili Custom per il layout a Card --- */
+    /* --- custom per il layout card --- */
     .hero-section {
         position: relative;
         border-radius: 8px;
@@ -16,7 +16,7 @@
         width: 100%;
         height: 350px;
         object-fit: cover;
-        opacity: 0.6; /* WCAG: Contrasto testo su immagine */
+        opacity: 0.6;
     }
     .hero-overlay {
         position: absolute;
@@ -176,7 +176,6 @@
                     </select>
                 </div>
 
-                {#  Date  #}
                 <div class="col-md-4">
                     <label for="startDate" class="form-label small fw-bold text-muted">Starts After</label>
                     <input type="date" name="startDate" class="form-control" id="startDate" 
@@ -204,38 +203,37 @@
         </form>
     </section>
 
-    {# --- NUOVA BARRA FILTRI RAPIDI (PRESET) --- #}
+    {# --- Filtri preset --- #}
     <section aria-label="Quick Filters" class="mb-5">
         <h3 class="h6 text-muted fw-bold mb-3 text-uppercase small">Quick Filters</h3>
         <div class="d-flex flex-wrap gap-2">
             
             {% if currentUser %}
-                {# I tuoi prossimi eventi: Iscritto E Creato dall'utente #}
                 <a href="/events?preset=my_upcoming" 
                    class="btn btn-primary rounded-pill {% if filters.preset == 'my_upcoming' %}active{% endif %}">
                     <i class="bi bi-calendar-check me-2"></i>I tuoi prossimi eventi
                 </a>
 
-                {# Eventi ospitati: Creati dall'utente #}
+                {# Eventi ospitati: creati dall'utente #}
                 <a href="/events?preset=hosted" 
                    class="btn btn-warning rounded-pill {% if filters.preset == 'hosted' %}active{% endif %}">
                     <i class="bi bi-person-workspace me-2"></i>Eventi ospitati
                 </a>
             {% endif %}
 
-            {# Eventi in tendenza: Maggior numero di iscritti #}
+            {# Eventi in tendenza: maggior numero di iscritti #}
             <a href="/events?preset=trending" 
                class="btn btn-success rounded-pill {% if filters.preset == 'trending' %}active{% endif %}">
                 <i class="bi bi-graph-up-arrow me-2"></i>Eventi in tendenza
             </a>
 
-            {# Prossimi eventi: Logica backend (data registrazione < oggi) #}
+            {# Prossimi eventi: logica backend (data registrazione < oggi) #}
             <a href="/events?preset=upcoming" 
                class="btn btn-danger rounded-pill {% if filters.preset == 'upcoming' %}active{% endif %}">
                 <i class="bi bi-hourglass-split me-2"></i>Prossimi eventi
             </a>
 
-            {# Eventi passati: Logica backend (data registrazione > oggi) #}
+            {# Eventi passati: logica backend (data registrazione > oggi) #}
             <a href="/events?preset=past" 
                class="btn btn-dark rounded-pill {% if filters.preset == 'past' %}active{% endif %}">
                 <i class="bi bi-clock-history me-2"></i>Eventi passati

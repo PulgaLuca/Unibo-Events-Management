@@ -25,5 +25,7 @@ return [
     ['POST', '/events/{id}', [EventController::class, 'updateEvent']],  // Gestisce la modifica dell'evento
     ['POST', '/events/{id}/delete', [EventController::class, 'deleteEvent']],  // Gestisce la cancellazione dell'evento
     ['POST', '/events/{id}/subscribe', [EventController::class, 'subscribeToEvent']],  // Gestisce la cancellazione dell'evento
-    ['POST', '/events/{id}/unsubscribe', [EventController::class, 'unsubscribeFromEvent']]  // Gestisce la cancellazione dell'evento
+    ['POST', '/events/{id}/unsubscribe', [EventController::class, 'unsubscribeFromEvent']],  // Gestisce la cancellazione dell'evento
+
+    ['GET', '/home', [EventController::class, 'home']]
 ];

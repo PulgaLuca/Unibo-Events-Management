@@ -187,7 +187,7 @@
             <label for="skills" class="form-label fw-bold text-primary">Enter the skills required for the event</label>
             <input type="text" class="form-control" id="skills" name="skills" 
                    placeholder="Cybersecurity, Web Development, CI/CD" 
-                   value="{{ data.skills|default('') }}" aria-describedby="skillsHelp" {% if readonly %}readonly{% endif %}>
+                   value="{{ data.requiredSkillsAsString|default('') }}" aria-describedby="skillsHelp" {% if readonly %}readonly{% endif %}>
             <div id="skillsHelp" class="form-text">Separate skills with a comma.</div>
         </div>
     </div>

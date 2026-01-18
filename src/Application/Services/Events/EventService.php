@@ -13,7 +13,7 @@ use App\Domain\Repositories\Events\IEventRepository;
 use App\Domain\Repositories\Events\IEventTypeRepository;
 use App\Domain\Repositories\Location\ILocationRepository;
 use App\Domain\Repositories\Events\IParticipationTypeRepository;
-
+use App\Domain\Repositories\Skill\ISkillRepository;
 use Exception;
 use Ramsey\Uuid\Uuid;
 
@@ -24,29 +24,32 @@ class EventService
     private IEventTypeRepository $eventTypeRepository;
     private IParticipationTypeRepository $participationTypeRepository;
     private IUserRepository $userRepository;
+    private ISkillRepository $skillRepository;
 
     public function __construct(
         IEventRepository $eventRepository,
         ILocationRepository $locationRepository,
         IEventTypeRepository $eventTypeRepository,
         IParticipationTypeRepository $participationTypeRepository,
-        IUserRepository $userRepository
+        IUserRepository $userRepository,
+        ISkillRepository $skillRepository
     ) {
         $this->eventRepository = $eventRepository;
         $this->locationRepository = $locationRepository;
         $this->eventTypeRepository = $eventTypeRepository;
         $this->participationTypeRepository = $participationTypeRepository;
         $this->userRepository = $userRepository;
+        $this->skillRepository = $skillRepository;
     }
 
-    public function subscribeUser(string $eventId, int $userId): void
+    public function subscribeUser(string $eventId, int $userId, string $role): void
     {
         $this->eventRepository->createParticipation([
             'id' => Uuid::uuid4()->toString(),
             'event_id' => $eventId,
             'user_id' => $userId,
             'team_id' => null,
-            'role' => 'Participant',
+            'role' => $role,
             'registration_date' => date("Y-m-d H:i:s")
         ]);
     }
@@ -105,35 +108,33 @@ class EventService
             $organizerId
         );
 
-        // if (!empty($data['skills'])) {
-        //     $this->attachRequiredSkills($eventId, $data['skills']);
-        // }
+        if (!empty($data['skills'])) {
+            $this->attachRequiredSkills($eventId, $data['skills']);
+        }
 
         $this->eventRepository->save($event);
-        $this->subscribeUser($eventId, $organizerId);
+        $this->subscribeUser($eventId, $organizerId, 'Lead');
 
         return $event;
     }
 
-    // private function attachRequiredSkills(string $eventId, string $skillsInput): void
-    // {
-    //     $skills = array_filter(array_map(
-    //         fn($s) => trim($s),
-    //         explode(',', $skillsInput)
-    //     ));
+    private function attachRequiredSkills(string $eventId, string $skillsInput): void
+    {
+        $skills = array_filter(array_map(
+            fn($s) => trim($s),
+            explode(',', $skillsInput)
+        ));
 
-    //     foreach ($skills as $skillName) {
-    //         $skillId = $this->skillRepository->findOrCreateByName($skillName);
-    //         $this->eventRepository->attachSkill($eventId, $skillId);
-    //     }
-    // }
+        foreach ($skills as $skillName) {
+            $skill = $this->skillRepository->findOrCreateByName($skillName);
+            $this->eventRepository->attachSkill($eventId, $skill);
+        }
+    }
 
     public function getRequiredSkills(string $eventId): array
     {
-        return $this->eventRepository->getRequiredSkills($eventId);
+        return $this->eventRepository->getSkillsForEvent($eventId);
     }
-
-
 
     /**
      * Update existing Event
@@ -161,7 +162,6 @@ class EventService
             $location = $event->getLocation();
         }
 
-
         $event->update(
             $data['title'] ?? $event->getTitle(),
             $data['description'] ?? $event->getDescription(),
@@ -178,8 +178,46 @@ class EventService
 
         $this->eventRepository->update($event);
 
+        if (array_key_exists('skills', $data)) {
+            $this->syncRequiredSkills($eventId, $data['skills']);
+        }
+
         return $event;
     }
+
+    private function syncRequiredSkills(string $eventId, string $skillsInput): void
+    {
+        // Normalizza input
+        $skills = array_unique(array_filter(array_map(
+            fn($s) => trim($s),
+            explode(',', $skillsInput)
+        )));
+
+        // Skill attuali
+        $currentSkillIds = $this->eventRepository->getSkillIdsForEvent($eventId);
+
+        // Skill nuove (id)
+        $newSkillIds = [];
+
+        foreach ($skills as $skillName) {
+            $newSkillIds[] = $this->skillRepository->findOrCreateByName($skillName);
+        }
+
+        // ➕ da aggiungere
+        $toAdd = array_diff($newSkillIds, $currentSkillIds);
+
+        // ➖ da rimuovere
+        $toRemove = array_diff($currentSkillIds, $newSkillIds);
+
+        foreach ($toAdd as $skillId) {
+            $this->eventRepository->attachSkill($eventId, $skillId);
+        }
+
+        foreach ($toRemove as $skillId) {
+            $this->eventRepository->detachSkill($eventId, $skillId);
+        }
+    }
+
 
     /**
      * Delete Event

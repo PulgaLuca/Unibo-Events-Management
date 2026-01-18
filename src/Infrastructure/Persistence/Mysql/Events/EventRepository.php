@@ -93,6 +93,8 @@ class EventRepository implements IEventRepository
             $location = $this->locationRepository->findById($row['location_id']);
         }
 
+        $skills = $this->getSkillsForEvent($eventId);
+
         return new Event(
             $row['id'],
             $row['title'],
@@ -108,9 +110,11 @@ class EventRepository implements IEventRepository
             EventStatus::fromString($row['status']),
             $row['type_id'],
             $row['participation_type_id'],
-            $row['creator_user_id']
+            $row['creator_user_id'],
+            $skills
         );
     }
+
 
     public function findAll(): array
     {
@@ -250,13 +254,14 @@ class EventRepository implements IEventRepository
         );
     }
 
-    public function getRequiredSkills(string $eventId): array
+    public function getSkillsForEvent(string $eventId): array
     {
         $stmt = $this->connection->prepare(
-            "SELECT s.skill_id, s.name
-            FROM EVENT_REQUIRED_SKILL ers
-            JOIN SKILL s ON s.skill_id = ers.skill_id
-            WHERE ers.event_id = :event_id"
+            "SELECT s.id, s.name, s.category
+            FROM skills s
+            JOIN event_required_skill ers ON ers.skill_id = s.id
+            WHERE ers.event_id = :event_id
+            ORDER BY s.name"
         );
 
         $stmt->execute(['event_id' => $eventId]);
@@ -328,6 +333,49 @@ class EventRepository implements IEventRepository
         
         return $events;
     }
+
+    public function getSkillIdsForEvent(string $eventId): array
+    {
+        $stmt = $this->connection->prepare(
+            "SELECT skill_id
+            FROM event_required_skill
+            WHERE event_id = :event_id"
+        );
+
+        $stmt->execute(['event_id' => $eventId]);
+
+        return array_map('intval', $stmt->fetchAll(PDO::FETCH_COLUMN));
+    }
+
+
+    public function attachSkill(string $eventId, int $skillId): void
+    {
+        $stmt = $this->connection->prepare(
+            "INSERT IGNORE INTO event_required_skill (event_id, skill_id)
+            VALUES (:event_id, :skill_id)"
+        );
+
+        $stmt->execute([
+            'event_id' => $eventId,
+            'skill_id' => $skillId
+        ]);
+    }
+
+    public function detachSkill(string $eventId, int $skillId): void
+    {
+        $stmt = $this->connection->prepare(
+            "DELETE FROM event_required_skill
+            WHERE event_id = :event_id
+            AND skill_id = :skill_id"
+        );
+
+        $stmt->execute([
+            'event_id' => $eventId,
+            'skill_id' => $skillId
+        ]);
+    }
+
+
 
     /**
      * Map DB row -> Domain Entity

@@ -49,7 +49,7 @@ interface IEventRepository
     
     public function findEventsCreatedByUser(int $userId): array;
     
-    public function getRequiredSkills(string $eventId): array;
+    public function getSkillsForEvent(string $eventId): array;
 
     public function findByFilters(array $filters): array;
 
@@ -62,4 +62,10 @@ interface IEventRepository
     public function findUpcomingEvents(): array;
 
     public function findPastEvents(): array;
+
+    public function attachSkill(string $eventId, int $skillId): void;
+
+    public function detachSkill(string $eventId, int $skillId): void;
+
+    public function getSkillIdsForEvent(string $eventId): array;
 }

@@ -99,4 +99,43 @@ class ProfileController
             return Response::redirect($_ENV['APP_URL'] . '/profile?error=1');
         }
     }
+
+    /**
+     * View another user's profile (read-only)
+     */
+    public function viewUser(string $id): Response
+    {
+        if (!$this->authService->isAuthenticated()) {
+            return Response::redirect($_ENV['APP_URL'] . '/login');
+        }
+
+        // Get the target user
+        $viewedUser = $this->userRepository->findById(intval($id));
+        
+        if (!$viewedUser) {
+            return Response::redirect($_ENV['APP_URL'] . '/?error=User not found');
+        }
+
+        // Get user's skills
+        $userSkills = $this->userRepository->getUserSkills(intval($id));
+        
+        // Group skills by category for display
+        $skillsByCategory = [];
+        foreach ($userSkills as $userSkill) {
+            $category = $userSkill['category'];
+            if (!isset($skillsByCategory[$category])) {
+                $skillsByCategory[$category] = [];
+            }
+            $skillsByCategory[$category][] = $userSkill;
+        }
+
+        $html = $this->twig->render('user-profile.twig', [
+            'title' => $viewedUser->first_name . ' ' . $viewedUser->last_name . "'s Profile",
+            'viewedUser' => $viewedUser,
+            'userSkills' => $userSkills,
+            'skillsByCategory' => $skillsByCategory,
+        ]);
+
+        return Response::html($html);
+    }
 }

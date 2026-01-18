@@ -16,6 +16,7 @@ return [
     [['GET','POST'], '/logout', [UserController::class, 'logout']],
     ['GET', '/profile', [ProfileController::class, 'show']],
     ['POST', '/profile', [ProfileController::class, 'updateSkills']],
+    ['GET', '/profile/{id:\d+}', [ProfileController::class, 'viewUser']],
 
     ['GET', '/events', [EventController::class, 'showEventMainPage']],  // Visualizza tutti gli eventi
     ['GET', '/events/create', [EventController::class, 'showEventCreatePage']],  // Visualizza il modulo per creare un evento

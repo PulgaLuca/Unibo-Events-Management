@@ -104,12 +104,36 @@ class EventService
             $data['participation_type_id'],
             $organizerId
         );
-        
+
+        // if (!empty($data['skills'])) {
+        //     $this->attachRequiredSkills($eventId, $data['skills']);
+        // }
+
         $this->eventRepository->save($event);
         $this->subscribeUser($eventId, $organizerId);
 
         return $event;
     }
+
+    // private function attachRequiredSkills(string $eventId, string $skillsInput): void
+    // {
+    //     $skills = array_filter(array_map(
+    //         fn($s) => trim($s),
+    //         explode(',', $skillsInput)
+    //     ));
+
+    //     foreach ($skills as $skillName) {
+    //         $skillId = $this->skillRepository->findOrCreateByName($skillName);
+    //         $this->eventRepository->attachSkill($eventId, $skillId);
+    //     }
+    // }
+
+    public function getRequiredSkills(string $eventId): array
+    {
+        return $this->eventRepository->getRequiredSkills($eventId);
+    }
+
+
 
     /**
      * Update existing Event

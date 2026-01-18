@@ -89,4 +89,41 @@ class SkillRepository implements ISkillRepository
         $stmt = $this->pdo->prepare($query);
         return $stmt->execute([$skillId]);
     }
+
+    public function findOrCreateByName(string $name): int
+    {
+        $query = "SELECT id FROM {$this->table} WHERE LOWER(name) = LOWER(?)";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->execute([$name]);
+
+        $id = $stmt->fetchColumn();
+        if ($id !== false) {
+            return (int) $id;
+        }
+
+        $query = "INSERT INTO {$this->table} (name, category, created_at, updated_at)
+                VALUES (?, ?, NOW(), NOW())";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->execute([
+            $name,
+            'General',
+        ]);
+
+        return (int) $this->pdo->lastInsertId();
+    }
+
+    public function getRequiredSkills(string $eventId): array
+    {
+        $stmt = $this->pdo->prepare(
+            "SELECT s.id, s.name
+            FROM skills s
+            JOIN event_required_skill ers ON ers.skill_id = s.id
+            WHERE ers.event_id = :event_id"
+        );
+
+        $stmt->execute(['event_id' => $eventId]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+
 }

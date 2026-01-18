@@ -146,3 +146,62 @@
         {% endif %}
     </main>
 {% endblock %}
+
+{% block scripts %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Recuperiamo i valori dal template Twig o dai campi input
+    const city = "{{ data.location.city|default('') }}";
+    const country = "{{ data.location.country|default('') }}";
+    const description = "{{ data.location.description|default('') }}";
+    const mapContainer = document.getElementById('event-map');
+    const statusText = document.getElementById('map-status');
+
+    // Se non c'è una città, nascondiamo la mappa o mostriamo un messaggio
+    if (!city) {
+        mapContainer.style.display = 'none';
+        statusText.innerText = "Specifica una città per vedere la mappa.";
+        return;
+    }
+
+    // Funzione per cercare le coordinate (Geocoding) usando OpenStreetMap Nominatim API
+    const query = `${description}, ${city}, ${country}`;
+    const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`;
+
+    fetch(url)
+        .then(response => response.json())
+        .then(data => {
+            if (data && data.length > 0) {
+                const lat = data[0].lat;
+                const lon = data[0].lon;
+
+                // Inizializza la mappa
+                const map = L.map('event-map').setView([lat, lon], 13);
+
+                // Aggiunge i "Tiles" (lo stile della mappa) di OpenStreetMap
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    maxZoom: 19,
+                    attribution: '© OpenStreetMap'
+                }).addTo(map);
+
+                // Aggiunge il marker
+                L.marker([lat, lon]).addTo(map)
+                    .bindPopup(`<b>${city}</b><br>${country}`)
+                    .openPopup();
+                
+                statusText.style.display = 'none'; // Nasconde il testo di caricamento
+            } else {
+                statusText.innerText = "Impossibile trovare la posizione sulla mappa.";
+                // Opzionale: Mostra una mappa generica o nascondila
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            statusText.innerText = "Errore nel caricamento della mappa.";
+        });
+});
+</script>
+{% endblock %}

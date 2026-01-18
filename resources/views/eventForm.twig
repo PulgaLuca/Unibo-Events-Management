@@ -65,35 +65,42 @@
     </div>
 
     <div class="col-lg-6">
-        <fieldset class="card-fieldset h-100">
-            <legend class="card-legend">Location and Modalities</legend>
-            <div class="fieldset-body">
-                <div class="row">
-                    <div class="col-6 mb-3">
-                        <label for="location_country" class="form-label fw-bold text-primary">Country</label>
-                        <input type="text" class="form-control" id="location_country" name="location_country" placeholder="Italy" value="{{ data.location.country|default('') }}" {% if readonly %}readonly{% endif %}>
-                    </div>
-                    <div class="col-6 mb-3">
-                        <label for="location_city" class="form-label fw-bold text-primary">City</label>
-                        <input type="text" class="form-control" id="location_city" name="location_city" placeholder="Bologna" value="{{ data.location.city|default('') }}" {% if readonly %}readonly{% endif %}>
-                    </div>
+    <fieldset class="card-fieldset h-100">
+        <legend class="card-legend">Location and Modalities</legend>
+        <div class="fieldset-body">
+            <div class="row">
+                <div class="col-6 mb-3">
+                    <label for="location_country" class="form-label fw-bold text-primary">Country</label>
+                    <input type="text" class="form-control" id="location_country" name="location_country" 
+                           placeholder="Italy" value="{{ data.location.country|default('') }}" {% if readonly %}readonly{% endif %}>
                 </div>
-                <div class="mb-3">
-                    <label for="location_description" class="form-label fw-bold text-primary">Description</label>
-                    <input type="text" class="form-control" id="location_description" name="location_description" 
-                           placeholder="Es. Aula 3, Campus / Online"
-                           value="{{ data.location.description|default('') }}" {% if readonly %}readonly{% endif %}>
+                <div class="col-6 mb-3">
+                    <label for="location_city" class="form-label fw-bold text-primary">City</label>
+                    <input type="text" class="form-control" id="location_city" name="location_city" 
+                           placeholder="Bologna" value="{{ data.location.city|default('') }}" {% if readonly %}readonly{% endif %}>
                 </div>
-                <div class="mb-3">
-                    <label for="url" class="form-label fw-bold text-primary">External URL</label>
-                    <input type="url" class="form-control" id="url" name="url" 
-                           placeholder="https://..." 
-                           value="{{ data.url|default('') }}" {% if readonly %}readonly{% endif %}>
-                </div>
-                <input type="hidden" name="location_id" value="{{ data.location.id|default('') }}">
             </div>
-        </fieldset>
-    </div>
+
+            <div class="mb-3">
+                <div id="event-map" style="height: 250px; width: 100%; border-radius: 8px; border: 1px solid #dee2e6;"></div>
+                <small class="text-muted fst-italic ms-1" id="map-status">Caricamento mappa...</small>
+            </div>
+            <div class="mb-3">
+                <label for="location_description" class="form-label fw-bold text-primary">Description</label>
+                <input type="text" class="form-control" id="location_description" name="location_description" 
+                       placeholder="Es. Aula 3, Campus / Online"
+                       value="{{ data.location.description|default('') }}" {% if readonly %}readonly{% endif %}>
+            </div>
+            <div class="mb-3">
+                <label for="url" class="form-label fw-bold text-primary">External URL</label>
+                <input type="url" class="form-control" id="url" name="url" 
+                       placeholder="https://..." 
+                       value="{{ data.url|default('') }}" {% if readonly %}readonly{% endif %}>
+            </div>
+            <input type="hidden" name="location_id" value="{{ data.location.id|default('') }}">
+        </div>
+    </fieldset>
+</div>
 </div>
 
 <div class="row mt-3">

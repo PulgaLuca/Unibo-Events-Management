@@ -109,15 +109,17 @@ class ProfileController
             return Response::redirect($_ENV['APP_URL'] . '/login');
         }
 
+        $userId = (int) $id;
+        
         // Get the target user
-        $viewedUser = $this->userRepository->findById(intval($id));
+        $viewedUser = $this->userRepository->findById($userId);
         
         if (!$viewedUser) {
             return Response::redirect($_ENV['APP_URL'] . '/?error=User not found');
         }
 
         // Get user's skills
-        $userSkills = $this->userRepository->getUserSkills(intval($id));
+        $userSkills = $this->userRepository->getUserSkills($userId);
         
         // Group skills by category for display
         $skillsByCategory = [];

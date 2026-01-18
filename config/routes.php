@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Presentation\Controllers\Auth\UserController;
 use App\Presentation\Controllers\Auth\ProfileController;
+use App\Presentation\Controllers\Admin\AdminController;
 use App\Presentation\Controllers\HomeController;
 use App\Presentation\Controllers\Events\EventController;
 
@@ -17,6 +18,15 @@ return [
     ['GET', '/profile', [ProfileController::class, 'show']],
     ['POST', '/profile', [ProfileController::class, 'updateSkills']],
     ['GET', '/profile/{id:\d+}', [ProfileController::class, 'viewUser']],
+
+    // Admin routes
+    ['GET', '/admin/stats', [AdminController::class, 'showStats']],
+    ['GET', '/admin/skills', [AdminController::class, 'showSkills']],
+    ['POST', '/admin/skills', [AdminController::class, 'createSkill']],
+    ['POST', '/admin/skills/{id:\d+}', [AdminController::class, 'updateSkill']],
+    ['POST', '/admin/skills/{id:\d+}/delete', [AdminController::class, 'deleteSkill']],
+    ['GET', '/admin/users', [AdminController::class, 'showUsers']],
+    ['POST', '/admin/users/{id:\d+}/toggle-admin', [AdminController::class, 'toggleAdmin']],
 
     ['GET', '/events', [EventController::class, 'showEventMainPage']],  // Visualizza tutti gli eventi
     ['GET', '/events/create', [EventController::class, 'showEventCreatePage']],  // Visualizza il modulo per creare un evento

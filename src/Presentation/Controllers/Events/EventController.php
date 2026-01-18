@@ -351,4 +351,11 @@ class EventController
     //     return Response::html($html);
     // }
 
+    public function home(): Response
+    {
+        return new Response(
+            $this->twig->render('home.twig')
+        );
+        return Response::html($html);
+    }
 }

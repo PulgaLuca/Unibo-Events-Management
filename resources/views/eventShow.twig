@@ -79,5 +79,129 @@
                 Back
             </a>
         </div>
+
+        {% if isCreator %}
+            <hr class="my-5">
+            
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                    <h3 class="h5 m-0 fw-bold text-primary">
+                        <i class="bi bi-people-fill me-2"></i>Partecipanti Iscritti
+                        {% if participants is defined %}
+                            <span class="badge bg-secondary rounded-pill ms-2">{{ participants|length }}</span>
+                        {% endif %}
+                    </h3>
+                </div>
+                
+                <div class="card-body p-0">
+                    {% if participants is defined and participants is not empty %}
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th scope="col" class="ps-4">Utente</th>
+                                        <th scope="col">Ruolo</th>
+                                        <th scope="col">Data Iscrizione</th>
+                                        <th scope="col" class="text-end pe-4">Azioni</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for participant in participants %}
+                                        <tr>
+                                            <td class="ps-4">
+                                                <div class="d-flex align-items-center">
+                                                    <div>
+                                                        <div class="fw-bold text-dark">{{ participant.first_name }} {{ participant.last_name }} - {{ participant.email }}</div>
+                                                        <div class="small text-muted">ID: #{{ participant.id }}</div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-light text-dark border">
+                                                    {{ participant.role|default('Participant') }}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <i class="bi bi-calendar-event me-1 text-muted"></i>
+                                                {{ participant.registration_date|date('d/m/Y H:i') }}
+                                            </td>
+                                            <td class="text-end pe-4">
+                                                <a href="/profile/{{ participant.id }}" class="btn btn-sm btn-outline-secondary">
+                                                    Vedi Profilo
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="bi bi-person-slash display-4 text-muted mb-3"></i>
+                            <p class="text-muted lead">Nessun partecipante iscritto ancora.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        {% endif %}
     </main>
+{% endblock %}
+
+{% block scripts %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Recuperiamo i valori dal template Twig o dai campi input
+    const city = "{{ data.location.city|default('') }}";
+    const country = "{{ data.location.country|default('') }}";
+    const description = "{{ data.location.description|default('') }}";
+    const mapContainer = document.getElementById('event-map');
+    const statusText = document.getElementById('map-status');
+
+    // Se non c'è una città, nascondiamo la mappa o mostriamo un messaggio
+    if (!city) {
+        mapContainer.style.display = 'none';
+        statusText.innerText = "Specifica una città per vedere la mappa.";
+        return;
+    }
+
+    // Funzione per cercare le coordinate (Geocoding) usando OpenStreetMap Nominatim API
+    const query = `${description}, ${city}, ${country}`;
+    const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`;
+
+    fetch(url)
+        .then(response => response.json())
+        .then(data => {
+            if (data && data.length > 0) {
+                const lat = data[0].lat;
+                const lon = data[0].lon;
+
+                // Inizializza la mappa
+                const map = L.map('event-map').setView([lat, lon], 13);
+
+                // Aggiunge i "Tiles" (lo stile della mappa) di OpenStreetMap
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    maxZoom: 19,
+                    attribution: '© OpenStreetMap'
+                }).addTo(map);
+
+                // Aggiunge il marker
+                L.marker([lat, lon]).addTo(map)
+                    .bindPopup(`<b>${city}</b><br>${country}`)
+                    .openPopup();
+                
+                statusText.style.display = 'none'; // Nasconde il testo di caricamento
+            } else {
+                statusText.innerText = "Impossibile trovare la posizione sulla mappa.";
+                // Opzionale: Mostra una mappa generica o nascondila
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            statusText.innerText = "Errore nel caricamento della mappa.";
+        });
+});
+</script>
 {% endblock %}

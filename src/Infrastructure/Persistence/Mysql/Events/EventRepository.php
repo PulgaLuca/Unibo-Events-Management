@@ -93,6 +93,8 @@ class EventRepository implements IEventRepository
             $location = $this->locationRepository->findById($row['location_id']);
         }
 
+        $skills = $this->getSkillsForEvent($eventId);
+
         return new Event(
             $row['id'],
             $row['title'],
@@ -108,9 +110,11 @@ class EventRepository implements IEventRepository
             EventStatus::fromString($row['status']),
             $row['type_id'],
             $row['participation_type_id'],
-            $row['creator_user_id']
+            $row['creator_user_id'],
+            $skills
         );
     }
+
 
     public function findAll(): array
     {
@@ -198,13 +202,14 @@ class EventRepository implements IEventRepository
     {
         $stmt = $this->connection->prepare(
             "SELECT 
-                u.user_id,
+                u.id,
                 u.first_name,
                 u.last_name,
+                u.email,
                 ep.role,
                 ep.registration_date
             FROM EVENT_PARTICIPATION ep
-            JOIN USER u ON u.user_id = ep.user_id
+            JOIN USERS u ON u.id = ep.user_id
             WHERE ep.event_id = :event_id
             AND ep.user_id IS NOT NULL"
         );
@@ -212,7 +217,6 @@ class EventRepository implements IEventRepository
         $stmt->execute(['event_id' => $eventId]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
-
 
     public function getEventTeamsWithMembers(string $eventId): array
     {
@@ -250,32 +254,14 @@ class EventRepository implements IEventRepository
         );
     }
 
-    public function findEventsJoinedByUser(int $userId): array
+    public function getSkillsForEvent(string $eventId): array
     {
         $stmt = $this->connection->prepare(
-            "SELECT DISTINCT e.*
-            FROM EVENT e
-            JOIN EVENT_PARTICIPATION ep ON ep.event_id = e.id
-            LEFT JOIN TEAM_MEMBERSHIP tm ON tm.team_id = ep.team_id
-            WHERE ep.user_id = :user_id
-                OR tm.user_id = :user_id"
-        );
-
-        $stmt->execute(['user_id' => $userId]);
-
-        return array_map(
-            fn($row) => $this->mapToEntity($row),
-            $stmt->fetchAll(PDO::FETCH_ASSOC)
-        );
-    }
-
-    public function getRequiredSkills(string $eventId): array
-    {
-        $stmt = $this->connection->prepare(
-            "SELECT s.skill_id, s.name
-            FROM EVENT_REQUIRED_SKILL ers
-            JOIN SKILL s ON s.skill_id = ers.skill_id
-            WHERE ers.event_id = :event_id"
+            "SELECT s.id, s.name, s.category
+            FROM skills s
+            JOIN event_required_skill ers ON ers.skill_id = s.id
+            WHERE ers.event_id = :event_id
+            ORDER BY s.name"
         );
 
         $stmt->execute(['event_id' => $eventId]);
@@ -347,6 +333,49 @@ class EventRepository implements IEventRepository
         
         return $events;
     }
+
+    public function getSkillIdsForEvent(string $eventId): array
+    {
+        $stmt = $this->connection->prepare(
+            "SELECT skill_id
+            FROM event_required_skill
+            WHERE event_id = :event_id"
+        );
+
+        $stmt->execute(['event_id' => $eventId]);
+
+        return array_map('intval', $stmt->fetchAll(PDO::FETCH_COLUMN));
+    }
+
+
+    public function attachSkill(string $eventId, int $skillId): void
+    {
+        $stmt = $this->connection->prepare(
+            "INSERT IGNORE INTO event_required_skill (event_id, skill_id)
+            VALUES (:event_id, :skill_id)"
+        );
+
+        $stmt->execute([
+            'event_id' => $eventId,
+            'skill_id' => $skillId
+        ]);
+    }
+
+    public function detachSkill(string $eventId, int $skillId): void
+    {
+        $stmt = $this->connection->prepare(
+            "DELETE FROM event_required_skill
+            WHERE event_id = :event_id
+            AND skill_id = :skill_id"
+        );
+
+        $stmt->execute([
+            'event_id' => $eventId,
+            'skill_id' => $skillId
+        ]);
+    }
+
+
 
     /**
      * Map DB row -> Domain Entity

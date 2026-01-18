@@ -6,7 +6,6 @@ namespace App\Domain\Entities\Events;
 
 use DateTime;
 use InvalidArgumentException;
-use Locale;
 
 class Event
 {
@@ -26,6 +25,7 @@ class Event
     private string $participationTypeId;
     private ?int $creatorUserId;
     private ?string $creatorTeamId;
+    private array $requiredSkills = [];
 
     public function __construct(
         string $eventId,
@@ -42,7 +42,8 @@ class Event
         EventStatus $status,
         string $typeId,
         string $participationTypeId,
-        ?int $creatorUserId
+        ?int $creatorUserId,
+        array $requiredSkills = []
     ) {
         $this->assertValidDates($startDate, $endDate, $registrationDeadline);
         $this->assertValidParticipants($minParticipants, $maxParticipants);
@@ -62,6 +63,7 @@ class Event
         $this->typeId = $typeId;
         $this->participationTypeId = $participationTypeId;
         $this->creatorUserId = $creatorUserId;
+        $this->requiredSkills = $requiredSkills;
     }
 
     /**
@@ -200,6 +202,17 @@ class Event
     {
         return $this->creatorUserId;
     }
+
+    public function getRequiredSkills(): array
+    {
+        return $this->requiredSkills;
+    }
+
+    public function getRequiredSkillsAsString(): string
+    {
+        return implode(', ', array_column($this->requiredSkills, 'name'));
+    }
+
 
     // public function getCreatorTeamId(): ?string
     // {

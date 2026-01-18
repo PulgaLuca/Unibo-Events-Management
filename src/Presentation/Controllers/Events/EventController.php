@@ -67,6 +67,9 @@ class EventController
                 return Response::redirect($_ENV['APP_URL'] . '/login');
             }
 
+            $_SESSION['success'] = null;
+            $_SESSION['error'] = null;
+
             $currentUser = $this->authService->getCurrentUser();
             $eventTypes = $this->eventService->getEventTypes();
             $participationTypes = $this->eventService->getParticipationTypes();
@@ -83,14 +86,10 @@ class EventController
                 'error' => $_SESSION['error'] ?? null
             ]);
 
-            $_SESSION['success'] = null;
-            $_SESSION['error'] = null;
-
             return Response::html($html);
         }
         catch (Exception $e)
         {
-            $_SESSION['error'] = null;
             $_SESSION['error'] = 'Something went wrong while loading create event page: ' . $e->getMessage();
             
             return Response::redirect($_ENV['APP_URL'] . '/events');
@@ -176,7 +175,7 @@ class EventController
             $organizer = $this->eventService->getEventCreator($id);
             $eventTypes = $this->eventService->getEventTypes();
             $participationTypes = $this->eventService->getParticipationTypes();
-
+            $participants = $this->eventService->getEventParticipants($id);
             $isCreator = $event->getCreatorUserId() === $currentUser->id;
             $isSubscribed = $this->eventService->isUserSubscribed($id, $currentUser->id);
             $userRole = $this->eventService->resolveUserRoleInEvent($id, $currentUser->id);
@@ -190,6 +189,7 @@ class EventController
                 'isCreator' => $isCreator,
                 'isSubscribed' => $isSubscribed,
                 'userRole' => $userRole,
+                'participants' => $participants,
                 'success' => $_SESSION['success'] ?? null,
                 'error' => $_SESSION['error'] ?? null
             ]);
@@ -291,7 +291,7 @@ class EventController
             }
 
             $currentUser = $this->authService->getCurrentUser();
-            $this->eventService->subscribeUser($id, $currentUser->id);
+            $this->eventService->subscribeUser($id, $currentUser->id, 'Participant');
             $_SESSION['success'] = 'Successfully subscribed to the event!';
             
             return Response::redirect('/events/' . $id);
@@ -299,7 +299,6 @@ class EventController
         } 
         catch (Exception $e) 
         {
-            $_SESSION['error'] = null;
             $_SESSION['error'] = 'Something went wrong while subscribing: ' . $e->getMessage();
             return Response::redirect('/events/' . $id);
         }

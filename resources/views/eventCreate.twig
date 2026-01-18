@@ -1,58 +1,67 @@
 {% extends 'layouts/base.twig' %}
 
-{% block title %}Create a new event{% endblock %}
+{% block title %}Crea un nuovo evento{% endblock %}
 
 {% block content %}
-    <div class="position-relative text-white overflow-hidden rounded-3 mb-4" style="background-color: #000;">
+    {# Hero Section con contrasto migliorato #}
+    <header class="position-relative text-white overflow-hidden rounded-3 mb-4" style="background-color: #000;">
         <img src="/assets/images/events/event-main.jpg"
              id="main-event-image"
-             alt="Immagine di presentazione dell'evento." 
-             longdesc="/assets/images/events/event-main.txt"
-             class="w-100 object-fit-cover opacity-50" 
-             style="height: 400px; filter: brightness(0.6);">
+             alt="" 
+             role="presentation"
+             class="w-100 object-fit-cover" 
+             style="height: 400px; filter: brightness(0.4);">
         
-        <div class="position-absolute top-0 start-0 w-100 h-100 p-4 d-flex flex-column justify-content-center">
-            <h1 class="display-5 fw-bold">Create a new event</h1>
-            <p class="lead">Challenge yourself to the test with your community <br>and bring your talent to the world.</p>
-            <p class="mb-4 d-none d-md-block">Search for internal events, workshops or external competitions <br>and find the right participants.</p>
-            {# <div>
-                <button class="btn btn-primary" type="button" onclick="document.getElementById('event_image').click();">
-                    Load image event
-                </button>
-                <input type="file" name="image" id="event_image" class="d-none" accept="image/*">
-            </div> #}
+        <div class="position-absolute top-0 start-0 w-100 h-100 p-4 d-flex flex-column justify-content-center bg-dark bg-opacity-25">
+            <h1 class="display-5 fw-bold">Crea un nuovo evento</h1>
+            <p class="lead">Mettiti alla prova con la tua community e porta il tuo talento nel mondo.</p>
+            <p class="mb-4 d-none d-md-block">Cerca eventi interni, workshop o competizioni esterne <br>e trova i partecipanti giusti.</p>
         </div>
-    </div>
+    </header>
 
-    <main class="container mb-5">
+    <main class="container mb-5" id="main-content">
         
-        {% if error %}
-            <div class="alert alert-danger alert-dismissible fade show" role="alert" id="js-error-container">
-                <strong>Error:</strong> {{ error }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        {% endif %}
+        {# Feedback Regioni Live: Fondamentale per WCAG AA #}
+        <div id="alert-container" aria-live="assertive" aria-atomic="true">
+            {% if error %}
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-exclamation-triangle-fill me-2" aria-hidden="true"></i>
+                    <strong>Errore:</strong> {{ error }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Chiudi avviso errore"></button>
+                </div>
+            {% endif %}
 
-        {% if success %}
-            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                {{ success }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        {% endif %}
+            {% if success %}
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="bi bi-check-circle-fill me-2" aria-hidden="true"></i>
+                    {{ success }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Chiudi avviso successo"></button>
+                </div>
+            {% endif %}
+        </div>
 
-        <form method="post" action="/events/create" enctype="multipart/form-data" id="event-form">
-            <input type="file" name="image" id="event_image" class="d-none" accept="image/jpeg, image/png, image/webp">            
+        {# Inizio Form #}
+        <form method="post" action="/events/create" enctype="multipart/form-data" id="event-form" novalidate>
             
-            {% include "eventForm.twig" with {
-                data: data|default({}),
-                eventTypes: eventTypes,
-                participationTypes: participationTypes,
-                currentUser: currentUser
-            } %}
+            <section aria-labelledby="form-section-title">
+                <h2 id="form-section-title" class="visually-hidden">Dettagli dell'evento</h2>
+                
+                {% include "eventForm.twig" with {
+                    data: data|default({}),
+                    eventTypes: eventTypes,
+                    participationTypes: participationTypes,
+                    currentUser: currentUser
+                } %}
+            </section>
             
-            <div class="d-flex justify-content-end gap-2 mt-4 pb-5">
-                <a href="/events" class="btn btn-danger px-4">Cancel</a>
-                <button type="submit" class="btn btn-primary px-4">Save</button>
+            {# Pulsanti di azione: Ordine logico e colori a contrasto #}
+            <div class="d-flex justify-content-end gap-3 mt-4 pb-5">
+                <a href="/events" class="btn btn-outline-dark px-4 py-2 fw-bold">
+                    Annulla <span class="visually-hidden">e torna alla lista eventi</span>
+                </a>
+                <button type="submit" class="btn btn-primary px-5 py-2 fw-bold">
+                    Crea Evento
+                </button>
             </div>
         </form>
     </main>

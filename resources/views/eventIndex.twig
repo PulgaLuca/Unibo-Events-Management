@@ -212,32 +212,32 @@
             {% if currentUser %}
                 {# I tuoi prossimi eventi: Iscritto E Creato dall'utente #}
                 <a href="/events?preset=my_upcoming" 
-                   class="btn btn-outline-primary rounded-pill {% if filters.preset == 'my_upcoming' %}active{% endif %}">
+                   class="btn btn-primary rounded-pill {% if filters.preset == 'my_upcoming' %}active{% endif %}">
                     <i class="bi bi-calendar-check me-2"></i>I tuoi prossimi eventi
                 </a>
 
                 {# Eventi ospitati: Creati dall'utente #}
                 <a href="/events?preset=hosted" 
-                   class="btn btn-outline-primary rounded-pill {% if filters.preset == 'hosted' %}active{% endif %}">
+                   class="btn btn-warning rounded-pill {% if filters.preset == 'hosted' %}active{% endif %}">
                     <i class="bi bi-person-workspace me-2"></i>Eventi ospitati
                 </a>
             {% endif %}
 
             {# Eventi in tendenza: Maggior numero di iscritti #}
             <a href="/events?preset=trending" 
-               class="btn btn-outline-info rounded-pill {% if filters.preset == 'trending' %}active{% endif %}">
+               class="btn btn-success rounded-pill {% if filters.preset == 'trending' %}active{% endif %}">
                 <i class="bi bi-graph-up-arrow me-2"></i>Eventi in tendenza
             </a>
 
             {# Prossimi eventi: Logica backend (data registrazione < oggi) #}
             <a href="/events?preset=upcoming" 
-               class="btn btn-outline-success rounded-pill {% if filters.preset == 'upcoming' %}active{% endif %}">
+               class="btn btn-danger rounded-pill {% if filters.preset == 'upcoming' %}active{% endif %}">
                 <i class="bi bi-hourglass-split me-2"></i>Prossimi eventi
             </a>
 
             {# Eventi passati: Logica backend (data registrazione > oggi) #}
             <a href="/events?preset=past" 
-               class="btn btn-outline-secondary rounded-pill {% if filters.preset == 'past' %}active{% endif %}">
+               class="btn btn-dark rounded-pill {% if filters.preset == 'past' %}active{% endif %}">
                 <i class="bi bi-clock-history me-2"></i>Eventi passati
             </a>
 

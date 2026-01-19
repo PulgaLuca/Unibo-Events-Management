@@ -82,6 +82,38 @@
             </a>
         </nav>
 
+        {% if not isCreator and not isSubscribed and leadTeams is defined and leadTeams is not empty %}
+        <form method="post"
+            action="/events/{{ data.eventId }}/subscribe-team"
+            class="d-flex gap-2 align-items-center">
+
+            <label for="team_id" class="visually-hidden">
+                Select team to register
+            </label>
+
+            <select name="team_id"
+                    id="team_id"
+                    class="form-select"
+                    required
+                    aria-label="Select team">
+                <option value="" disabled selected>
+                    Select your team
+                </option>
+                {% for team in leadTeams %}
+                    <option value="{{ team.id }}">
+                        {{ team.name }}
+                    </option>
+                {% endfor %}
+            </select>
+
+            <button type="submit"
+                    class="btn btn-success px-4 fw-bold text-white">
+                <i class="bi bi-people-fill me-1"></i>
+                Register Team
+            </button>
+        </form>
+        {% endif %}
+
         {% if isCreator %}
             <hr class="my-5" role="presentation">
             

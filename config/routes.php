@@ -38,7 +38,9 @@ return [
     ['POST', '/events/{id}/delete', [EventController::class, 'deleteEvent']], // Gestisce la cancellazione dell'evento
     ['POST', '/events/{id}/subscribe', [EventController::class, 'subscribeToEvent']],  // Gestisce la cancellazione dell'evento
     ['POST', '/events/{id}/unsubscribe', [EventController::class, 'unsubscribeFromEvent']],  // Gestisce la cancellazione dell'evento
-    
+    ['POST', '/events/{id}/subscribe-team', [EventController::class, 'subscribeTeamToEvent']],  // Gestisce la cancellazione dell'evento di un team
+    ['POST', '/events/{id}/unsubscribe-team', [EventController::class, 'unsubscribeTeamFromEvent']],  // Gestisce la cancellazione dell'evento di un team
+
     ['GET', '/teams', [TeamController::class, 'index']],          // lista team
     ['GET', '/teams/my-teams', [TeamController::class, 'myTeams']], // i miei team
     ['GET', '/teams/create', [TeamController::class, 'create']], // form crea team

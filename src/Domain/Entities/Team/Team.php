@@ -4,16 +4,33 @@ declare(strict_types=1);
 
 namespace App\Domain\Entities\Team;
 
-use DateTime;
+use App\Domain\Traits\HasAttributes;
 
-class Team {
-    public function __construct(
-        public string $id,
-        public string $name,
-        public string $description,
-        public string $status,
-        public int $min,
-        public ?int $max,
-        public DateTime $createdAt
-    ) {}
+class Team 
+{
+    use HasAttributes;
+
+    public const STATUS_SEARCHING = 'Searching';
+    public const STATUS_FULL = 'Full';
+    public const STATUS_INACTIVE = 'Inactive';
+
+    public function isFull(): bool 
+    {
+        return $this->status === self::STATUS_FULL;
+    }
+
+    public function isSearching(): bool 
+    {
+        return $this->status === self::STATUS_SEARCHING;
+    }
+
+    public function isInactive(): bool 
+    {
+        return $this->status === self::STATUS_INACTIVE;
+    }
+
+    public function canAcceptMembers(): bool 
+    {
+        return $this->isSearching() && !$this->isFull();
+    }
 }

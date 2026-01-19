@@ -28,6 +28,7 @@ use App\Infrastructure\Persistence\Mysql\Events\EventTypeRepository;
 
 use App\Domain\Repositories\Team\ITeamRepository;
 use App\Infrastructure\Persistence\Mysql\Team\TeamRepository;
+use App\Application\Services\Team\TeamService;
 
 use App\Infrastructure\Persistence\Mysql\Location\LocationRepository;
 
@@ -82,6 +83,12 @@ return [
         return new AuthService(
             $container->get(IUserRepository::class),
             $container->get(ISessionRepository::class)
+        );
+    },
+
+    TeamService::class => static function (ContainerInterface $container): TeamService {
+        return new TeamService(
+            $container->get(ITeamRepository::class)
         );
     },
 

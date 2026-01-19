@@ -23,7 +23,7 @@ final class CreateTeamMembershipTable extends AbstractMigration
 
         $table->addColumn('team_id', 'char', ['limit' => 36, 'null' => false])
             ->addColumn('user_id', 'integer', ['null' => false, 'signed' => false]) 
-            ->addColumn('role', 'enum', ['values' => ['Lead', 'Member'], 'null' => false])
+            ->addColumn('status', 'enum', ['values' => ['Lead', 'Member', 'Pending'], 'null' => false])
             ->addColumn('joined_at', 'timestamp', ['default' => 'CURRENT_TIMESTAMP', 'null' => true])
             
             ->addForeignKey('team_id', 'team', 'id', ['delete'=> 'CASCADE', 'update' => 'NO_ACTION'])

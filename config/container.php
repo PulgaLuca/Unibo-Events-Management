@@ -15,7 +15,6 @@ use App\Domain\Repositories\Auth\IUserRepository;
 use App\Domain\Repositories\Auth\ISessionRepository;
 use App\Application\Services\Auth\AuthService;
 
-
 use App\Infrastructure\Persistence\Mysql\Skill\SkillRepository;
 use App\Domain\Repositories\Skill\ISkillRepository;
 
@@ -26,8 +25,8 @@ use App\Infrastructure\Persistence\Mysql\Events\EventRepository;
 use App\Infrastructure\Persistence\Mysql\Events\ParticipationTypeRepository;
 use App\Infrastructure\Persistence\Mysql\Events\EventTypeRepository;
 
+use App\Domain\Repositories\Team\ITeamRepository;
 use App\Infrastructure\Persistence\Mysql\Team\TeamRepository;
-use App\Application\Services\Team\CreateTeam;
 
 return [
 
@@ -48,6 +47,10 @@ return [
     ISessionRepository::class => static function (ContainerInterface $container): ISessionRepository {
         return new SessionRepository($container->get(\PDO::class));
     },
+    
+    ITeamRepository::class => static function (ContainerInterface $container): ITeamRepository {
+        return new TeamRepository($container->get(\PDO::class));
+    },
 
     ISkillRepository::class => static function (ContainerInterface $container): ISkillRepository {
         return new SkillRepository($container->get(\PDO::class));
@@ -65,26 +68,12 @@ return [
         return new ParticipationTypeRepository($container->get(\PDO::class));
     },
 
-  
-    TeamRepository::class => static function (ContainerInterface $container): TeamRepository {
-        return new TeamRepository($container->get(\PDO::class));
-    },
-
-   
     AuthService::class => static function (ContainerInterface $container): AuthService {
         return new AuthService(
             $container->get(IUserRepository::class),
             $container->get(ISessionRepository::class)
         );
     },
-
-   
-    CreateTeam::class => static function (ContainerInterface $container): CreateTeam {
-        return new CreateTeam(
-            $container->get(TeamRepository::class)
-        );
-    },
-
 
     Environment::class => static function (ContainerInterface $container): Environment {
         $loader = new FilesystemLoader(__DIR__ . '/../resources/views');

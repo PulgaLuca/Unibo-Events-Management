@@ -1,4 +1,4 @@
-{% extends 'layout/app.twig' %}
+{% extends 'layouts/base.twig' %}
 
 {% block title %}My Teams{% endblock %}
 
@@ -31,7 +31,7 @@
             <ul class="row list-unstyled">
                 {% for team in teams %}
                     <li class="col-md-4 mb-3">
-                        {% include 'teams/_team_card.twig' with { team: team } %}
+                        {% include '_team_card.twig' with { team: team } %}
                     </li>
                 {% endfor %}
             </ul>

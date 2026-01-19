@@ -6,7 +6,7 @@ use App\Presentation\Controllers\Auth\UserController;
 use App\Presentation\Controllers\Auth\ProfileController;
 use App\Presentation\Controllers\HomeController;
 use App\Presentation\Controllers\Events\EventController;
-use App\Presentation\Controllers\Teams\TeamController;
+use App\Presentation\Controllers\Team\TeamController;
 
 return [
     ['GET', '/', [HomeController::class, 'index']],

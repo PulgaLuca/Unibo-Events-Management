@@ -1,5 +1,10 @@
 <?php
-namespace Domain\Team;
+
+declare(strict_types=1);
+
+namespace App\Domain\Entities\Team;
+
+use DateTime;
 
 class Team {
     public function __construct(
@@ -9,6 +14,6 @@ class Team {
         public string $status,
         public int $min,
         public ?int $max,
-        public int $mentorId
+        public DateTime $createdAt
     ) {}
 }

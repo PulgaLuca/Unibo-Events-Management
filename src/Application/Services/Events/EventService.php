@@ -11,7 +11,6 @@ use App\Domain\Repositories\Auth\IUserRepository;
 use App\Domain\Repositories\Events\IEventRepository;
 use App\Domain\Repositories\Events\IEventTypeRepository;
 use App\Domain\Repositories\Events\IParticipationTypeRepository;
-use App\Infrastructure\Persistence\Mysql\Auth;
 
 use Exception;
 use Ramsey\Uuid\Uuid;

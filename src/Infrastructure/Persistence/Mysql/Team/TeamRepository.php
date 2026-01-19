@@ -2,15 +2,21 @@
 
 declare(strict_types=1);
 
-namespace Infrastructure\Team;
+namespace App\Infrastructure\Persistence\Mysql\Team;
 
 use PDO;
-use Domain\Team\Team;
-use Domain\Exceptions\DomainException;
+use Datetime;
+use App\Domain\Entities\Team\Team;
+use App\Domain\Repositories\Team\ITeamRepository;
 
-final class TeamRepository
+class TeamRepository implements ITeamRepository
 {
-    public function __construct(private PDO $pdo) {}
+    private PDO $pdo;
+
+    public function __construct(PDO $pdo)
+    {
+        $this->pdo = $pdo;
+    }
 
     /**
      * Crea un nuovo team
@@ -30,12 +36,21 @@ final class TeamRepository
             ':status' => 'Searching',
             ':min' => $team->min,
             ':max' => $team->max,
-            ':mentor' => $team->mentorId
         ]);
-
-        // Il mentor entra automaticamente nel team
-        $this->addMember($team->id, $team->mentorId);
     }
+
+    public function findAll(): array
+    {
+        $stmt = $this->pdo->query('SELECT * FROM TEAM');
+
+        $teams = [];
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $teams[] = $this->mapToEntity($row);
+        }
+
+        return $teams;
+    }
+
 
     /**
      * Ritorna i team di cui l'utente fa parte
@@ -57,7 +72,7 @@ final class TeamRepository
     /**
      * Ritorna un team per ID
      */
-    public function findById(int $id): ?object
+    public function findById(string $id): ?object
     {
         $stmt = $this->pdo->prepare("SELECT * FROM team WHERE id = :id");
         $stmt->execute([':id' => $id]);
@@ -69,7 +84,7 @@ final class TeamRepository
     /**
      * Conta i membri di un team
      */
-    public function countMembers(int $teamId): int
+    public function countMembers(string $teamId): int
     {
         $stmt = $this->pdo->prepare("
             SELECT COUNT(*) 
@@ -84,7 +99,7 @@ final class TeamRepository
     /**
      * Aggiunge un utente a un team
      */
-    public function addMember(int $teamId, int $userId): void
+    public function addMember(string $teamId, int $userId): void
     {
         // Evita doppioni
         $stmt = $this->pdo->prepare("
@@ -98,7 +113,7 @@ final class TeamRepository
         ]);
 
         if ($stmt->fetch()) {
-            throw new DomainException('Sei già membro di questo team');
+            // throw new DomainException('Sei già membro di questo team');
         }
 
         $stmt = $this->pdo->prepare("
@@ -110,5 +125,18 @@ final class TeamRepository
             ':team_id' => $teamId,
             ':user_id' => $userId
         ]);
+    }
+
+    private function mapToEntity(array $row): Team
+    {
+        return new Team(
+            $row['id'],
+            $row['name'],
+            $row['description'],
+            $row['status'],
+            $row['min_participants'],
+            $row['max_participants'],
+            new DateTime($row['created_at'])
+        );
     }
 }

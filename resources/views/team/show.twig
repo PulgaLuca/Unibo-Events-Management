@@ -1,0 +1,285 @@
+{% extends 'layouts/base.twig' %}
+
+{% block title %}{{ team.name }} - Team Details{% endblock %}
+
+{% block content %}
+<style>
+    .badge-status {
+        font-size: 0.85rem;
+        padding: 0.4em 0.8em;
+        border-radius: 0.25rem;
+        text-transform: uppercase;
+        font-weight: 700;
+    }
+    .status-searching { background-color: #198754; color: #fff; }
+    .status-full { background-color: #ffc107; color: #000; }
+    .status-inactive { background-color: #6c757d; color: #fff; }
+    .status-lead { background-color: #0d6efd; color: #fff; }
+    .status-member { background-color: #6c757d; color: #fff; }
+    .status-pending { background-color: #ffc107; color: #000; }
+
+    .member-card {
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 0.75rem;
+        background: white;
+        transition: box-shadow 0.2s;
+    }
+    .member-card:hover {
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+</style>
+
+<div class="mb-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/teams">Teams</a></li>
+            <li class="breadcrumb-item active">{{ team.name }}</li>
+        </ol>
+    </nav>
+</div>
+
+{% if error %}
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-octagon-fill me-2"></i>
+        <strong>Error:</strong> {{ error }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+{% endif %}
+
+{% if success %}
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle-fill me-2"></i>
+        {{ success }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+{% endif %}
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card shadow-sm mb-4">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                        <h1 class="h2 mb-2">{{ team.name }}</h1>
+                        <span class="badge badge-status status-{{ team.status|lower }}">
+                            {{ team.status }}
+                        </span>
+                    </div>
+                    {% set isLeader = false %}
+                    {% for member in members %}
+                        {% if member.user_id == currentUser.id and member.status == 'Lead' %}
+                            {% set isLeader = true %}
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if isLeader %}
+                        <div class="btn-group">
+                            <a href="/teams/{{ team.id }}/edit" class="btn btn-primary">
+                                <i class="bi bi-pencil me-1"></i>Edit
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+
+                {% if team.description %}
+                    <p class="lead text-muted">{{ team.description }}</p>
+                {% else %}
+                    <p class="text-muted fst-italic">No description provided.</p>
+                {% endif %}
+
+                <hr>
+
+                <div class="row g-3">
+                    <div class="col-sm-6">
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-people-fill text-primary me-2 fs-4"></i>
+                            <div>
+                                <div class="small text-muted">Team Size</div>
+                                <div class="fw-bold">{{ member_count }}/{{ team.max_participants }}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-calendar-check text-primary me-2 fs-4"></i>
+                            <div>
+                                <div class="small text-muted">Created</div>
+                                <div class="fw-bold">{{ team.created_at|date('M d, Y') }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {% set userIsMember = false %}
+                {% set userIsPending = false %}
+                {% for member in members %}
+                    {% if member.user_id == currentUser.id %}
+                        {% if member.status == 'Lead' or member.status == 'Member' %}
+                            {% set userIsMember = true %}
+                        {% endif %}
+                    {% endif %}
+                {% endfor %}
+                {% for request in pending_requests %}
+                    {% if request.user_id == currentUser.id %}
+                        {% set userIsPending = true %}
+                    {% endif %}
+                {% endfor %}
+
+                {% if not userIsMember and not userIsPending and team.status == 'Searching' %}
+                    <hr>
+                    <form method="post" action="/teams/{{ team.id }}/join">
+                        <button type="submit" class="btn btn-success btn-lg w-100">
+                            <i class="bi bi-person-plus-fill me-2"></i>Request to Join Team
+                        </button>
+                    </form>
+                {% elseif userIsPending %}
+                    <hr>
+                    <div class="alert alert-warning mb-0">
+                        <i class="bi bi-hourglass-split me-2"></i>
+                        Your join request is pending approval.
+                    </div>
+                {% elseif userIsMember %}
+                    <hr>
+                    <form method="post" action="/teams/{{ team.id }}/leave" 
+                          onsubmit="return confirm('Are you sure you want to leave this team?');">
+                        <button type="submit" class="btn btn-outline-danger">
+                            <i class="bi bi-box-arrow-right me-2"></i>Leave Team
+                        </button>
+                    </form>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Members Section -->
+        <div class="card shadow-sm">
+            <div class="card-header bg-white">
+                <h3 class="h5 mb-0">
+                    <i class="bi bi-people me-2"></i>Team Members ({{ member_count }})
+                </h3>
+            </div>
+            <div class="card-body">
+                {% if members is empty %}
+                    <p class="text-muted mb-0">No members yet.</p>
+                {% else %}
+                    {% for member in members %}
+                        <div class="member-card d-flex justify-content-between align-items-center">
+                            <div class="d-flex align-items-center">
+                                <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3" 
+                                     style="width: 40px; height: 40px;">
+                                    <i class="bi bi-person-fill"></i>
+                                </div>
+                                <div>
+                                    <div class="fw-bold">
+                                        <a href="/profile/{{ member.user_id }}" class="text-decoration-none text-dark">
+                                            {{ member.first_name }} {{ member.last_name }}
+                                        </a>
+                                    </div>
+                                    <div class="small text-muted">{{ member.email }}</div>
+                                </div>
+                            </div>
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="badge badge-status status-{{ member.status|lower }}">
+                                    {{ member.status }}
+                                </span>
+                                {% if isLeader and member.user_id != currentUser.id %}
+                                    <div class="dropdown">
+                                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle" 
+                                                type="button" data-bs-toggle="dropdown">
+                                            Actions
+                                        </button>
+                                        <ul class="dropdown-menu">
+                                            {% if member.status == 'Member' %}
+                                                <li>
+                                                    <form method="post" action="/teams/{{ team.id }}/promote">
+                                                        <input type="hidden" name="user_id" value="{{ member.user_id }}">
+                                                        <button type="submit" class="dropdown-item">
+                                                            <i class="bi bi-arrow-up-circle me-2"></i>Promote to Leader
+                                                        </button>
+                                                    </form>
+                                                </li>
+                                            {% endif %}
+                                            <li>
+                                                <form method="post" action="/teams/{{ team.id }}/remove"
+                                                      onsubmit="return confirm('Remove this member?');">
+                                                    <input type="hidden" name="user_id" value="{{ member.user_id }}">
+                                                    <button type="submit" class="dropdown-item text-danger">
+                                                        <i class="bi bi-trash me-2"></i>Remove
+                                                    </button>
+                                                </form>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        {% if isLeader and pending_requests is not empty %}
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-warning text-dark">
+                    <h3 class="h6 mb-0">
+                        <i class="bi bi-clock-history me-2"></i>Pending Requests ({{ pending_requests|length }})
+                    </h3>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        {% for request in pending_requests %}
+                            <div class="list-group-item">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <div>
+                                        <div class="fw-bold">{{ request.first_name }} {{ request.last_name }}</div>
+                                        <div class="small text-muted">{{ request.email }}</div>
+                                    </div>
+                                </div>
+                                <div class="d-flex gap-2">
+                                    <form method="post" action="/teams/{{ team.id }}/approve" class="flex-fill">
+                                        <input type="hidden" name="user_id" value="{{ request.user_id }}">
+                                        <button type="submit" class="btn btn-sm btn-success w-100">
+                                            <i class="bi bi-check-lg"></i> Approve
+                                        </button>
+                                    </form>
+                                    <form method="post" action="/teams/{{ team.id }}/reject" class="flex-fill">
+                                        <input type="hidden" name="user_id" value="{{ request.user_id }}">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger w-100">
+                                            <i class="bi bi-x-lg"></i> Reject
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+
+        {% if isLeader %}
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h3 class="h6 mb-0">Team Management</h3>
+                </div>
+                <div class="card-body">
+                    <form method="post" action="/teams/{{ team.id }}/status">
+                        <label class="form-label small">Change Team Status</label>
+                        <select name="status" class="form-select form-select-sm mb-2">
+                            <option value="Searching" {% if team.status == 'Searching' %}selected{% endif %}>Searching</option>
+                            <option value="Full" {% if team.status == 'Full' %}selected{% endif %}>Full</option>
+                            <option value="Inactive" {% if team.status == 'Inactive' %}selected{% endif %}>Inactive</option>
+                        </select>
+                        <button type="submit" class="btn btn-sm btn-primary w-100">
+                            Update Status
+                        </button>
+                    </form>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}

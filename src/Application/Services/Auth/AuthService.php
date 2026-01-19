@@ -50,7 +50,7 @@ class AuthService
         $user->password = password_hash($password, PASSWORD_BCRYPT);
         $user->first_name = $first_name;
         $user->last_name = $last_name;
-        $user->role = $role;
+        $user->role = $role ?? 'user';
         return $this->userRepository->create($user);
     }
 

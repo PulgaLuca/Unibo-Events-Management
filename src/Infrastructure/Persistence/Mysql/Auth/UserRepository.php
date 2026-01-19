@@ -175,4 +175,59 @@ class UserRepository implements IUserRepository
             return false;
         }
     }
+
+    /**
+     * Get all users with their last session info
+     */
+    public function getAllWithLastSession(): array
+    {
+        $query = "SELECT u.*, 
+                         s.expires_at as last_session,
+                         CASE WHEN s.expires_at > NOW() THEN 1 ELSE 0 END as has_active_session
+                  FROM {$this->table} u
+                  LEFT JOIN (
+                      SELECT user_id, MAX(expires_at) as expires_at
+                      FROM sessions
+                      GROUP BY user_id
+                  ) s ON u.id = s.user_id
+                  ORDER BY u.created_at DESC";
+        
+        $stmt = $this->pdo->prepare($query);
+        $stmt->execute();
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Get statistics for admin dashboard
+     */
+    public function getStatistics(): array
+    {
+        $stats = [];
+        
+        // Total users
+        $stmt = $this->pdo->query("SELECT COUNT(*) as total FROM {$this->table}");
+        $stats['total_users'] = $stmt->fetchColumn();
+        
+        // Users with skills (completed profile)
+        $stmt = $this->pdo->query("SELECT COUNT(DISTINCT user_id) as total FROM user_skills");
+        $stats['users_with_skills'] = $stmt->fetchColumn();
+        
+        // Active sessions
+        $stmt = $this->pdo->query("SELECT COUNT(*) as total FROM sessions WHERE expires_at > NOW()");
+        $stats['active_sessions'] = $stmt->fetchColumn();
+        
+        // Total skills
+        $stmt = $this->pdo->query("SELECT COUNT(*) as total FROM skills");
+        $stats['total_skills'] = $stmt->fetchColumn();
+        
+        // Total events (if events table exists)
+        try {
+            $stmt = $this->pdo->query("SELECT COUNT(*) as total FROM events");
+            $stats['total_events'] = $stmt->fetchColumn();
+        } catch (\PDOException $e) {
+            $stats['total_events'] = 0;
+        }
+        
+        return $stats;
+    }
 }

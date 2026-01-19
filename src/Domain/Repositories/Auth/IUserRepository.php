@@ -19,4 +19,8 @@ interface IUserRepository
     public function updateUserSkill(int $userId, int $skillId, int $level): bool;
     public function removeUserSkill(int $userId, int $skillId): bool;
     public function setUserSkills(int $userId, array $skills): bool;
+    
+    // Admin methods
+    public function getAllWithLastSession(): array;
+    public function getStatistics(): array;
 }

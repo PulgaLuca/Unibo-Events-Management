@@ -1,0 +1,30 @@
+<article
+    class="card h-100 shadow-sm"
+    aria-labelledby="team-{{ team.id }}-title"
+>
+
+    <div class="card-body d-flex flex-column">
+
+        <h3 id="team-{{ team.id }}-title" class="card-title h5">
+            {{ team.name }}
+        </h3>
+
+        <p class="card-text">
+            {{ team.description }}
+        </p>
+
+        <p class="mt-auto">
+            <span class="visually-hidden">Members:</span>
+            {{ team.memberCount }}/{{ team.max_participants }} members
+        </p>
+
+        <a
+            href="/teams/{{ team.id }}"
+            class="btn btn-outline-primary mt-2"
+            aria-describedby="team-{{ team.id }}-title"
+        >
+            View team details
+        </a>
+
+    </div>
+</article>

@@ -15,4 +15,6 @@ interface ISkillRepository
     public function create(Skill $skill): Skill;
     public function update(Skill $skill): bool;
     public function delete(int $skillId): bool;
+    public function findOrCreateByName(string $name): int;
+    public function getRequiredSkills(string $eventId): array;
 }

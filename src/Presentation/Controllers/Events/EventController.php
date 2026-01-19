@@ -24,36 +24,35 @@ class EventController
         $this->twig = $twig;
     }
 
-    public function showEventMainPage(): Response
+    public function showEventMainPage(Request $request): Response
     {
-        try 
-        {
-            if (!$this->authService->isAuthenticated()) {
-                return Response::redirect($_ENV['APP_URL'] . '/login');
-            }
-
-            $currentUser = $this->authService->getCurrentUser();
-            $events = $this->eventService->findAll();
-            $eventsWithContext = $this->eventService->enrichEventsForUser($events, $currentUser->id);
-
-            $html = $this->twig->render('eventIndex.twig', [
-                'events' => $eventsWithContext,
-                'currentUser' => $currentUser,
-                'success' => $_SESSION['success'] ?? null,
-                'error' => $_SESSION['error'] ?? null
-            ]);
-
-            $_SESSION['success'] = null;
-            $_SESSION['error'] = null;
-
-            return Response::html($html);
-        } 
-        catch (Exception $e) 
-        {
-            $_SESSION['error'] = 'Something went wrong while loading events main page: ' . $e->getMessage();
-            
-            return Response::redirect($_ENV['APP_URL'] . '/login');
+        if (!$this->authService->isAuthenticated()) {
+            return Response::redirect('/login');
         }
+
+        $currentUser = $this->authService->getCurrentUser();
+        $filters = $request->getQueryParams();
+
+        $events = $this->eventService->getEventsByFilters($filters, $currentUser);
+        $eventsWithContext = $this->eventService->enrichEventsForUser($events, $currentUser->id);
+
+        // AJAX -> restituisce solo la lista
+        if ($request->isXmlHttpRequest()) {
+            return new Response(
+                $this->twig->render('partials/eventsList.twig', [
+                    'events' => $eventsWithContext
+                ])
+            );
+        }
+
+        // Render pagina completa
+        return new Response(
+            $this->twig->render('eventIndex.twig', [
+                'events' => $eventsWithContext,
+                'filters' => $filters,
+                'currentUser' => $currentUser
+            ])
+        );
     }
 
     /**
@@ -66,6 +65,9 @@ class EventController
             if (!$this->authService->isAuthenticated()) {
                 return Response::redirect($_ENV['APP_URL'] . '/login');
             }
+
+            $_SESSION['success'] = null;
+            $_SESSION['error'] = null;
 
             $currentUser = $this->authService->getCurrentUser();
             $eventTypes = $this->eventService->getEventTypes();
@@ -82,9 +84,6 @@ class EventController
                 'success' => $_SESSION['success'] ?? null,
                 'error' => $_SESSION['error'] ?? null
             ]);
-
-            $_SESSION['success'] = null;
-            $_SESSION['error'] = null;
 
             return Response::html($html);
         }
@@ -108,6 +107,9 @@ class EventController
             }
 
             $data = $request->getParsedBody();
+
+            error_log(print_r($data, true));
+
             $currentUser = $this->authService->getCurrentUser();
             $eventTypes = $this->eventService->getEventTypes();
             $participationTypes = $this->eventService->getParticipationTypes();
@@ -115,18 +117,15 @@ class EventController
             $this->eventService->create($data, $currentUser->id);
             $_SESSION['success'] = 'Event created successfully!';
             
-            $html = $this->twig->render('eventCreate.twig', [
-                'success' => $_SESSION['success'],
-                'data'  => $data,
-                'currentUser' => $currentUser,
-                'eventTypes' => $eventTypes,
-                'participationTypes' => $participationTypes,
-                'organizer' => $currentUser,
-                'isCreator' => true,
-                'isSubscribed' => true,
-                'userRole' => 'Lead'
-            ]);
+            $eventsWithContext = $this->eventService->enrichEventsForUser($this->eventService->findAll(), $currentUser->id);
 
+            $html = $this->twig->render('eventIndex.twig', [
+                'events' => $eventsWithContext,
+                'currentUser' => $currentUser,
+                'success' => $_SESSION['success'] ?? null,
+                'error' => $_SESSION['error'] ?? null
+            ]);
+            
             $_SESSION['success'] = null;
             $_SESSION['error'] = null;
 
@@ -146,6 +145,7 @@ class EventController
                 'userRole' => 'Lead'
             ]);
 
+            $_SESSION['error'] = null;
             $_SESSION['error'] = 'Something went wrong while creating this event: ' . $e->getMessage();
             
             return Response::html($html);
@@ -174,7 +174,7 @@ class EventController
             $organizer = $this->eventService->getEventCreator($id);
             $eventTypes = $this->eventService->getEventTypes();
             $participationTypes = $this->eventService->getParticipationTypes();
-
+            $participants = $this->eventService->getEventParticipants($id);
             $isCreator = $event->getCreatorUserId() === $currentUser->id;
             $isSubscribed = $this->eventService->isUserSubscribed($id, $currentUser->id);
             $userRole = $this->eventService->resolveUserRoleInEvent($id, $currentUser->id);
@@ -188,6 +188,7 @@ class EventController
                 'isCreator' => $isCreator,
                 'isSubscribed' => $isSubscribed,
                 'userRole' => $userRole,
+                'participants' => $participants,
                 'success' => $_SESSION['success'] ?? null,
                 'error' => $_SESSION['error'] ?? null
             ]);
@@ -200,6 +201,7 @@ class EventController
         } 
         catch (Exception $e) 
         {
+            $_SESSION['error'] = null;
             $_SESSION['error'] = $e->getMessage();
             return Response::redirect('/events');
         }
@@ -218,14 +220,8 @@ class EventController
 
             $currentUser = $this->authService->getCurrentUser();
             $data = $request->getParsedBody();
-            
-            // $isSubscribed = $this->eventService->isUserSubscribed($id, $currentUser->id);
-            // $isCreator = ($data['creator_user_id'] === $currentUser->id);
 
-            // if (!$isCreator) {
-            //     $_SESSION['error'] = 'Unauthorized action';
-            //     return Response::redirect($_ENV['APP_URL'] . '/events');
-            // }
+            error_log(print_r($data, true));
 
             $this->eventService->update($id, $data);
             $_SESSION['success'] = 'Event updated successfully!';
@@ -237,8 +233,8 @@ class EventController
         {
             $_SESSION['error'] = 'Something went wrong while updating this event: ' . $e->getMessage();
             
-            $html = $this->twig->render('eventEdit.twig', [
-                'error' => $_SESSION['error'],
+            $html = $this->twig->render('eventShow.twig', [
+                'error' => 'Something went wrong: ' . $e->getMessage(),
                 'event' => $data,
                 'currentUser' => $currentUser
             ]);
@@ -276,6 +272,7 @@ class EventController
         } 
         catch (Exception $e) 
         {
+            $_SESSION['error'] = null;
             $_SESSION['error'] = 'Something went wrong while deleting this event: ' . $e->getMessage();
             return Response::redirect($_ENV['APP_URL'] . '/events');
         }
@@ -293,7 +290,7 @@ class EventController
             }
 
             $currentUser = $this->authService->getCurrentUser();
-            $this->eventService->subscribeUser($id, $currentUser->id);
+            $this->eventService->subscribeUser($id, $currentUser->id, 'Participant');
             $_SESSION['success'] = 'Successfully subscribed to the event!';
             
             return Response::redirect('/events/' . $id);
@@ -325,8 +322,17 @@ class EventController
         } 
         catch (Exception $e) 
         {
+            $_SESSION['error'] = null;
             $_SESSION['error'] = 'Something went wrong while unsubscribing: ' . $e->getMessage();
             return Response::redirect('/events/' . $id);
         }
+    }
+
+    public function home(): Response
+    {
+        return new Response(
+            $this->twig->render('home.twig')
+        );
+        return Response::html($html);
     }
 }

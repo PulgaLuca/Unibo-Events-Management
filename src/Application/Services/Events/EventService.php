@@ -5,43 +5,51 @@ declare(strict_types=1);
 namespace App\Application\Services\Events;
 
 use App\Domain\Entities\Events\Event;
+use App\Domain\Entities\Events\Location;
 use App\Domain\Entities\Auth\User;
 use App\Domain\Entities\Events\EventStatus;
 use App\Domain\Repositories\Auth\IUserRepository;
 use App\Domain\Repositories\Events\IEventRepository;
 use App\Domain\Repositories\Events\IEventTypeRepository;
+use App\Domain\Repositories\Location\ILocationRepository;
 use App\Domain\Repositories\Events\IParticipationTypeRepository;
-
+use App\Domain\Repositories\Skill\ISkillRepository;
 use Exception;
 use Ramsey\Uuid\Uuid;
 
 class EventService
 {
     private IEventRepository $eventRepository;
+    private ILocationRepository $locationRepository;
     private IEventTypeRepository $eventTypeRepository;
     private IParticipationTypeRepository $participationTypeRepository;
     private IUserRepository $userRepository;
+    private ISkillRepository $skillRepository;
 
     public function __construct(
         IEventRepository $eventRepository,
+        ILocationRepository $locationRepository,
         IEventTypeRepository $eventTypeRepository,
         IParticipationTypeRepository $participationTypeRepository,
-        IUserRepository $userRepository
+        IUserRepository $userRepository,
+        ISkillRepository $skillRepository
     ) {
         $this->eventRepository = $eventRepository;
+        $this->locationRepository = $locationRepository;
         $this->eventTypeRepository = $eventTypeRepository;
         $this->participationTypeRepository = $participationTypeRepository;
         $this->userRepository = $userRepository;
+        $this->skillRepository = $skillRepository;
     }
 
-    public function subscribeUser(string $eventId, int $userId): void
+    public function subscribeUser(string $eventId, int $userId, string $role): void
     {
         $this->eventRepository->createParticipation([
             'id' => Uuid::uuid4()->toString(),
             'event_id' => $eventId,
             'user_id' => $userId,
             'team_id' => null,
-            'role' => 'Participant',
+            'role' => $role,
             'registration_date' => date("Y-m-d H:i:s")
         ]);
     }
@@ -69,6 +77,19 @@ class EventService
         $this->validate($data);
         $eventId = Uuid::uuid4()->toString();
 
+        $location = null;
+
+        if (!empty($data['location_country']) && !empty($data['location_city'])) {
+            $location = new Location(
+                Uuid::uuid4()->toString(),
+                $data['location_country'],
+                $data['location_city'],
+                $data['location_description'] ?? null
+            );
+
+            $this->locationRepository->create($location);
+        }
+
         $event = new Event(
             $eventId,
             $data['title'],
@@ -76,21 +97,43 @@ class EventService
             new \DateTime($data['start_date']),
             isset($data['end_date']) ? new \DateTime($data['end_date']) : null,
             isset($data['image_url']) ? $data['image_url'] : '/assets/images/events/event-main.jpg',
-            $data['location'] ?? null,
+            $location,
             $data['url'] ?? null,
             isset($data['registration_deadline']) ? new \DateTime($data['registration_deadline']) : null,
-            (int) ($data['min_participants'] ?? 0),
+            isset($data['min_participants']) ? (int) $data['min_participants'] : null,
             isset($data['max_participants']) ? (int) $data['max_participants'] : null,
             EventStatus::fromString($data['status']),
             $data['type_id'],
             $data['participation_type_id'],
             $organizerId
         );
-        
+
+        if (!empty($data['skills'])) {
+            $this->attachRequiredSkills($eventId, $data['skills']);
+        }
+
         $this->eventRepository->save($event);
-        $this->subscribeUser($eventId, $organizerId);
+        $this->subscribeUser($eventId, $organizerId, 'Lead');
 
         return $event;
+    }
+
+    private function attachRequiredSkills(string $eventId, string $skillsInput): void
+    {
+        $skills = array_filter(array_map(
+            fn($s) => trim($s),
+            explode(',', $skillsInput)
+        ));
+
+        foreach ($skills as $skillName) {
+            $skill = $this->skillRepository->findOrCreateByName($skillName);
+            $this->eventRepository->attachSkill($eventId, $skill);
+        }
+    }
+
+    public function getRequiredSkills(string $eventId): array
+    {
+        return $this->eventRepository->getSkillsForEvent($eventId);
     }
 
     /**
@@ -104,13 +147,28 @@ class EventService
             throw new Exception('Event not found');
         }
 
+        $location = null;
+
+        if (!empty($data['location_id'])) {
+            $location = new Location(
+                $data['location_id'],
+                $data['location_country'],
+                $data['location_city'],
+                $data['location_description'] ?? null
+            );
+
+            $this->locationRepository->update($location);
+        } else {
+            $location = $event->getLocation();
+        }
+
         $event->update(
             $data['title'] ?? $event->getTitle(),
             $data['description'] ?? $event->getDescription(),
             isset($data['start_date']) ? new \DateTime($data['start_date']) : $event->getStartDate(),
             array_key_exists('end_date', $data) ? ($data['end_date'] ? new \DateTime($data['end_date']) : null) : $event->getEndDate(),
             isset($data['image_url']) ? $data['image_url'] : $event->getImageUrl(),
-            $data['location'] ?? $event->getLocation(),
+            $location,
             $data['url'] ?? $event->getUrl(),
             isset($data['registration_deadline']) ? new \DateTime($data['registration_deadline']) : $event->getRegistrationDeadline(),
             (int)($data['min_participants'] ?? $event->getMinParticipants()),
@@ -120,7 +178,40 @@ class EventService
 
         $this->eventRepository->update($event);
 
+        if (array_key_exists('skills', $data)) {
+            $this->syncRequiredSkills($eventId, $data['skills']);
+        }
+
         return $event;
+    }
+
+    private function syncRequiredSkills(string $eventId, string $skillsInput): void
+    {
+        // Normalizza input
+        $skills = array_unique(array_filter(array_map(
+            fn($s) => trim($s),
+            explode(',', $skillsInput)
+        )));
+
+        // Skill attuali
+        $currentSkillIds = $this->eventRepository->getSkillIdsForEvent($eventId);
+        // Skill nuove
+        $newSkillIds = [];
+
+        foreach ($skills as $skillName) {
+            $newSkillIds[] = $this->skillRepository->findOrCreateByName($skillName);
+        }
+
+        $toAdd = array_diff($newSkillIds, $currentSkillIds);
+        $toRemove = array_diff($currentSkillIds, $newSkillIds);
+
+        foreach ($toAdd as $skillId) {
+            $this->eventRepository->attachSkill($eventId, $skillId);
+        }
+
+        foreach ($toRemove as $skillId) {
+            $this->eventRepository->detachSkill($eventId, $skillId);
+        }
     }
 
     /**
@@ -200,6 +291,29 @@ class EventService
         );
     }
 
+    public function getEventsByFilters(array $filters, User $user): array
+    {
+        $preset = $filters['preset'] ?? null;
+
+        if ($preset) {
+            return match ($preset) {
+                'my_upcoming' => $this->eventRepository->findMyUpcomingEvents($user->id),
+                'hosted'      => $this->eventRepository->findHostedByUser($user->id),
+                'trending'    => $this->eventRepository->findTrendingEvents(),
+                'upcoming'    => $this->eventRepository->findUpcomingEvents(),
+                'past'        => $this->eventRepository->findPastEvents(),
+                default       => $this->eventRepository->findByFilters($filters),
+            };
+        }
+
+        // No preset filters but only custom filters
+        return $this->eventRepository->findByFilters($filters);
+    }
+
+    public function getEventParticipants(string $eventId): array
+    {
+        return $this->eventRepository->getEventParticipants($eventId);
+    }
 
     /**
      * Basic business validation

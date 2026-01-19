@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Creato il: Gen 16, 2026 alle 21:00
+-- Creato il: Gen 19, 2026 alle 09:13
 -- Versione del server: 8.0.29
 -- Versione PHP: 8.2.12
 
@@ -34,7 +34,7 @@ CREATE TABLE `event` (
   `start_date` datetime DEFAULT NULL,
   `end_date` datetime DEFAULT NULL,
   `image_url` text COLLATE utf8mb4_unicode_ci,
-  `location` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `location_id` char(36) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `url` varchar(512) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `registration_deadline` datetime DEFAULT NULL,
   `min_participants` int DEFAULT '0',
@@ -49,9 +49,10 @@ CREATE TABLE `event` (
 -- Dump dei dati per la tabella `event`
 --
 
-INSERT INTO `event` (`id`, `title`, `description`, `start_date`, `end_date`, `image_url`, `location`, `url`, `registration_deadline`, `min_participants`, `max_participants`, `status`, `type_id`, `participation_type_id`, `creator_user_id`) VALUES
-('375ac877-9eb6-4fe4-b2bd-163b30d623ef', 'Hacker pazzo', 'pazzo', '2026-01-08 23:08:00', '2026-01-22 23:08:00', '/assets/images/events/event-main.jpg', 'Online (Zoom)', 'http://www.national-ctf.it', '2026-01-06 23:08:00', 1, 4, 'Draft', 'ET004', 'PT003', 2),
-('EV001', 'Unibo Internal Hackathon 2026', '24h hackathon for university students', '2026-03-10 09:00:00', '2026-03-11 09:00:00', '/assets/images/events/bologna-hack.jpg', 'Bologna Campus', NULL, NULL, 10, 50, 'Active', 'ET001', 'PT003', 3);
+INSERT INTO `event` (`id`, `title`, `description`, `start_date`, `end_date`, `image_url`, `location_id`, `url`, `registration_deadline`, `min_participants`, `max_participants`, `status`, `type_id`, `participation_type_id`, `creator_user_id`) VALUES
+('2be12144-fab7-4eed-b848-82f438cfa749', 'Gara di rane ', 'Salto in largo', '2026-01-16 13:40:00', '2026-01-31 13:40:00', '/assets/images/events/event-main.jpg', '3f95f3e2-79c9-48bd-8105-36c13270159c', 'http://www.national-ctf.it', '2026-01-05 13:40:00', 3, 6, 'Cancelled', 'ET003', 'PT001', 4),
+('384941d5-7ca0-4f46-8bdd-d1784814a68b', 'Hackathon - Image Recognition', '36h Image Recognition', '2026-01-09 12:23:00', '2026-01-23 12:23:00', '/assets/images/events/event-main.jpg', '84d3a991-bfa1-410c-b8d0-68d3961477ca', '', '2026-01-05 12:23:00', 5, 150, 'Draft', 'ET004', 'PT003', 3),
+('EV001', 'Unibo Internal Hackathon 2026', '24h hackathon for university students', '2026-03-10 09:00:00', '2026-03-11 09:00:00', '/assets/images/events/bologna-hack.jpg', '2b501632-f318-11f0-8a00-5405db6b1978', '', '2026-01-17 00:46:00', 10, 50, 'Active', 'ET001', 'PT003', 3);
 
 -- --------------------------------------------------------
 
@@ -73,9 +74,15 @@ CREATE TABLE `event_participation` (
 --
 
 INSERT INTO `event_participation` (`id`, `event_id`, `user_id`, `team_id`, `role`, `registration_date`) VALUES
-('88ac08b8-54db-4a07-b44a-c2b74f1dfe0c', 'EV001', 4, NULL, 'Participant', '2026-01-14 13:53:51'),
-('EP001', 'EV001', 3, NULL, 'Lead', '2026-01-06 01:34:36'),
-('EP002', 'EV001', 2, NULL, 'Participant', '2026-01-06 01:34:36');
+('0cef29c2-4c96-426e-9440-ec5885f3ddbd', '2be12144-fab7-4eed-b848-82f438cfa749', 3, NULL, 'Participant', '2026-01-17 11:40:52'),
+('0e4087dc-247c-45ed-acc8-66776cf6bdab', 'EV001', 6, NULL, 'Participant', '2026-01-19 07:10:10'),
+('2ae0add2-c7ec-4f4f-8fb7-903470178d51', '384941d5-7ca0-4f46-8bdd-d1784814a68b', 7, NULL, 'Participant', '2026-01-19 07:11:20'),
+('375ac877-9eb6-4fe4-b2bd-163b30d523er', 'EV001', 4, NULL, 'Participant', '2026-01-14 13:53:51'),
+('7edd7406-6d14-4220-b672-57e89f2aeb7f', '2be12144-fab7-4eed-b848-82f438cfa749', 7, NULL, 'Participant', '2026-01-19 07:11:17'),
+('a2683360-d368-453b-9abb-ea6c8420ea29', '384941d5-7ca0-4f46-8bdd-d1784814a68b', 3, NULL, 'Lead', '2026-01-18 10:23:27'),
+('d0df40e8-e868-44e6-b049-b3732890953e', '2be12144-fab7-4eed-b848-82f438cfa749', 6, NULL, 'Participant', '2026-01-19 07:10:19'),
+('eed50e67-dacf-4a03-b2df-2a2b428f78d0', 'EV001', 5, NULL, 'Participant', '2026-01-18 12:23:49'),
+('EP001', 'EV001', 3, NULL, 'Lead', '2026-01-06 01:34:36');
 
 -- --------------------------------------------------------
 
@@ -93,7 +100,15 @@ CREATE TABLE `event_required_skill` (
 --
 
 INSERT INTO `event_required_skill` (`event_id`, `skill_id`) VALUES
-('EV001', 1);
+('EV001', 1),
+('EV001', 2),
+('384941d5-7ca0-4f46-8bdd-d1784814a68b', 8),
+('384941d5-7ca0-4f46-8bdd-d1784814a68b', 15),
+('384941d5-7ca0-4f46-8bdd-d1784814a68b', 18),
+('EV001', 18),
+('384941d5-7ca0-4f46-8bdd-d1784814a68b', 93),
+('EV001', 94),
+('384941d5-7ca0-4f46-8bdd-d1784814a68b', 95);
 
 -- --------------------------------------------------------
 
@@ -116,6 +131,35 @@ INSERT INTO `event_type` (`id`, `name`) VALUES
 ('ET002', 'Student Workshop'),
 ('ET003', 'Study Group'),
 ('ET005', 'Tech Talk');
+
+-- --------------------------------------------------------
+
+--
+-- Struttura della tabella `location`
+--
+
+CREATE TABLE `location` (
+  `id` char(36) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `country` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `city` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `description` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dump dei dati per la tabella `location`
+--
+
+INSERT INTO `location` (`id`, `country`, `city`, `description`) VALUES
+('1306af06-27b1-46e0-9680-76876714c222', 'Germania', 'München', 'Luisenstraße 33, 80333'),
+('2ae84666-b01c-4656-a7d7-ed79be682287', 'Italia', 'San Mauro Pascoli', 'Via del Mulino 50'),
+('2b501632-f318-11f0-8a00-5405db6b1978', 'Italia', 'Cesena', 'Piazza Maurizio Bufalini, 1, 47521'),
+('2cfc0f0c-2d2c-4aa1-a3bf-89f5968c0835', 'Italia', 'San Mauro Pascoli', 'Via del Mulino 50'),
+('3f95f3e2-79c9-48bd-8105-36c13270159c', 'Svizzera', 'St. Gallen', 'Museumstrasse 32, 9000'),
+('830d912c-3db8-4fb2-9ed2-d2ab164fd49c', 'Italia', 'San Mauro Pascoli', 'Via del Mulino 50'),
+('84d3a991-bfa1-410c-b8d0-68d3961477ca', 'Italia', 'San Mauro Pascoli', 'Via del Mulino 50'),
+('9a164d66-c383-4e7e-934d-efe1983432ad', 'Italia', 'San Mauro Pascoli', 'Via del Mulino 50'),
+('eddb8091-f75a-4003-9bcd-f4299abc1094', 'Italia', 'San Mauro Pascoli', 'Via del Mulino 50'),
+('f3408309-c9cb-4e53-87b3-a9506b0b8bdd', 'Italia', 'San Mauro Pascoli', 'Via del Mulino 50');
 
 -- --------------------------------------------------------
 
@@ -167,7 +211,8 @@ INSERT INTO `phinx_log` (`version`, `migration_name`, `start_time`, `end_time`, 
 (20260106004327, 'CreateEventTable', '2026-01-06 00:31:13', '2026-01-06 00:31:13', 0),
 (20260106005539, 'CreateEventRequiredSkillTable', '2026-01-06 00:31:21', '2026-01-06 00:31:21', 0),
 (20260106005853, 'CreateEventParticipationTable', '2026-01-06 00:31:30', '2026-01-06 00:31:30', 0),
-(20260116195350, 'RemoveMentorIdFromTeam', '2026-01-16 18:56:22', '2026-01-16 18:56:22', 0);
+(20260116195350, 'RemoveMentorIdFromTeam', '2026-01-16 18:56:22', '2026-01-16 18:56:22', 0),
+(20260116201331, 'CreateLocationTableAndLinkToEvent', '2026-01-16 19:14:32', '2026-01-16 19:14:32', 0);
 
 -- --------------------------------------------------------
 
@@ -193,7 +238,8 @@ INSERT INTO `sessions` (`id`, `user_id`, `token_hash`, `user_agent`, `expires_at
 (3, 3, 'cf03c944b95e5f939b263f06f5ab4380ba74103cdcaaec7dd441c9d5c7efa435', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36', '2026-01-07 13:26:31', '2026-01-06 14:26:31', '2026-01-06 14:26:31'),
 (4, 3, '2dd3d5fcefce067ac874feebe7e69687098e18195699305e4ebce26f2635c48c', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36', '2026-01-08 17:33:53', '2026-01-07 18:33:53', '2026-01-07 18:33:53'),
 (5, 4, 'f18d5f461364d137583a548ecdfe1029b9e7c8f98e6342670c0f61fbfca98bcb', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36', '2026-01-15 14:51:38', '2026-01-14 15:51:38', '2026-01-14 15:51:38'),
-(6, 3, '8354b19d595e005634f821fd50b6e6d10e1c7f7448fb32ae61720aa96ac067e7', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36', '2026-01-17 19:46:55', '2026-01-16 20:46:55', '2026-01-16 20:46:55');
+(6, 3, '8354b19d595e005634f821fd50b6e6d10e1c7f7448fb32ae61720aa96ac067e7', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36', '2026-01-17 19:46:55', '2026-01-16 20:46:55', '2026-01-16 20:46:55'),
+(12, 3, 'ac588373511f10d37f5d4cbe70e3a809f2dc8f83f525f876f4b87858c742ec85', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36', '2026-01-20 08:11:27', '2026-01-19 09:11:27', '2026-01-19 09:11:27');
 
 -- --------------------------------------------------------
 
@@ -305,7 +351,11 @@ INSERT INTO `skills` (`id`, `name`, `category`, `created_at`, `updated_at`) VALU
 (89, 'RabbitMQ', 'Message Queue', '2026-01-05 18:16:56', '2026-01-05 18:16:56'),
 (90, 'Apache Kafka', 'Message Queue', '2026-01-05 18:16:56', '2026-01-05 18:16:56'),
 (91, 'Agile', 'Methodology', '2026-01-05 18:16:56', '2026-01-05 18:16:56'),
-(92, 'Scrum', 'Methodology', '2026-01-05 18:16:56', '2026-01-05 18:16:56');
+(92, 'Scrum', 'Methodology', '2026-01-05 18:16:56', '2026-01-05 18:16:56'),
+(93, 'Cybersecurity', 'General', '2026-01-18 11:51:03', '2026-01-18 11:51:03'),
+(94, 'JS', 'General', '2026-01-18 13:04:45', '2026-01-18 13:04:45'),
+(95, 'ScikitLearn', 'General', '2026-01-18 13:05:19', '2026-01-18 13:05:19'),
+(96, 'F#', 'General', '2026-01-18 14:28:45', '2026-01-18 14:28:45');
 
 -- --------------------------------------------------------
 
@@ -352,10 +402,11 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `email`, `password`, `first_name`, `last_name`, `created_at`, `updated_at`, `role`) VALUES
-(1, 'alice@example.com', 'alice', 'Alice', 'Rossi', '2026-01-06 01:33:28', '2026-01-06 02:43:22', 'student'),
-(2, 'bob@example.com', 'bob', 'Bob', 'Bianchi', '2026-01-06 01:33:28', '2026-01-06 02:43:18', 'student'),
-(3, 'luca.pulga@gmail.com', '$2y$12$BAKc98w/WCWA8iT68fyZhu57Xde2AGl98XJPE/oVvoJdp21lLVzeS', 'Luca', 'Pulga', '2026-01-06 02:44:35', '2026-01-06 02:44:35', ''),
-(4, 'lucapulga@gmail.com', '$2y$12$6pxu7rkDe0GjeVyW8f6gOOq/xZyXPfca/OBb21TGUOivs.QKryz42', 'Luca', 'Pulga', '2026-01-14 15:48:17', '2026-01-14 15:48:17', '');
+(3, 'luca.pulga@gmail.com', '$2y$12$BAKc98w/WCWA8iT68fyZhu57Xde2AGl98XJPE/oVvoJdp21lLVzeS', 'Luca', 'Pulga', '2026-01-06 02:44:35', '2026-01-18 22:05:10', 'admin'),
+(4, 'lucapulga@gmail.com', '$2y$12$6pxu7rkDe0GjeVyW8f6gOOq/xZyXPfca/OBb21TGUOivs.QKryz42', 'Luca', 'Pulga', '2026-01-14 15:48:17', '2026-01-18 22:04:59', 'admin'),
+(5, 'mario.rossi@gmail.com', '$2y$12$gx/vMoBHafcrSTV2gIpZaOwe82agH5EAvYcug6QVkjuc/Ma9vVR6G', 'Mario', 'Rossi', '2026-01-18 14:23:30', '2026-01-18 14:23:30', ''),
+(6, 'vittoria.persa@gmail.com', '$2y$12$cU/fBx.eJqIKhak0BdSuTeK1wC.cxMlq/Oi506UErejuIAtKImAM2', 'Vittoria', 'Persa', '2026-01-19 09:09:15', '2026-01-19 09:09:15', ''),
+(7, 'marco.casali@gmail.com', '$2y$12$WB6obMq2tiWebg9MCTYUN.RuoC3wDd2YVsl8g2q1o8qY/712WwG5q', 'Marco', 'Casali', '2026-01-19 09:10:40', '2026-01-19 09:10:40', '');
 
 -- --------------------------------------------------------
 
@@ -373,6 +424,26 @@ CREATE TABLE `user_skills` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
+-- Dump dei dati per la tabella `user_skills`
+--
+
+INSERT INTO `user_skills` (`id`, `user_id`, `skill_id`, `level`, `created_at`, `updated_at`) VALUES
+(1, 3, 65, 2, '2026-01-18 14:25:48', '2026-01-18 14:25:48'),
+(2, 6, 83, 1, '2026-01-19 09:10:05', '2026-01-19 09:10:05'),
+(3, 6, 85, 3, '2026-01-19 09:10:05', '2026-01-19 09:10:05'),
+(4, 6, 87, 3, '2026-01-19 09:10:05', '2026-01-19 09:10:05'),
+(5, 6, 30, 2, '2026-01-19 09:10:05', '2026-01-19 09:10:05'),
+(6, 6, 15, 3, '2026-01-19 09:10:05', '2026-01-19 09:10:05'),
+(7, 6, 32, 2, '2026-01-19 09:10:05', '2026-01-19 09:10:05'),
+(8, 7, 88, 2, '2026-01-19 09:11:13', '2026-01-19 09:11:13'),
+(9, 7, 34, 2, '2026-01-19 09:11:13', '2026-01-19 09:11:13'),
+(10, 7, 32, 2, '2026-01-19 09:11:13', '2026-01-19 09:11:13'),
+(11, 7, 7, 2, '2026-01-19 09:11:13', '2026-01-19 09:11:13'),
+(12, 7, 94, 2, '2026-01-19 09:11:13', '2026-01-19 09:11:13'),
+(13, 7, 61, 2, '2026-01-19 09:11:13', '2026-01-19 09:11:13'),
+(14, 7, 60, 2, '2026-01-19 09:11:13', '2026-01-19 09:11:13');
+
+--
 -- Indici per le tabelle scaricate
 --
 
@@ -383,7 +454,8 @@ ALTER TABLE `event`
   ADD PRIMARY KEY (`id`),
   ADD KEY `type_id` (`type_id`),
   ADD KEY `participation_type_id` (`participation_type_id`),
-  ADD KEY `creator_user_id` (`creator_user_id`);
+  ADD KEY `creator_user_id` (`creator_user_id`),
+  ADD KEY `location_id` (`location_id`);
 
 --
 -- Indici per le tabelle `event_participation`
@@ -408,6 +480,12 @@ ALTER TABLE `event_required_skill`
 ALTER TABLE `event_type`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `name` (`name`);
+
+--
+-- Indici per le tabelle `location`
+--
+ALTER TABLE `location`
+  ADD PRIMARY KEY (`id`);
 
 --
 -- Indici per le tabelle `participation_type`
@@ -464,25 +542,25 @@ ALTER TABLE `user_skills`
 -- AUTO_INCREMENT per la tabella `sessions`
 --
 ALTER TABLE `sessions`
-  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT per la tabella `skills`
 --
 ALTER TABLE `skills`
-  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=93;
+  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=97;
 
 --
 -- AUTO_INCREMENT per la tabella `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT per la tabella `user_skills`
 --
 ALTER TABLE `user_skills`
-  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
 --
 -- Limiti per le tabelle scaricate
@@ -494,7 +572,8 @@ ALTER TABLE `user_skills`
 ALTER TABLE `event`
   ADD CONSTRAINT `event_ibfk_1` FOREIGN KEY (`type_id`) REFERENCES `event_type` (`id`) ON DELETE RESTRICT,
   ADD CONSTRAINT `event_ibfk_2` FOREIGN KEY (`participation_type_id`) REFERENCES `participation_type` (`id`) ON DELETE RESTRICT,
-  ADD CONSTRAINT `event_ibfk_3` FOREIGN KEY (`creator_user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL;
+  ADD CONSTRAINT `event_ibfk_3` FOREIGN KEY (`creator_user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL,
+  ADD CONSTRAINT `event_ibfk_4` FOREIGN KEY (`location_id`) REFERENCES `location` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 --
 -- Limiti per la tabella `event_participation`

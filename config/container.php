@@ -21,12 +21,15 @@ use App\Domain\Repositories\Skill\ISkillRepository;
 use App\Domain\Repositories\Events\IEventRepository;
 use App\Domain\Repositories\Events\IParticipationTypeRepository;
 use App\Domain\Repositories\Events\IEventTypeRepository;
+use App\Domain\Repositories\Location\ILocationRepository;
 use App\Infrastructure\Persistence\Mysql\Events\EventRepository;
 use App\Infrastructure\Persistence\Mysql\Events\ParticipationTypeRepository;
 use App\Infrastructure\Persistence\Mysql\Events\EventTypeRepository;
 
 use App\Domain\Repositories\Team\ITeamRepository;
 use App\Infrastructure\Persistence\Mysql\Team\TeamRepository;
+
+use App\Infrastructure\Persistence\Mysql\Location\LocationRepository;
 
 return [
 
@@ -56,8 +59,15 @@ return [
         return new SkillRepository($container->get(\PDO::class));
     },
 
+    ILocationRepository::class => static function (ContainerInterface $container): ILocationRepository {
+        return new LocationRepository($container->get(\PDO::class));
+    },
+    
     IEventRepository::class => static function (ContainerInterface $container): IEventRepository {
-        return new EventRepository($container->get(\PDO::class));
+        return new EventRepository(
+            $container->get(\PDO::class),
+            $container->get(ILocationRepository::class)
+        );
     },
 
     IEventTypeRepository::class => static function (ContainerInterface $container): IEventTypeRepository {

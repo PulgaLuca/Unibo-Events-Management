@@ -50,6 +50,10 @@ php vendor\bin\phinx seed:run -c config\phinx.php
 php vendor/bin/phinx seed:run -c config/phinx.php
 ```
 
+### 5.1) Load DB Model and Data
+It is also possible load the database model with inserted data from:\
+**Unibo-Events-Management\docs\db\unibo_matchskills_db.sql**
+
 
 ## 6) Start the development server
 Serve the app from the `public` directory:

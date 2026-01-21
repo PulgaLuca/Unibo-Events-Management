@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Creato il: Gen 19, 2026 alle 18:39
+-- Creato il: Gen 21, 2026 alle 01:07
 -- Versione del server: 8.0.29
 -- Versione PHP: 8.2.12
 
@@ -75,12 +75,8 @@ CREATE TABLE `event_participation` (
 
 INSERT INTO `event_participation` (`id`, `event_id`, `user_id`, `team_id`, `role`, `registration_date`) VALUES
 ('0cef29c2-4c96-426e-9440-ec5885f3ddbd', '2be12144-fab7-4eed-b848-82f438cfa749', 3, NULL, 'Participant', '2026-01-17 11:40:52'),
-('0e4087dc-247c-45ed-acc8-66776cf6bdab', 'EV001', 6, NULL, 'Participant', '2026-01-19 07:10:10'),
-('2ae0add2-c7ec-4f4f-8fb7-903470178d51', '384941d5-7ca0-4f46-8bdd-d1784814a68b', 7, NULL, 'Participant', '2026-01-19 07:11:20'),
-('375ac877-9eb6-4fe4-b2bd-163b30d523er', 'EV001', 4, NULL, 'Participant', '2026-01-14 13:53:51'),
-('7edd7406-6d14-4220-b672-57e89f2aeb7f', '2be12144-fab7-4eed-b848-82f438cfa749', 7, NULL, 'Participant', '2026-01-19 07:11:17'),
-('d0df40e8-e868-44e6-b049-b3732890953e', '2be12144-fab7-4eed-b848-82f438cfa749', 6, NULL, 'Participant', '2026-01-19 07:10:19'),
-('eed50e67-dacf-4a03-b2df-2a2b428f78d0', 'EV001', 5, NULL, 'Participant', '2026-01-18 12:23:49'),
+('7edd7406-6d14-4220-b672-57e89f2aeb7f', '2be12144-fab7-4eed-b848-82f438cfa749', 7, NULL, 'Lead', '2026-01-19 07:11:17'),
+('9970caf8-b097-4534-b259-fce0528fb675', '2be12144-fab7-4eed-b848-82f438cfa749', 5, NULL, 'Participant', '2026-01-19 20:59:39'),
 ('EP001', 'EV001', 3, NULL, 'Lead', '2026-01-06 01:34:36');
 
 -- --------------------------------------------------------
@@ -215,7 +211,7 @@ INSERT INTO `phinx_log` (`version`, `migration_name`, `start_time`, `end_time`, 
 (20260106005853, 'CreateEventParticipationTable', '2026-01-06 00:31:30', '2026-01-06 00:31:30', 0),
 (20260116195350, 'RemoveMentorIdFromTeam', '2026-01-16 18:56:22', '2026-01-16 18:56:22', 0),
 (20260116201331, 'CreateLocationTableAndLinkToEvent', '2026-01-16 19:14:32', '2026-01-16 19:14:32', 0),
-(20260119172453, 'CreateTeamMembershipTable', '2026-01-19 16:35:05', '2026-01-19 16:35:05', 0);
+(20260119172453, 'CreateTeamMembershipTable', '2026-01-19 19:35:25', '2026-01-19 19:35:25', 0);
 
 -- --------------------------------------------------------
 
@@ -241,7 +237,9 @@ INSERT INTO `sessions` (`id`, `user_id`, `token_hash`, `user_agent`, `expires_at
 (3, 3, 'cf03c944b95e5f939b263f06f5ab4380ba74103cdcaaec7dd441c9d5c7efa435', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36', '2026-01-07 13:26:31', '2026-01-06 14:26:31', '2026-01-06 14:26:31'),
 (4, 3, '2dd3d5fcefce067ac874feebe7e69687098e18195699305e4ebce26f2635c48c', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36', '2026-01-08 17:33:53', '2026-01-07 18:33:53', '2026-01-07 18:33:53'),
 (5, 4, 'f18d5f461364d137583a548ecdfe1029b9e7c8f98e6342670c0f61fbfca98bcb', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36', '2026-01-15 14:51:38', '2026-01-14 15:51:38', '2026-01-14 15:51:38'),
-(6, 3, '8354b19d595e005634f821fd50b6e6d10e1c7f7448fb32ae61720aa96ac067e7', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36', '2026-01-17 19:46:55', '2026-01-16 20:46:55', '2026-01-16 20:46:55');
+(6, 3, '8354b19d595e005634f821fd50b6e6d10e1c7f7448fb32ae61720aa96ac067e7', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36', '2026-01-17 19:46:55', '2026-01-16 20:46:55', '2026-01-16 20:46:55'),
+(31, 3, '3d02deef9e822de32d47442a581c1b058b2723303cd8a5c69f53119874b8c762', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36', '2026-01-20 22:17:04', '2026-01-19 23:17:04', '2026-01-19 23:17:04'),
+(32, 3, '953b4e3cb3bff39fac8db65a91bd651ab5a904b58c7de121b06753ddae00b3d3', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36', '2026-01-21 22:40:26', '2026-01-20 23:40:26', '2026-01-20 23:40:26');
 
 -- --------------------------------------------------------
 
@@ -380,6 +378,9 @@ CREATE TABLE `team` (
 --
 
 INSERT INTO `team` (`id`, `name`, `description`, `status`, `max_participants`, `min_participants`, `created_at`) VALUES
+('5e78a7b8-c981-4171-a17a-cf17b4eaced8', 'Pekkatori', 'Web Dev study group', 'Searching', 10, 1, '2026-01-19 21:40:11'),
+('97d9045e-8014-4fb4-94a9-926b686192e5', 'Pulgers', 'Describing my values (NaN)', 'Searching', 3, 1, '2026-01-19 21:45:25'),
+('fd284953-edbf-4d2e-8732-8b9a93b9d040', 'I Lohacker', 'Swerc team', 'Searching', 6, 2, '2026-01-19 21:41:09'),
 ('TM001', 'Unibois', 'Team focused on competitive programming', 'Searching', 5, 3, '2026-01-06 01:34:36');
 
 -- --------------------------------------------------------
@@ -391,7 +392,7 @@ INSERT INTO `team` (`id`, `name`, `description`, `status`, `max_participants`, `
 CREATE TABLE `team_membership` (
   `team_id` char(36) COLLATE utf8mb4_unicode_ci NOT NULL,
   `user_id` int UNSIGNED NOT NULL,
-  `role` enum('Lead','Member') COLLATE utf8mb4_unicode_ci NOT NULL,
+  `status` enum('Lead','Member','Pending') COLLATE utf8mb4_unicode_ci NOT NULL,
   `joined_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -399,10 +400,16 @@ CREATE TABLE `team_membership` (
 -- Dump dei dati per la tabella `team_membership`
 --
 
-INSERT INTO `team_membership` (`team_id`, `user_id`, `role`, `joined_at`) VALUES
-('TM001', 3, 'Lead', '2026-01-19 17:37:18'),
-('TM001', 5, 'Member', '2026-01-19 17:39:11'),
-('TM001', 6, 'Member', '2026-01-19 17:37:44');
+INSERT INTO `team_membership` (`team_id`, `user_id`, `status`, `joined_at`) VALUES
+('5e78a7b8-c981-4171-a17a-cf17b4eaced8', 3, 'Lead', '2026-01-19 21:40:11'),
+('5e78a7b8-c981-4171-a17a-cf17b4eaced8', 5, 'Member', '2026-01-19 21:41:18'),
+('97d9045e-8014-4fb4-94a9-926b686192e5', 3, 'Member', '2026-01-19 21:45:47'),
+('97d9045e-8014-4fb4-94a9-926b686192e5', 7, 'Lead', '2026-01-19 21:45:25'),
+('fd284953-edbf-4d2e-8732-8b9a93b9d040', 5, 'Lead', '2026-01-19 21:41:09'),
+('fd284953-edbf-4d2e-8732-8b9a93b9d040', 6, 'Member', '2026-01-19 21:41:36'),
+('TM001', 3, 'Lead', '2026-01-19 20:37:06'),
+('TM001', 5, 'Member', '2026-01-19 20:38:51'),
+('TM001', 6, 'Member', '2026-01-19 21:41:44');
 
 -- --------------------------------------------------------
 
@@ -573,7 +580,7 @@ ALTER TABLE `user_skills`
 -- AUTO_INCREMENT per la tabella `sessions`
 --
 ALTER TABLE `sessions`
-  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=33;
 
 --
 -- AUTO_INCREMENT per la tabella `skills`

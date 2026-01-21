@@ -1,0 +1,9 @@
+/vendor
+/vendor-bin/
+/composer.phar
+/.env
+/.env.local
+/.env.*.local
+/storage/
+/var/
+/tmp/

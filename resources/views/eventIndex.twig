@@ -1,0 +1,278 @@
+{% extends 'layouts/base.twig' %}
+
+{% block title %}Esplora Eventi{% endblock %}
+
+{% block content %}
+<style>
+    /* --- custom per il layout card --- */
+    .hero-section {
+        position: relative;
+        border-radius: 8px;
+        overflow: hidden;
+        background-color: #000;
+        margin-bottom: 3rem;
+    }
+    .hero-img {
+        width: 100%;
+        height: 350px;
+        object-fit: cover;
+        opacity: 0.6;
+    }
+    .hero-overlay {
+        position: absolute;
+        top: 0; left: 0; width: 100%; height: 100%;
+        padding: 2rem;
+        display: flex; flex-direction: column; justify-content: center;
+    }
+
+    /* Card Evento */
+    .event-card {
+        border: 1px solid #dee2e6;
+        border-radius: 12px;
+        transition: transform 0.2s, box-shadow 0.2s;
+        overflow: hidden;
+        background: white;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+    .event-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+    }
+    .card-img-wrapper {
+        height: 100%;
+        min-height: 200px;
+        background-color: #f8f9fa;
+        display: flex; 
+        align-items: center; 
+        justify-content: center;
+    }
+    .card-event-img {
+        width: 100%; 
+        height: 100%; 
+        object-fit: cover;
+    }
+    
+    .event-detail-row {
+        display: flex; 
+        align-items: flex-start; 
+        gap: 10px;
+        margin-bottom: 0.5rem; 
+        color: #555; 
+        font-size: 1.0rem;
+    }
+    .event-detail-row i {
+        margin-top: 3px;
+    }
+    
+    /* Badge stato */
+    .badge-status {
+        font-size: 0.75rem;
+        padding: 0.35em 0.65em;
+        border-radius: 0.25rem;
+        text-transform: uppercase;
+        font-weight: 700;
+    }
+    .status-draft { background-color: #ffc107; color: #000; }
+    .status-active { background-color: #198754; color: #fff; }
+    .status-completed { background-color: #0d6efd; color: #fff; }
+    .status-cancelled { background-color: #dc3545; color: #fff; }
+
+    /* Stile per i bottoni Quick Filter attivi */
+    .btn-check:checked + .btn, .btn.active, .btn.show, .btn:first-child:active, :not(.btn-check)+.btn:active {
+        background-color: var(--bs-primary);
+        color: white;
+        border-color: var(--bs-primary);
+    }
+</style>
+
+<header class="hero-section">
+    <img src="https://images.unsplash.com/photo-1540575467063-178a50c2df87?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" 
+         alt="A crowd applauding at a tech event." 
+         class="hero-img">
+    
+    <div class="hero-overlay text-white">
+        <h1 class="display-4 fw-bold">Manage Your Events</h1>
+        <p class="lead mt-3 fw-normal">Organize, monitor, and grow your community.</p>
+        <div class="mt-4">
+            <a href="/events/create" class="btn btn-primary btn-lg fw-bold">
+                <i class="bi bi-plus-lg me-2" aria-hidden="true"></i>Create New Event
+            </a>
+        </div>
+    </div>
+</header>
+
+<main class="container mb-5">
+    
+    {% if error %}
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i> {{ error }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    {% endif %}
+
+    {% if success %}
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle-fill me-2"></i> {{ success }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    {% endif %}
+
+    <section aria-labelledby="search-heading" class="mb-5 p-4 bg-light rounded shadow-sm border">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2 id="search-heading" class="h5 text-primary fw-bold m-0">
+                <i class="bi bi-sliders me-2"></i>Filter Events
+            </h2>
+            
+            <a href="/events" class="btn btn-sm btn-outline-secondary border-0">
+                <i class="bi bi-x-lg me-1"></i>Clear all
+            </a>
+        </div>
+
+        <form id="filtersForm" action="/events" method="GET">
+            <div class="row g-3">
+                
+                <div class="col-md-4">
+                    <label for="search" class="form-label small fw-bold text-muted">Keyword</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+                        <input type="search" name="q" class="form-control" id="search" 
+                               value="{{ filters.q ?? '' }}" placeholder="Event name...">
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <label for="country" class="form-label small fw-bold text-muted">Country</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-white"><i class="bi bi-geo-alt"></i></span>
+                        <input type="text" name="country" class="form-control" id="country" 
+                               value="{{ filters.country ?? '' }}" placeholder="e.g. Italy">
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <label for="city" class="form-label small fw-bold text-muted">City</label>
+                    <input type="text" name="city" class="form-control" id="city" 
+                           value="{{ filters.city ?? '' }}" placeholder="e.g. Rome">
+                </div>
+
+                <div class="col-md-6">
+                    <label for="status" class="form-label small fw-bold text-muted">Status</label>
+                    <select name="status" id="status" class="form-select">
+                        <option value="" {% if not filters.status %}selected{% endif %}>All Statuses</option>
+                        <option value="Active" {% if filters.status == 'Active' %}selected{% endif %}>Active</option>
+                        <option value="Draft" {% if filters.status == 'Draft' %}selected{% endif %}>Draft</option>
+                        <option value="Completed" {% if filters.status == 'Completed' %}selected{% endif %}>Completed</option>
+                        <option value="Cancelled" {% if filters.status == 'Cancelled' %}selected{% endif %}>Cancelled</option>
+                    </select>
+                </div>
+
+                <div class="col-md-6">
+                    <label for="participationType" class="form-label small fw-bold text-muted">Participation Type</label>
+                    <select name="participationType" id="participationType" class="form-select">
+                        <option value="" {% if not filters.participationType %}selected{% endif %}>All Types</option>
+                        <option value="InPerson" {% if filters.participationType == 'InPerson' %}selected{% endif %}>In Person</option>
+                        <option value="Online" {% if filters.participationType == 'Online' %}selected{% endif %}>Online</option>
+                        <option value="Hybrid" {% if filters.participationType == 'Hybrid' %}selected{% endif %}>Hybrid</option>
+                    </select>
+                </div>
+
+                <div class="col-md-4">
+                    <label for="startDate" class="form-label small fw-bold text-muted">Starts After</label>
+                    <input type="date" name="startDate" class="form-control" id="startDate" 
+                           value="{{ filters.startDate ?? '' }}">
+                </div>
+
+                <div class="col-md-4">
+                    <label for="endDate" class="form-label small fw-bold text-muted">Ends Before</label>
+                    <input type="date" name="endDate" class="form-control" id="endDate" 
+                           value="{{ filters.endDate ?? '' }}">
+                </div>
+
+                <div class="col-md-4">
+                    <label for="regDeadline" class="form-label small fw-bold text-muted">Registration Deadline</label>
+                    <input type="date" name="registrationDeadline" class="form-control" id="regDeadline" 
+                           value="{{ filters.registrationDeadline ?? '' }}">
+                </div>
+
+                <div class="col-12 mt-4 text-end">
+                    <button type="submit" class="btn btn-primary px-5 fw-bold">
+                        <i class="bi bi-filter me-2"></i>Apply Filters
+                    </button>
+                </div>
+            </div>
+        </form>
+    </section>
+
+    {# --- Preset Filters --- #}
+    <section aria-label="Quick Filters" class="mb-5">
+        <h3 class="h6 text-muted fw-bold mb-3 text-uppercase small">Quick Filters</h3>
+        <div class="d-flex flex-wrap gap-2">
+            
+            {% if currentUser %}
+                <a href="/events?preset=my_upcoming" 
+                   class="btn btn-primary rounded-pill {% if filters.preset == 'my_upcoming' %}active{% endif %}">
+                    <i class="bi bi-calendar-check me-2"></i>Your Upcoming Events
+                </a>
+
+                {# Hosted events: created by the user #}
+                <a href="/events?preset=hosted" 
+                   class="btn btn-warning rounded-pill {% if filters.preset == 'hosted' %}active{% endif %}">
+                    <i class="bi bi-person-workspace me-2"></i>Hosted Events
+                </a>
+            {% endif %}
+
+            {# Trending events: highest number of participants #}
+            <a href="/events?preset=trending" 
+               class="btn btn-success rounded-pill {% if filters.preset == 'trending' %}active{% endif %}">
+                <i class="bi bi-graph-up-arrow me-2"></i>Trending Events
+            </a>
+
+            {# Upcoming events: backend logic (registration date < today) #}
+            <a href="/events?preset=upcoming" 
+               class="btn btn-danger rounded-pill {% if filters.preset == 'upcoming' %}active{% endif %}">
+                <i class="bi bi-hourglass-split me-2"></i>Upcoming Events
+            </a>
+
+            {# Past events: backend logic (registration date > today) #}
+            <a href="/events?preset=past" 
+               class="btn btn-dark rounded-pill {% if filters.preset == 'past' %}active{% endif %}">
+                <i class="bi bi-clock-history me-2"></i>Past Events
+            </a>
+
+        </div>
+    </section>
+
+    <section id="eventsContainer" aria-label="Events List">
+        {% include "partials/eventsList.twig" with { events: events } %}
+    </section>
+</main>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.getElementById('filtersForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+
+    const formData = new FormData(this);
+    const params = new URLSearchParams();
+
+    for (const [key, value] of formData.entries()) {
+        if (value) params.append(key, value);
+    }
+
+    fetch('/events?' + params.toString(), {
+        method: 'GET',
+        headers: {
+            'Accept': 'text/html',
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(res => res.text())
+    .then(html => {
+        document.getElementById('eventsContainer').innerHTML = html;
+    });
+});
+
+</script>
+
+{% endblock %}

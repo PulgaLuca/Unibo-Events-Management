@@ -1,0 +1,163 @@
+{% extends 'layouts/base.twig' %}
+
+{% block title %}How It Works - MatchSkills{% endblock %}
+
+{% block content %}
+    {# HERO SECTION #}
+    <div class="position-relative text-white overflow-hidden rounded-3 mb-5" style="background-color: var(--color-primary);">
+        <img src="/assets/images/events/event-main.jpg"
+             id="main-event-image"
+             alt="" 
+             role="presentation"
+             class="w-100 object-fit-cover" 
+             style="height: 400px; filter: brightness(0.4);">
+        
+        <div class="position-relative p-5 text-center">
+            <h1 class="display-4 fw-bold mb-3">Discover MatchSkills</h1>
+            <p class="lead mx-auto" style="max-width: 700px;">
+                MatchSkills is designed to help you find the right people, 
+                collaborate effectively, and showcase your skills within the university.
+            </p>
+        </div>
+    </div>
+
+    <main class="container mb-5">
+        
+        <div class="row g-4 row-cols-1 row-cols-md-2 row-cols-lg-3">
+            
+            {# STEP 1: Profile #}
+            <div class="col">
+                <div class="card h-100 border-0 shadow-sm hover-shadow transition-all">
+                    <div class="card-body p-4 text-center">
+                        <div class="d-inline-flex align-items-center justify-content-center bg-primary bg-opacity-10 text-primary rounded-circle mb-3" style="width: 80px; height: 80px;">
+                            <i class="bi bi-person-lines-fill display-5"></i>
+                        </div>
+                        <h5 class="fw-bold mb-3">1. Create Your Profile</h5>
+                        <p class="text-muted small mb-3">Your profile is the heart of MatchSkills.</p>
+                        <ul class="list-unstyled text-start small text-secondary">
+                            <li class="mb-2"><i class="bi bi-check2 text-primary me-2"></i>Technical skills (languages, technologies)</li>
+                            <li class="mb-2"><i class="bi bi-check2 text-primary me-2"></i>Soft skills (teamwork, leadership)</li>
+                            <li class="mb-2"><i class="bi bi-check2 text-primary me-2"></i>Goals and availability</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            {# STEP 2: Matchmaking #}
+            <div class="col">
+                <div class="card h-100 border-0 shadow-sm hover-shadow transition-all">
+                    <div class="card-body p-4 text-center">
+                        <div class="d-inline-flex align-items-center justify-content-center bg-info bg-opacity-10 text-info rounded-circle mb-3" style="width: 80px; height: 80px;">
+                            <i class="bi bi-magic display-5"></i>
+                        </div>
+                        <h5 class="fw-bold mb-3">2. Smart Matchmaking</h5>
+                        <p class="text-muted small mb-3">The system suggests connections based on skills and goals.</p>
+                        <ul class="list-unstyled text-start small text-secondary">
+                            <li class="mb-2"><i class="bi bi-people text-info me-2"></i>Students with complementary skills</li>
+                            <li class="mb-2"><i class="bi bi-search text-info me-2"></i>Compatible study groups</li>
+                            <li class="mb-2"><i class="bi bi-lightbulb text-info me-2"></i>Project partners</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            {# STEP 3: Groups and Teams #}
+            <div class="col">
+                <div class="card h-100 border-0 shadow-sm hover-shadow transition-all">
+                    <div class="card-body p-4 text-center">
+                        <div class="d-inline-flex align-items-center justify-content-center bg-warning bg-opacity-10 text-warning rounded-circle mb-3" style="width: 80px; height: 80px;">
+                            <i class="bi bi-collection-fill display-5"></i>
+                        </div>
+                        <h5 class="fw-bold mb-3">3. Join Groups</h5>
+                        <p class="text-muted small mb-3">Create or find teams for study, projects, or hackathons.</p>
+                        <ul class="list-unstyled text-start small text-secondary">
+                            <li class="mb-2">Clear description and required skills</li>
+                            <li class="mb-2">Min/max number of participants</li>
+                            <li class="mb-2">Status (Recruiting, Full)</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            {# STEP 4: Internal Events #}
+            <div class="col">
+                <div class="card h-100 border-0 shadow-sm hover-shadow transition-all">
+                    <div class="card-body p-4 text-center">
+                        <div class="d-inline-flex align-items-center justify-content-center bg-danger bg-opacity-10 text-danger rounded-circle mb-3" style="width: 80px; height: 80px;">
+                            <i class="bi bi-calendar2-event display-5"></i>
+                        </div>
+                        <h5 class="fw-bold mb-3">4. Internal Events</h5>
+                        <p class="text-muted small mb-3">Take part in university community activities.</p>
+                        <div class="d-flex flex-wrap gap-2 justify-content-center mb-3">
+                            <span class="badge bg-light text-secondary border">Coding Challenge</span>
+                            <span class="badge bg-light text-secondary border">Workshop</span>
+                            <span class="badge bg-light text-secondary border">Mini Hackathon</span>
+                        </div>
+                        <p class="small text-muted">
+                            Filter events by skills, topic, and difficulty.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            {# STEP 5: External Events #}
+            <div class="col">
+                <div class="card h-100 border-0 shadow-sm hover-shadow transition-all">
+                    <div class="card-body p-4 text-center">
+                        <div class="d-inline-flex align-items-center justify-content-center bg-success bg-opacity-10 text-success rounded-circle mb-3" style="width: 80px; height: 80px;">
+                            <i class="bi bi-globe-americas display-5"></i>
+                        </div>
+                        <h5 class="fw-bold mb-3">5. External Competitions</h5>
+                        <p class="text-muted small mb-3">Take your skills beyond the university.</p>
+                        <ul class="list-unstyled text-start small text-secondary">
+                            <li class="mb-2"><i class="bi bi-trophy text-success me-2"></i>Explore national and international contests</li>
+                            <li class="mb-2"><i class="bi bi-flag text-success me-2"></i>Declare your intention to participate</li>
+                            <li class="mb-2"><i class="bi bi-person-plus text-success me-2"></i>Find teammates</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            {# STEP 6: Growth #}
+            <div class="col">
+                <div class="card h-100 border-0 shadow-sm hover-shadow transition-all">
+                    <div class="card-body p-4 text-center">
+                        <div class="d-inline-flex align-items-center justify-content-center bg-indigo bg-opacity-10 text-indigo rounded-circle mb-3" style="width: 80px; height: 80px; color: #6610f2;">
+                            <i class="bi bi-graph-up-arrow display-5"></i>
+                        </div>
+                        <h5 class="fw-bold mb-3">6. Collaborate and Grow</h5>
+                        <p class="text-muted small mb-3">Turn studying into active collaboration.</p>
+                        <ul class="list-unstyled text-start small text-secondary">
+                            <li class="mb-2"><i class="bi bi-star text-dark me-2"></i>Collaborate with like-minded students</li>
+                            <li class="mb-2"><i class="bi bi-star text-dark me-2"></i>Develop practical skills</li>
+                            <li class="mb-2"><i class="bi bi-star text-dark me-2"></i>Build real-world experience</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-5">
+            <div class="col-12">
+                <div class="bg-light rounded-4 p-5 text-center border">
+                    <h2 class="fw-bold mb-3">Start Your Journey Now</h2>
+                    <p class="lead text-muted mb-4">
+                        Join the community, complete your profile, and discover new growth opportunities.
+                    </p>
+                    <div class="d-flex justify-content-center gap-3">
+                        <a href="/register" class="btn btn-primary btn-lg px-5 rounded-pill fw-bold">
+                            Create Profile
+                        </a>
+                        <a href="/events" class="btn btn-outline-secondary btn-lg px-5 rounded-pill">
+                            Explore Events
+                        </a>
+                    </div>
+                    <p class="small text-muted mt-4 mb-0">
+                        MatchSkills – From skills to connections.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+    </main>
+{% endblock %}

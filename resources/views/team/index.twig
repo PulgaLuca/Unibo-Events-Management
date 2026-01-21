@@ -1,0 +1,155 @@
+{% extends 'layouts/base.twig' %}
+
+{% block title %}Teams{% endblock %}
+
+{% block content %}
+<style>
+    .hero-section {
+        position: relative;
+        border-radius: 8px;
+        overflow: hidden;
+        background-color: #000;
+        margin-bottom: 3rem;
+    }
+    .hero-img {
+        width: 100%;
+        height: 300px;
+        object-fit: cover;
+        opacity: 0.6;
+    }
+    .hero-overlay {
+        position: absolute;
+        top: 0; left: 0; width: 100%; height: 100%;
+        padding: 2rem;
+        display: flex; flex-direction: column; justify-content: center;
+    }
+
+    .team-card {
+        border: 1px solid #dee2e6;
+        border-radius: 12px;
+        transition: transform 0.2s, box-shadow 0.2s;
+        overflow: hidden;
+        background: white;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        height: 100%;
+        margin-bottom: 1rem;
+    }
+    .team-card .card-body {
+        padding: 1.5rem;
+    }
+    .team-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+    }
+
+    .badge-status {
+        font-size: 0.75rem;
+        padding: 0.35em 0.65em;
+        border-radius: 0.25rem;
+        text-transform: uppercase;
+        font-weight: 700;
+    }
+    .status-searching { background-color: #198754; color: #fff; }
+    .status-full { background-color: #ffc107; color: #000; }
+    .status-inactive { background-color: #6c757d; color: #fff; }
+</style>
+
+<header class="hero-section">
+    <img src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" 
+         alt="Team collaboration" 
+         class="hero-img">
+    
+    <div class="hero-overlay text-white">
+        <h1 class="display-4 fw-bold">Explore Teams</h1>
+        <p class="lead mt-3 fw-normal">Find your perfect team or create your own.</p>
+        <div class="mt-4">
+            <a href="/teams/create" class="btn btn-primary btn-lg fw-bold">
+                <i class="bi bi-plus-lg me-2"></i>Create New Team
+            </a>
+            <a href="/teams/my-teams" class="btn btn-outline-light btn-lg fw-bold ms-2">
+                <i class="bi bi-people me-2"></i>My Teams
+            </a>
+        </div>
+    </div>
+</header>
+
+{% if error %}
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-octagon-fill me-2"></i>
+        <strong>Error:</strong> {{ error }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+{% endif %}
+
+{% if success %}
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle-fill me-2"></i>
+        {{ success }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+{% endif %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="h4 mb-0">All Teams</h2>
+        <p class="text-muted mb-0">{{ teams|length }} team(s) found</p>
+    </div>
+    <div class="btn-group" role="group">
+        <a href="/teams" class="btn btn-outline-primary {% if not showOnlySearching %}active{% endif %}">
+            <i class="bi bi-grid-3x3-gap me-2"></i>All Teams
+        </a>
+        <a href="/teams?searching=1" class="btn btn-outline-primary {% if showOnlySearching %}active{% endif %}">
+            <i class="bi bi-search me-2"></i>Searching
+        </a>
+    </div>
+</div>
+
+<div class="row g-4">
+    {% if teams is empty %}
+        <div class="col-12">
+            <div class="alert alert-info">
+                <i class="bi bi-info-circle me-2"></i>
+                No teams found. Be the first to create one!
+            </div>
+        </div>
+    {% else %}
+        {% for team in teams %}
+            <div class="col-md-6 col-lg-4">
+                <div class="team-card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <h5 class="card-title mb-0">
+                                <a href="/teams/{{ team.id }}" class="text-decoration-none text-dark">
+                                    {{ team.name }}
+                                </a>
+                            </h5>
+                            <span class="badge badge-status status-{{ team.status|lower }}">
+                                {{ team.status }}
+                            </span>
+                        </div>
+
+                        {% if team.description %}
+                            <p class="card-text text-muted mb-3">
+                                {{ team.description|length > 100 ? team.description|slice(0, 100) ~ '...' : team.description }}
+                            </p>
+                        {% else %}
+                            <p class="card-text text-muted mb-3 fst-italic">No description</p>
+                        {% endif %}
+
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="text-muted small">
+                                <i class="bi bi-people me-1"></i>
+                                <span>{{ team.member_count|default(0) }}/{{ team.max_participants }}</span>
+                            </div>
+                            <a href="/teams/{{ team.id }}" class="btn btn-sm btn-outline-primary">
+                                View Details <i class="bi bi-arrow-right ms-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    {% endif %}
+</div>
+
+{% endblock %}

@@ -1,0 +1,77 @@
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap");
+
+:root {
+  --color-primary: #0757A9;
+  --color-primary-contrast: #ffffff;
+  --color-primary-light: #59a9ff;
+  --color-accent: #fff7d6;
+  --color-text: #0f172a;
+  /* Bootstrap variable alignment */
+  --bs-primary: var(--color-primary);
+  --bs-link-color: var(--color-primary);
+  --bs-link-hover-color: var(--color-primary-light);
+  --bs-body-bg: var(--color-surface);
+  --bs-body-color: var(--color-text);
+  --bs-body-font-family: "Montserrat", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Helvetica Neue", Arial, sans-serif;
+}
+
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  margin: 0;
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-family: var(--bs-body-font-family);
+  line-height: 1.5;
+  display: flex;
+  flex-direction: column;
+}
+
+main {
+  flex: 1 0 auto;
+}
+
+a { color: var(--color-primary); text-decoration: none; }
+a:hover { color: var(--color-primary-light); text-decoration: underline; }
+:focus-visible { outline: 2px solid var(--color-primary-light); outline-offset: 2px; }
+
+.container { max-width: 1100px; margin: 0 auto; padding: 0 1rem; }
+
+/* Nav */
+.navbar { position: sticky; top: 0; z-index: 50; box-shadow: 0 2px 8px rgba(0,0,0,.08); }
+.navbar-dark .navbar-nav .nav-link { color: var(--color-primary-contrast); }
+.navbar-dark .navbar-nav .nav-link:hover { color: var(--color-primary-contrast); background: rgba(255,255,255,.12); border-radius: .375rem; }
+.navbar-dark .navbar-nav .dropdown-toggle::after { border-top-color: var(--color-primary-contrast); }
+.navbar-dark .navbar-nav .dropdown-toggle:hover::after { border-top-color: var(--color-primary-contrast); }
+.dropdown-menu { background-color: #ffffff; border: 1px solid rgba(0,0,0,.1); box-shadow: 0 4px 12px rgba(0,0,0,.15); }
+.dropdown-item { color: var(--color-text); }
+.dropdown-item:hover, .dropdown-item:focus { background-color: var(--color-accent); color: var(--color-text); }
+.dropdown-divider { border-color: rgba(0,0,0,.1); }
+
+/* Footer */
+.site-footer { color: var(--color-text); margin-top: auto; flex-shrink: 0; }
+
+/* Helpers */
+/* Buttons (Bootstrap override) */
+.btn-primary { background-color: var(--color-primary); border-color: var(--color-primary); }
+.btn-primary:hover, .btn-primary:focus { background-color: var(--color-primary-light); border-color: var(--color-primary-light); }
+
+.card { background: #ffffff; border: 1px solid rgba(0,0,0,.06); border-radius: .75rem; box-shadow: 0 4px 10px rgba(0,0,0,.04); }
+
+.navbar-logo {
+    height: 50px; 
+    width: auto;
+    margin-right: 12px;
+    transition: transform 0.2s ease-in-out;
+}
+
+.navbar-logo:hover {
+    transform: scale(1.05);
+}
+
+.navbar-brand {
+    display: flex;
+    align-items: center;
+    padding-top: 5px;
+    padding-bottom: 5px;
+}

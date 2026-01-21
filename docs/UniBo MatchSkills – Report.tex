@@ -1,0 +1,102 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage[italian]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{geometry}
+\usepackage{hyperref}
+
+\geometry{margin=2.5cm}
+
+\title{\textbf{Design e Progettazione}\\
+Elaborato Tecnologie Web 25/26}
+\author{Casali Marco \\ Mancini Nicolas \\ Pulga Luca}
+\date{22/01/2026}
+
+\begin{document}
+
+\maketitle
+
+\begin{center}
+\textbf{Unibo MatchSkills}
+\end{center}
+
+\newpage
+\tableofcontents
+\newpage
+
+
+\section{Introduzione e problema}
+
+Nel contesto universitario e accademico, la collaborazione tra studenti rappresenta un elemento fondamentale per il successo formativo e professionale. Tuttavia, la creazione di gruppi di studio efficaci o di team per progetti, competizioni e hackathon risulta spesso complessa. Le principali difficoltà risiedono nella ricerca di compagni con competenze adeguate, nella gestione delle diverse disponibilità temporali e nell’allineamento sugli obiettivi comuni.
+
+Queste problematiche non si limitano al solo ambito universitario, ma si estendono anche ad altre istituzioni scolastiche secondarie, dove manca spesso uno strumento strutturato in grado di facilitare la collaborazione e la condivisione delle competenze.
+
+\section{User Personas e Scenarios}
+
+Per comprendere in modo approfondito le esigenze degli utenti e i diversi contesti di utilizzo della piattaforma, sono state definite specifiche User Personas e relativi Scenarios. Questo lavoro ha permesso di individuare i principali profili di studenti, le loro motivazioni e le modalità con cui interagiscono con il sistema.
+
+La documentazione completa è disponibile all’interno del repository nel file:\\
+\texttt{Unibo-Events-Management/docs/UniBo MatchSkills - User Personas e Scenarios.pdf}.
+
+\section{Soluzione proposta}
+
+La soluzione individuata è la realizzazione di una piattaforma web denominata \textbf{Unibo MatchSkills}. Il sistema è pensato principalmente per supportare gli studenti dell’Università di Bologna, ma è progettato in modo sufficientemente flessibile da poter essere adottato anche da altre istituzioni scolastiche.
+
+L’obiettivo della piattaforma è facilitare la creazione di connessioni collaborative efficaci, favorendo la nascita di gruppi di studio, team di progetto e squadre per la partecipazione a competizioni e hackathon. Unibo MatchSkills nasce quindi dall’esigenza di superare le difficoltà tipiche della collaborazione accademica, offrendo un ambiente digitale centralizzato e strutturato.
+
+In una futura evoluzione del sistema, non ancora disponibile nella prima release, è prevista l’integrazione di un sistema di matchmaking intelligente. Tale strumento sarà in grado di analizzare i profili degli studenti e suggerire connessioni ottimali sulla base di competenze tecniche, soft skill e disponibilità temporali.
+
+Oltre alle funzionalità di matchmaking, la piattaforma consente agli utenti di creare e promuovere eventi interni, come coding challenge, workshop tra studenti o sessioni di studio collaborative. Inoltre, permette la creazione di team dedicati alla partecipazione a eventi sia interni che esterni e offre la possibilità di dichiarare l’intenzione di partecipare a un evento, facilitando la ricerca attiva di nuovi membri.
+
+Unibo MatchSkills si configura quindi come un vero e proprio hub collaborativo, capace di incentivare la crescita delle competenze, la partecipazione attiva alla vita accademica e lo sviluppo di esperienze pratiche e competitive, fondamentali per il percorso formativo e professionale degli studenti.
+
+\section{Casi d’Uso}
+
+Le funzionalità della piattaforma sono state modellate attraverso una serie di casi d’uso, che descrivono le principali interazioni tra gli utenti e il sistema. I diagrammi dei casi d’uso sono disponibili online e all’interno del repository di progetto.
+
+In particolare, è possibile consultare il diagramma completo al seguente link:\\
+\url{https://lucid.app/lucidchart/b53577fd-765b-4d06-9503-2e2527c6091d}.
+
+Il documento PDF è inoltre disponibile nel file:\\
+\texttt{Unibo-Events-Management/docs/UniBo MatchSkills – Use Cases.pdf}.
+
+\section{Design e Interfaccia Utente (UX/UI)}
+
+La progettazione dell’interfaccia utente ha seguito principi di semplicità, coerenza visiva e accessibilità. Per quanto riguarda la scelta cromatica, è stata adottata una palette ispirata a Virtuale Unibo, in modo da mantenere una coerenza visiva con l’identità grafica istituzionale.
+
+Il font selezionato è \textbf{Montserrat}, scelto per le sue caratteristiche di leggibilità e per il buon livello di accessibilità su diversi dispositivi. Le icone utilizzate provengono dal \textit{Material Design System}, garantendo uno stile moderno e riconoscibile.
+
+Un aspetto centrale del processo di design è stato l’approccio \textit{mobile-first}. Per supportare il principio di \textit{progressive enhancement}, il design è stato inizialmente pensato per dispositivi mobili, utilizzando come riferimento uno smartphone con schermo di dimensioni ridotte, nello specifico l’iPhone SE. Successivamente, l’interfaccia è stata adattata a schermi di dimensioni maggiori.
+
+I mockup dell’applicazione sono disponibili nel file:\\
+\texttt{Unibo-Events-Management/docs/Unibo-MatchSkills.fig}.
+
+\section{Progettazione del Database}
+
+La progettazione del database è stata realizzata con l’obiettivo di supportare in modo efficiente la gestione degli utenti, dei ruoli, dei gruppi, degli eventi e delle competenze. La struttura dati è pensata per garantire flessibilità e scalabilità, permettendo future estensioni della piattaforma, in particolare in relazione al sistema di matchmaking.
+
+\section{Funzionalità principali}
+
+All’interno di Unibo MatchSkills, gli utenti assumono ruoli diversi in base alle attività svolte e al contesto di utilizzo. Lo studente rappresenta l’utente principale del sistema e può ricoprire più ruoli contemporaneamente o in momenti differenti della sua esperienza sulla piattaforma.
+
+Quando uno studente crea un evento interno, fonda un gruppo di studio o avvia un team di progetto, assume il ruolo di \textit{Lead}. In questo caso è responsabile dell’organizzazione delle attività, della descrizione dell’evento o del gruppo e della gestione dei partecipanti. Al contrario, quando prende parte a eventi o team creati da altri utenti, lo studente assume il ruolo di \textit{Participant}.
+
+Ogni studente dispone di un profilo personale strutturato e personalizzabile, che costituisce la base del sistema di matchmaking. Il profilo include informazioni relative alle competenze tecniche, come linguaggi di programmazione, framework e strumenti utilizzati, oltre alle soft skill, tra cui lavoro di squadra, comunicazione, leadership e problem solving.
+
+La piattaforma consente inoltre la creazione di diversi tipi di gruppi collaborativi, come gruppi di studio, team per progetti accademici o team dedicati alla partecipazione a eventi esterni. Ogni gruppo è caratterizzato da un creatore, da un insieme di membri e da uno stato che indica se il gruppo è in fase di ricerca di nuovi partecipanti, completo o inattivo.
+
+Unibo MatchSkills permette anche l’organizzazione e la promozione di eventi interni all’istituzione, quali mini hackathon, coding challenge, workshop tra pari e sessioni di studio collaborative. Ogni evento include una descrizione dettagliata, informazioni temporali e logistiche, eventuali competenze richieste e tag tematici per facilitarne la ricerca e la raccomandazione.
+
+Per quanto riguarda gli eventi esterni, come hackathon e competizioni, la piattaforma consente agli studenti di cercare opportunità provenienti da piattaforme dedicate o inserite manualmente. Gli utenti possono dichiarare la propria intenzione di partecipare e utilizzare il sistema per trovare altri studenti con cui completare il team.
+
+\section{Pannello admin}
+
+È previsto un pannello di amministrazione dedicato agli utenti con ruolo di admin. Attraverso questo pannello è possibile moderare gruppi ed eventi, gestire il sistema di competenze e generare statistiche e report sull’utilizzo della piattaforma. Questi strumenti risultano fondamentali per monitorare l’andamento del sistema e supportarne il miglioramento continuo.
+
+\section{Futura integrazione: matchmaking intelligente}
+
+Il cuore evolutivo della piattaforma è rappresentato dal sistema di matchmaking intelligente. Tale sistema è progettato per suggerire connessioni rilevanti tra studenti, gruppi ed eventi, favorendo la creazione di collaborazioni efficaci.
+
+Il meccanismo di raccomandazione potrà includere il calcolo di un punteggio di compatibilità basato su competenze, obiettivi formativi e disponibilità, oltre all’utilizzo di tecniche di intelligenza artificiale e all’analisi delle interazioni precedenti degli utenti sulla piattaforma.
+
+\end{document}
